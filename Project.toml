@@ -2,3 +2,6 @@ name = "NFFT3"
 uuid = "53104703-03e8-40a5-ab01-812303a44cae"
 authors = ["mischmi96 <michael.schmischke@math.tu-chemnitz.de>"]
 version = "1.0.0"
+
+[compat]
+julia = ">=1.0"
