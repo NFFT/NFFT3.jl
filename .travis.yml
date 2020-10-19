@@ -2,8 +2,6 @@ language: julia
 os:
   - linux
   - windows
-  - osx
-osx_image: xcode12.2
 julia:
   - 1.2
   - 1.5
