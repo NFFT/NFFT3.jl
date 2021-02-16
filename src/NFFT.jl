@@ -4,7 +4,7 @@ mutable struct nfft_plan end
 @doc raw"""
     NFFT{D}
 
-Create a NFFT plan, where D is the dimension.
+Create a NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension.
 
 ## Fields
 * `N` the bandwith tuple.
@@ -22,6 +22,13 @@ Create a NFFT plan, where D is the dimension.
 
 # Constructor
     NFFT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where D
+
+# See also
+
+[^HuangAbsilGallivan2018]:
+    > Huang, Wen and Absil, P.-A and Gallivan, Kyle, A Riemannian BFGS Method Without Differentiated Retraction for Nonconvex Optimization Problems,
+    > SIAM J. Optim., 28 (2018), pp. 470-495.
+    > doi: [10.1137/17M1127582](https://doi.org/10.1137/17M1127582)
 """
 # NFFT plan struct
 mutable struct NFFT{D}
@@ -59,6 +66,7 @@ creates the NFFT plan structure more convinient.
 * `N` – a bandwith touple.
 * `M` – the number of nodes.
 
+# Output 
 """
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
 function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
@@ -96,6 +104,13 @@ end
 @doc raw"""
     NFFT(N,M,n,m,f1,f2)
 
+creates the NFFT plan structure more convinient.
+
+# Input
+* `N` – a bandwith touple.
+* `M` – the number of nodes.
+
+# Output 
 """
 function NFFT(
     N::NTuple{D,Integer},
