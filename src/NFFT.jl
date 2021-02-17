@@ -4,7 +4,15 @@ mutable struct nfft_plan end
 @doc raw"""
     NFFT{D}
 
-Create a NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension.
+Create a NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension. The NFFT plan structure is the core of the NFFT Julia interface. 
+
+The NFFT overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a D-dimensional trigonometric polynomial
+
+```math
+
+```
+
+with an index set ``I_n`` where ``I_n`` is the multibandlimit, the NDFT (non uniform discrete fourier transform) is its evaluation at M ∈ N nonequispaced points xj ∈ Td for j = 0, 1, . . . , M
 
 ## Fields
 * `N` the bandwith tuple.
@@ -25,10 +33,14 @@ Create a NFFT (nonequispaced fast Fourier transform) plan, where D is the dimens
 
 # See also
 
-[^HuangAbsilGallivan2018]:
-    > Huang, Wen and Absil, P.-A and Gallivan, Kyle, A Riemannian BFGS Method Without Differentiated Retraction for Nonconvex Optimization Problems,
-    > SIAM J. Optim., 28 (2018), pp. 470-495.
-    > doi: [10.1137/17M1127582](https://doi.org/10.1137/17M1127582)
+[^Schmischke2018]:
+    > Schmischke, Michael, Nonequispaced Fast Fourier Transform (NFFT) Interface for Julia.
+    > 2018
+    > url: https://arxiv.org/abs/1810.09891
+
+[^PlonkaPottsSteidelTasche2018]:
+    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred, Numerical Fourier Analysis
+    > 2018
 """
 # NFFT plan struct
 mutable struct NFFT{D}
@@ -67,6 +79,11 @@ creates the NFFT plan structure more convinient.
 * `M` – the number of nodes.
 
 # Output 
+
+
+
+# See also
+[`NFFT{D}`](@ref)
 """
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
 function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
