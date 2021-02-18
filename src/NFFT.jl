@@ -9,23 +9,35 @@ Create a NFFT (nonequispaced fast Fourier transform) plan, where D is the dimens
 The NFFT overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a D-dimensional trigonometric polynomial
 
 ```math
-
+f \colon \mathbb{T}^D \to \mathbb{C}, \; f(x) \colon = \sum_{k \in I_{N}} \hat{f}_k e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x}}
 ```
 
-with an index set ``I_n`` where ``I_n`` is the multibandlimit, the NDFT (non uniform discrete fourier transform) is its evaluation at M ∈ N nonequispaced points xj ∈ Td for j = 0, 1, . . . , M
+with an index set ``I_N \colon = \{ k \in \mathbb{Z}^{D} \colon - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1, \, i = 0, \cdots, D-1 \}`` where ``N \in 2 \mathbb{N}^{D}`` is the multibandlimit, the NDFT (non uniform discrete fourier transform) is its evaluation at ``M \in 2 \mathbb{N}`` nonequispaced points ``x_j \in \mathbb{T}^D`` for ``j = 0, 1, \cdots, M``,
+
+```math
+f(x_j) \colon = \sum_{k \in I_{N}} \hat{f}_k e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}
+```
+
+with given coefficients ``\hat{f}_k \in \mathbb{C}`` where we identify the smooth manifold of the torus ``\mathbb{T}`` with ``[−1/2, 1/2)``. The NFFT is an algorithm for the fast evaluation of the sum above and the adjoint problem, the fast evaluation of
+
+```math
+\hat{h}_k \colon = \sum^{M-1}_{j = 0} f_j e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}, \; k \in I_N
+```
+
+for given coefficients ``f_j \in \mathbb{C}``.
 
 ## Fields
-* `N` the bandwith tuple.
-* `M` the number of nodes.
-* `n` the oversampling per dimension.
-* `m` the windows size.
-* `f1` the NFFT flags.
-* `f2` the FFTW flags.
-* `init_done` indicates if the plan is initialized.
-* `finalized` indicates if the plan is finalized.
-* `x` the nodes.
-* `f` the function values.
-* `fhat` the Fourier coefficients.
+* `N` -  the multibandlimit of the trigonometric polynomial f.
+* `M` - the number of nodes.
+* `n` - the oversampling per dimension.
+* `m` - the windows size.
+* `f1` - the NFFT flags.
+* `f2` - the FFTW flags.
+* `init_done` - indicates if the plan is initialized.
+* `finalized` - indicates if the plan is finalized.
+* `x` - the nodes.
+* `f` - the function values.
+* `fhat` - the Fourier coefficients.
 * `plan`
 
 # Constructor
