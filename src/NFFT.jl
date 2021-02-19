@@ -4,27 +4,42 @@ mutable struct nfft_plan end
 @doc raw"""
     NFFT{D}
 
-Create a NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension. The NFFT plan structure is the core of the NFFT Julia interface. 
+A NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension. The NFFT plan structure is the core of the NFFT Julia interface. 
 
-The NFFT overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a D-dimensional trigonometric polynomial
+The classic FFT (Fast Fourier transform) algorithm computes the discrete Fourier transform
+
+```math
+f_j \colon = \sum^{\frac{N}{2} - 1}_{k = - \frac{N}{2}} \hat{f}_k e^{-2 \pi \mathrm{i} \frac{k_j}{N}}
+```
+
+for ``j = - \frac{N}{2}, \dots, \frac{N}{2} - 1`` and given complex coefficients ``\hat{f}_{k} \in \mathbb{C}``. Using a divide and conquer approach, the number of floating point operations is reduced from ``\mathcal {O}(N^2)`` for a straightforward computation to only ``\mathcal {O}(N \log N)``. 
+However, two shortcomings of traditional schemes are the need for equispaced sampling and the restriction to the system of complex exponential functions. The NFFT overcomes the need for an equispaced sampling grid. Considering a D-dimensional trigonometric polynomial
 
 ```math
 f \colon \mathbb{T}^D \to \mathbb{C}, \; f(x) \colon = \sum_{k \in I_{N}} \hat{f}_k e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x}}
 ```
 
-with an index set ``I_N \colon = \{ k \in \mathbb{Z}^{D} \colon - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1, \, i = 0, \cdots, D-1 \}`` where ``N \in 2 \mathbb{N}^{D}`` is the multibandlimit, the NDFT (non uniform discrete fourier transform) is its evaluation at ``M \in 2 \mathbb{N}`` nonequispaced points ``x_j \in \mathbb{T}^D`` for ``j = 0, 1, \cdots, M``,
+with an index set ``I_N \colon = \{ k \in \mathbb{Z}^{D} \colon - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1, \, i = 0, \cdots, D-1 \}`` where ``N \in 2 \mathbb{N}^{D}`` is the multibandlimit. 
+The NDFT (non uniform discrete fourier transform) is its evaluation at ``M \in 2 \mathbb{N}`` nonequispaced points ``x_j \in \mathbb{T}^D`` for ``j = 0, 1, \cdots, M``,
 
 ```math
 f(x_j) \colon = \sum_{k \in I_{N}} \hat{f}_k e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}
 ```
 
-with given coefficients ``\hat{f}_k \in \mathbb{C}`` where we identify the smooth manifold of the torus ``\mathbb{T}`` with ``[−1/2, 1/2)``. The NFFT is an algorithm for the fast evaluation of the sum above and the adjoint problem, the fast evaluation of
+with given coefficients ``\hat{f}_k \in \mathbb{C}`` where we identify the smooth manifold of the torus ``\mathbb{T}`` with ``[−1/2, 1/2)``. The NFFT is an algorithm for the fast evaluation of the NDFT and the adjoint problem, the fast evaluation of the adjoint NDFT
 
 ```math
 \hat{h}_k \colon = \sum^{M-1}_{j = 0} f_j e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}, \; k \in I_N
 ```
 
-for given coefficients ``f_j \in \mathbb{C}``.
+for given coefficients ``f_j \in \mathbb{C}``. In general, the adjoint NDFT is not the inverse transform of the NDFT.
+The available NFFT3 library [^KeinerKunisPotts] provides C routines for the NFFT (for computing the NDFT in one or more dimensions, of arbitrary input size, and of complex data), applications such as the fast evaluation of sums
+
+```math
+g(y_j) \colon = \sum^{N}_{k = 1} \alpha_k K(\lVert y_j - x_k \rVert_2), \; j = 1, \dots, M
+```
+
+for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb{R}^D`` and a radial kernel function ``K \colon [0, \infty) \to [0, \infty)``, and generalizations such as the NNFFT for nonequispaced nodes in time and frequency domain.
 
 ## Fields
 * `N` -  the multibandlimit of the trigonometric polynomial f.
@@ -43,16 +58,22 @@ for given coefficients ``f_j \in \mathbb{C}``.
 # Constructor
     NFFT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where D
 
-# See also
 
 [^Schmischke2018]:
-    > Schmischke, Michael, Nonequispaced Fast Fourier Transform (NFFT) Interface for Julia.
+    > Schmischke, Michael 
+    > Nonequispaced Fast Fourier Transform (NFFT) Interface for Julia.
     > 2018
     > url: https://arxiv.org/abs/1810.09891
 
 [^PlonkaPottsSteidelTasche2018]:
-    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred, Numerical Fourier Analysis
+    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred 
+    > Numerical Fourier Analysis
     > 2018
+
+[^KeinerKunisPotts]:
+    > J. Keiner, S. Kunis, and D. Potts
+    > NFFT 3.0, C subroutine library
+    > url: http://www.tu-chemnitz.de/~potts/nfft.
 """
 # NFFT plan struct
 mutable struct NFFT{D}
@@ -95,7 +116,7 @@ creates the NFFT plan structure more convinient.
 
 
 # See also
-[`NFFT{D}`](@ref)
+[`NFFT`](@ref)
 """
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
 function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
