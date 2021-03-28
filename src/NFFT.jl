@@ -42,10 +42,10 @@ g(y_j) \colon = \sum^{N}_{k = 1} \alpha_k K(\lVert y_j - x_k \rVert_2), \; j = 1
 for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb{R}^D`` and a radial kernel function ``K \colon [0, \infty) \to [0, \infty)``, and generalizations such as the NNFFT for nonequispaced nodes in time and frequency domain.
 
 ## Fields
-* `N` -  the multibandlimit of the trigonometric polynomial f.
+* `N` - the multibandlimit.
 * `M` - the number of nodes.
 * `n` - the oversampling per dimension.
-* `m` - the windows size.
+* `m` - the window size. Larger m means more accuracy but also more computational costs. 
 * `f1` - the NFFT flags.
 * `f2` - the FFTW flags.
 * `init_done` - indicates if the plan is initialized.

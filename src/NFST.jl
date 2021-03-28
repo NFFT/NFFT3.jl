@@ -1,6 +1,57 @@
 # dummy struct for C
 mutable struct nfst_plan end
 
+@doc raw"""
+    NFST{D}
+
+A NFST (Nonequispaced fast cosine transform) plan, where D is the dimension. 
+
+The NFST realizes a direct and fast computation of the discrete nonequispaced cosine transform. The aim is to compute
+
+```math
+f^c (x) \colon \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \sin (k \dot x), \quad x \in \mathbb{R}^D
+```
+
+at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, `k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
+
+```math
+\hat{h}_k \colon = \sum^{M-1}_{j = 0} f_j e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}, \; k \in I_N
+```
+
+for given knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, and coefficients fj ∈ C, j ∈ I
+l
+M.
+
+## Fields
+* `N` - the multibandlimit of the trigonometric polynomial f.
+* `M` - the number of nodes.
+* `n` - the oversampling per dimension.
+* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `f1` - the NFST flags.
+* `f2` - the FFTW flags.
+* `init_done` - indicates if the plan is initialized.
+* `finalized` - indicates if the plan is finalized.
+* `x` - the nodes.
+* `f` - the function values.
+* `fhat` - the Fourier coefficients.
+* `plan`
+
+# Constructor
+    NFST{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
+
+# See also
+[`NFFT`](@ref)
+
+[^PlonkaPottsSteidelTasche2018]:
+    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred 
+    > Numerical Fourier Analysis
+    > 2018
+
+[^KeinerKunisPotts]:
+    > J. Keiner, S. Kunis, and D. Potts
+    > NFFT 3.0, C subroutine library
+    > url: http://www.tu-chemnitz.de/~potts/nfft.
+"""
 # NFST plan struct
 mutable struct NFST{D}
     N::NTuple{D,Int32}      # bandwidth tuple

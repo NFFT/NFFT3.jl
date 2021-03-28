@@ -1,5 +1,47 @@
 mutable struct fastsum_plan end
 
+@doc raw"""
+    FASTSUM
+
+## Fields
+* `d` - dimension
+* `N` - number of source nodes
+* `M` - number of target nodes
+* `n` - expansion degree
+* `p` - degree of smoothness
+* `kernel` - name of kernel
+* `c` - kernel parameters
+* `eps_I` - inner boundary
+* `eps_B` - outer boundary
+* `nn_x` - oversampled nn in x
+* `nn_y` - oversampled nn in y
+* `m_x` - NFFT-cutoff in x
+* `m_y` - NFFT-cutoff in y
+* `init_done` - bool for plan init
+* `finalized` - bool for finalizer
+* `flags` - flags
+* `x` - source nodes
+* `y` - target nodes
+* `alpha` - source coefficients
+* `f` - target evaluations
+* `plan` - plan (C pointer)
+
+# Constructor
+    FASTSUM(d::Integer,N::Integer,M::Integer,n::Integer,p::Integer,kernel::String,c::Vector{<:Real},eps_I::Real,eps_B::Real,nn_x::Integer,nn_y::Integer,m_x::Integer,m_y::Integer,flags::UInt32)
+
+# See also
+[`NFFT`](@ref)
+
+[^PlonkaPottsSteidelTasche2018]:
+    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred 
+    > Numerical Fourier Analysis
+    > 2018
+
+[^KeinerKunisPotts]:
+    > J. Keiner, S. Kunis, and D. Potts
+    > NFFT 3.0, C subroutine library
+    > url: http://www.tu-chemnitz.de/~potts/nfft.
+"""
 mutable struct FASTSUM
     d::Integer# dimension
     N::Integer# number of source nodes

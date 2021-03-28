@@ -1,6 +1,57 @@
 # dummy struct for C
 mutable struct nfct_plan end
 
+@doc raw"""
+    NFCT{D}
+
+A NFCT (Nonequispaced fast cosine transform) plan, where D is the dimension. 
+
+The NFCT realizes a direct and fast computation of the discrete nonequispaced cosine transform. The aim is to compute
+
+```math
+f^c (x) = \sum_{k \in I_N} \hat{f}^{c}_{k} \cos (k \dot x), \quad x \in \mathbb{R}^D
+```
+
+at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, `k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
+
+```math
+\hat{h}_k \colon = \sum_{j \in I_M} f_j \cos (k \dot x_j), \quad k \in I^{D}_N
+```
+
+for given knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, and coefficients fj ∈ C, j ∈ I
+l
+M.
+
+## Fields
+* `N` - the multibandlimit of the trigonometric polynomial f.
+* `M` - the number of nodes.
+* `n` - the oversampling per dimension.
+* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `f1` - the NFCT flags.
+* `f2` - the FFTW flags.
+* `init_done` - indicates if the plan is initialized.
+* `finalized` - indicates if the plan is finalized.
+* `x` - the nodes.
+* `f` - the function values.
+* `fhat` - the Fourier coefficients.
+* `plan`
+
+# Constructor
+    NFCT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
+
+# See also
+[`NFFT`](@ref)
+
+[^PlonkaPottsSteidelTasche2018]:
+    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred 
+    > Numerical Fourier Analysis
+    > 2018
+
+[^KeinerKunisPotts]:
+    > J. Keiner, S. Kunis, and D. Potts
+    > NFFT 3.0, C subroutine library
+    > url: http://www.tu-chemnitz.de/~potts/nfft.
+"""
 # NFCT plan struct
 mutable struct NFCT{D}
     N::NTuple{D,Int32}      # bandwidth tuple
