@@ -84,7 +84,7 @@ mutable struct NFFT{D}
     f1::UInt32              # NFFT flags
     f2::UInt32              # FFTW flags
     init_done::Bool         # bool for plan init
-    finalized::Bool    # bool for finalizer
+    finalized::Bool         # bool for finalizer
     x::Ref{Float64}         # nodes
     f::Ref{ComplexF64}      # function values
     fhat::Ref{ComplexF64}   # Fourier coefficients
@@ -112,11 +112,10 @@ creates the NFFT plan structure more convinient.
 * `M` – the number of nodes.
 
 # Output 
-
-
+* `NFFT{D}` - a NFFT plan structure.
 
 # See also
-[`NFFT`](@ref)
+[`NFFT{D}`](@ref), [`NFFT`](@ref)
 """
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
 function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
@@ -159,8 +158,16 @@ creates the NFFT plan structure more convinient.
 # Input
 * `N` – a bandwith touple.
 * `M` – the number of nodes.
+* `n` - the oversampling per dimension.
+* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `f1` - the NFFT flags.
+* `f2` - the FFTW flags.
 
 # Output 
+* `NFFT{D}` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref)
 """
 function NFFT(
     N::NTuple{D,Integer},
@@ -212,6 +219,13 @@ end
 @doc raw"""
     finalize_plan(P)
 
+destroys a NFFT plan structure.
+
+# Input
+* `P` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref), [`nfft_init`](@ref)
 """
 # finalizer
 function finalize_plan(P::NFFT{D}) where {D}
@@ -228,6 +242,13 @@ end
 @doc raw"""
     nfft_init(p)
 
+intialises a transform plan.
+
+# Input
+* `p` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref), [`finalize_plan`](@ref)
 """
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 function nfft_init(p::NFFT{D}) where {D}
@@ -388,6 +409,13 @@ end
 @doc raw"""
     trafo_direct(P)
 
+computes a NFFT.
+
+# Input
+* `P` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref), [`trafo`](@ref)
 """
 # nfft trafo direct [call with NFFT.trafo_direct outside module]
 function trafo_direct(P::NFFT{D}) where {D}
@@ -416,6 +444,13 @@ end
 @doc raw"""
     adjoint_direct(P)
 
+computes an adjoint NFFT.
+
+# Input
+* `P` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref), [`adjoint`](@ref)
 """
 # adjoint trafo direct [call with NFFT.adjoint_direct outside module]
 function adjoint_direct(P::NFFT{D}) where {D}
@@ -441,6 +476,13 @@ end
 @doc raw"""
     trafo(P)
 
+computes a NFFT.
+
+# Input
+* `P` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref), [`trafo_direct`](@ref)
 """
 # nfft trafo [call with NFFT.trafo outside module]
 function trafo(P::NFFT{D}) where {D}
@@ -461,6 +503,13 @@ end
 @doc raw"""
     adjoint(P)
 
+computes an adjoint NFFT.
+
+# Input
+* `P` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref), [`adjoint_direct`](@ref)
 """
 # adjoint trafo [call with NFFT.adjoint outside module]
 function adjoint(P::NFFT{D}) where {D}

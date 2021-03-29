@@ -79,6 +79,21 @@ mutable struct NFCT{D}
     end
 end
 
+@doc raw"""
+	NFCT(N,M)
+	
+creates the NFCT plan structure more convinient.
+
+# Input
+* `N` – a bandwith touple.
+* `M` – the number of nodes.
+
+# Output 
+* `NFCT{D}` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`NFCT`](@ref)
+"""
 # additional constructor for easy use [NFCT((N,N),M) instead of NFCT{2}((N,N),M)]
 function NFCT(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
@@ -108,6 +123,25 @@ function NFCT(N::NTuple{D,Integer}, M::Integer) where {D}
     NFCT{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(8), f1, f2_default)
 end
 
+@doc raw"""
+    NFCT(N,M,n,m,f1,f2)
+
+creates the NFCT plan structure more convinient.
+
+# Input
+* `N` – a bandwith touple.
+* `M` – the number of nodes.
+* `n` - the oversampling per dimension.
+* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `f1` - the NFCT flags.
+* `f2` - the FFTW flags.
+
+# Output 
+* `NFCT{D}` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref)
+"""
 function NFCT(
     N::NTuple{D,Integer},
     M::Integer,
@@ -155,6 +189,17 @@ function NFCT(
     )
 end
 
+@doc raw"""
+    finalize_plan(P)
+
+destroys a NFCT plan structure.
+
+# Input
+* `P` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`nfft_init`](@ref)
+"""
 # finalizer
 function finalize_plan(P::NFCT{D}) where {D}
     if !P.init_done
@@ -167,6 +212,17 @@ function finalize_plan(P::NFCT{D}) where {D}
     end
 end
 
+@doc raw"""
+    nfft_init(p)
+
+intialises a transform plan.
+
+# Input
+* `p` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`finalize_plan`](@ref)
+"""
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 function nfct_init(p::NFCT{D}) where {D}
     # convert N and n to vectors for passing them over to C
@@ -326,6 +382,17 @@ function Base.getproperty(p::NFCT{D}, v::Symbol) where {D}
     end
 end
 
+@doc raw"""
+    trafo_direct(P)
+
+computes a NFCT.
+
+# Input
+* `P` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`trafo`](@ref)
+"""
 # nfct trafo direct [call with NFCT.trafo_direct outside module]
 function trafo_direct(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
@@ -350,6 +417,17 @@ function trafo_direct(P::NFCT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+@doc raw"""
+    adjoint_direct(P)
+
+computes an adjoint NFCT.
+
+# Input
+* `P` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`adjoint`](@ref)
+"""
 # adjoint trafo direct [call with NFCT.adjoint_direct outside module]
 function adjoint_direct(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
@@ -371,6 +449,17 @@ function adjoint_direct(P::NFCT{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+@doc raw"""
+    trafo(P)
+
+computes a NFCT.
+
+# Input
+* `P` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`trafo_direct`](@ref)
+"""
 # nfct trafo [call with NFCT.trafo outside module]
 function trafo(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
@@ -387,6 +476,17 @@ function trafo(P::NFCT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+@doc raw"""
+    adjoint(P)
+
+computes an adjoint NFCT.
+
+# Input
+* `P` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`adjoint_direct`](@ref)
+"""
 # adjoint trafo [call with NFCT.adjoint outside module]
 function adjoint(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
