@@ -3,28 +3,36 @@ mutable struct fastsum_plan end
 @doc raw"""
     FASTSUM
 
-## Fields
-* `d` - dimension
-* `N` - number of source nodes
-* `M` - number of target nodes
-* `n` - expansion degree
-* `p` - degree of smoothness
-* `kernel` - name of kernel
-* `c` - kernel parameters
-* `eps_I` - inner boundary
-* `eps_B` - outer boundary
-* `nn_x` - oversampled nn in x
-* `nn_y` - oversampled nn in y
-* `m_x` - NFFT-cutoff in x
-* `m_y` - NFFT-cutoff in y
-* `init_done` - bool for plan init
-* `finalized` - bool for finalizer
-* `flags` - flags
-* `x` - source nodes
-* `y` - target nodes
-* `alpha` - source coefficients
-* `f` - target evaluations
-* `plan` - plan (C pointer)
+The fast summation algorithm evaluates the function
+
+```math
+f (y) \colon = \sum^{N}_{k = 1} \alpha_k \mathcal{K} (y - x_k) = \sum^{N}_{k = 1} \alpha_k K (\lVert y - x_k \rVert_2)
+```
+
+for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d, \; k = 1, \cdots, N`` and a given kernel function ``\mathcal{K} (\cdot) = K (\cdot), \; x \in \mathbb{R}^d``, which is an even, real univariate function which is infinitely differentiable at least in ``\mathbb{R} \setminus \{ 0 \}``. If ``K`` is infinitely differentiable at zero as well, then ``\mathcal{K}`` is defined on ``\mathbb{R}^d`` and is called nonsingular kernel function. The evaluation is done at ``M`` different points ``y_j \in \mathbb{R}^d, \; j = 1, \cdots, M``. 
+
+# Fields
+* `d` - dimension.
+* `N` - number of source nodes.
+* `M` - number of target nodes.
+* `n` - expansion degree.
+* `p` - degree of smoothness.
+* `kernel` - name of kernel.
+* `c` - kernel parameters.
+* `eps_I` - inner boundary.
+* `eps_B` - outer boundary.
+* `nn_x` - oversampled nn in x.
+* `nn_y` - oversampled nn in y.
+* `m_x` - NFFT-cutoff in x.
+* `m_y` - NFFT-cutoff in y.
+* `init_done` - bool for plan init.
+* `finalized` - bool for finalizer.
+* `flags` - flags.
+* `x` - source nodes.
+* `y` - target nodes.
+* `alpha` - source coefficients.
+* `f` - target evaluations.
+* `plan` - plan (C pointer).
 
 # Constructor
     FASTSUM(d::Integer,N::Integer,M::Integer,n::Integer,p::Integer,kernel::String,c::Vector{<:Real},eps_I::Real,eps_B::Real,nn_x::Integer,nn_y::Integer,m_x::Integer,m_y::Integer,flags::UInt32)
@@ -102,6 +110,21 @@ mutable struct FASTSUM
     end
 end #struct fastsumplan
 
+@doc raw"""
+	FASTSUM(N,M)
+	
+creates the FASTSUM plan structure more convinient.
+
+# Input
+* `N` – a bandwith touple.
+* `M` – the number of nodes.
+
+# Output 
+* `FASTSUM{D}` - a FASTSUM plan structure.
+
+# See also
+[`FASTSUM{D}`](@ref), [`FASTSUM`](@ref)
+"""
 function FASTSUM(
     d::Integer,
     N::Integer,
@@ -139,6 +162,17 @@ function FASTSUM(
 
 end #constructor
 
+@doc raw"""
+    fastsum_init(p)
+
+intialises a transform plan.
+
+# Input
+* `p` - a FASTSUM plan structure.
+
+# See also
+[`FASTSUM{D}`](@ref), [`finalize_plan`](@ref)
+"""
 function fastsum_init(p::FASTSUM)
 
     ptr = ccall(("jfastsum_alloc", lib_path_fastsum), Ptr{fastsum_plan}, ())
@@ -190,6 +224,17 @@ function fastsum_init(p::FASTSUM)
 
 end #fastsum_init
 
+@doc raw"""
+    finalize_plan(P)
+
+destroys a FASTSUM plan structure.
+
+# Input
+* `P` - a FASTSUM plan structure.
+
+# See also
+[`FASTSUM{D}`](@ref), [`fastsum_init`](@ref)
+"""
 function finalize_plan(p::FASTSUM)
 
     if !p.init_done
@@ -373,6 +418,17 @@ function Base.getproperty(p::FASTSUM, v::Symbol)
     end
 end # Base.getproperty
 
+@doc raw"""
+    trafo(P)
+
+fast NFFT-based summation.
+
+# Input
+* `P` - a FASTSUM plan structure.
+
+# See also
+[`FASTSUM{D}`](@ref), [`trafo_direct`](@ref)
+"""
 function trafo(p::FASTSUM)
 
     if p.finalized
@@ -401,6 +457,17 @@ function trafo(p::FASTSUM)
 
 end #trafo
 
+@doc raw"""
+    trafo_exact(P)
+
+direct computation of sums.
+
+# Input
+* `P` - a FASTSUM plan structure.
+
+# See also
+[`FASTSUM{D}`](@ref), [`trafo_direct`](@ref)
+"""
 function trafo_exact(p::FASTSUM)
 
     if p.finalized

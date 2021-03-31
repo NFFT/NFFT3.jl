@@ -4,7 +4,7 @@ mutable struct nfft_plan end
 @doc raw"""
     NFFT{D}
 
-A NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension. The NFFT plan structure is the core of the NFFT Julia interface. 
+A NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension. 
 
 The classic FFT (Fast Fourier transform) algorithm computes the discrete Fourier transform
 
@@ -41,7 +41,7 @@ g(y_j) \colon = \sum^{N}_{k = 1} \alpha_k K(\lVert y_j - x_k \rVert_2), \; j = 1
 
 for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb{R}^D`` and a radial kernel function ``K \colon [0, \infty) \to [0, \infty)``, and generalizations such as the NNFFT for nonequispaced nodes in time and frequency domain.
 
-## Fields
+# Fields
 * `N` - the multibandlimit.
 * `M` - the number of nodes.
 * `n` - the oversampling per dimension.
@@ -53,7 +53,7 @@ for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb
 * `x` - the nodes.
 * `f` - the function values.
 * `fhat` - the Fourier coefficients.
-* `plan`
+* `plan` - plan (C pointer).
 
 # Constructor
     NFFT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where D

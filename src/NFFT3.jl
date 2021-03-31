@@ -96,21 +96,86 @@ NFFT_SORT_NODES = UInt32(1) << 11
 blockwise calculation for adjoint NFFT in the case of OpenMP.
 """
 NFFT_OMP_BLOCKWISE_ADJOINT = UInt32(1) << 12
+@doc raw"""
+    NFCT_SORT_NODES
+
+internal sorting of the nodes ``x_j`` that may increase performance.
+"""
 NFCT_SORT_NODES = UInt32(1) << 11
+@doc raw"""
+    NFCT_OMP_BLOCKWISE_ADJOINT
+
+blockwise calculation for adjoint NFFT in the case of OpenMP.
+"""
 NFCT_OMP_BLOCKWISE_ADJOINT = UInt32(1) << 12
+@doc raw"""
+    NFST_SORT_NODES
+
+internal sorting of the nodes ``x_j`` that may increase performance.
+"""
 NFST_SORT_NODES = UInt32(1) << 11
+@doc raw"""
+    NFST_OMP_BLOCKWISE_ADJOINT
+
+blockwise calculation for adjoint NFFT in the case of OpenMP.
+"""
 NFST_OMP_BLOCKWISE_ADJOINT = UInt32(1) << 12
 PRE_ONE_PSI = (PRE_LIN_PSI | PRE_FG_PSI | PRE_PSI | PRE_FULL_PSI)
 
 # FFTW flags
+@doc raw"""
+    FFTW_MEASURE
+
+find optimal plan by executing several FFTs and compare times.
+"""
 FFTW_MEASURE = UInt32(0)
+@doc raw"""
+    FFTW_DESTROY_INPUT
+
+an out-of-place transform is allowed to overwrite the input array with arbitrary data.
+"""
 FFTW_DESTROY_INPUT = UInt32(1) << 0
+@doc raw"""
+    FFTW_UNALIGNED
+
+the algorithm may not impose any unusual alignment requirements on the input/output arrays (not necessary in most context).
+"""
 FFTW_UNALIGNED = UInt32(1) << 1
+@doc raw"""
+    FFTW_CONSERVE_MEMORY
+
+conserving memory.
+"""
 FFTW_CONSERVE_MEMORY = UInt32(1) << 2
+@doc raw"""
+    FFTW_EXHAUSTIVE
+
+behaves like FFTW_PATIENT with an even wider range of tests.
+"""
 FFTW_EXHAUSTIVE = UInt32(1) << 3
+@doc raw"""
+    FFTW_PRESERVE_INPUT
+
+input vector is preserved and unchanged.
+"""
 FFTW_PRESERVE_INPUT = UInt32(1) << 4
+@doc raw"""
+    FFTW_PATIENT
+
+behaves like FFTW_MEASURE with a wider range of tests.
+"""
 FFTW_PATIENT = UInt32(1) << 5
+@doc raw"""
+    FFTW_ESTIMATE
+
+use simple heuristic instead of measurements to pick a plan.
+"""
 FFTW_ESTIMATE = UInt32(1) << 6
+@doc raw"""
+    FFTW_WISDOM_ONLY
+
+a plan is only created if wisdom from tests is available.
+"""
 FFTW_WISDOM_ONLY = UInt32(1) << 21
 
 # default flag values

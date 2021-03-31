@@ -9,10 +9,10 @@ A NFST (Nonequispaced fast cosine transform) plan, where D is the dimension.
 The NFST realizes a direct and fast computation of the discrete nonequispaced cosine transform. The aim is to compute
 
 ```math
-f^c (x) \colon \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \sin (k \dot x), \quad x \in \mathbb{R}^D
+f^c (x) \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \sin (k \dot x), \quad x \in \mathbb{R}^D
 ```
 
-at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, `k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
+at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, ``k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
 
 ```math
 \hat{h}_k \colon = \sum^{M-1}_{j = 0} f_j e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}, \; k \in I_N
@@ -22,7 +22,7 @@ for given knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, and coefficients
 l
 M.
 
-## Fields
+# Fields
 * `N` - the multibandlimit of the trigonometric polynomial f.
 * `M` - the number of nodes.
 * `n` - the oversampling per dimension.
@@ -79,6 +79,21 @@ mutable struct NFST{D}
     end
 end
 
+@doc raw"""
+	NFST(N,M)
+	
+creates the NFST plan structure more convinient.
+
+# Input
+* `N` – a bandwith touple.
+* `M` – the number of nodes.
+
+# Output 
+* `NFST{D}` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`NFST`](@ref)
+"""
 # additional constructor for easy use [NFST((N,N),M) instead of NFST{2}((N,N),M)]
 function NFST(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
@@ -112,6 +127,25 @@ function NFST(N::NTuple{D,Integer}, M::Integer) where {D}
     NFST{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(8), f1, f2_default)
 end
 
+@doc raw"""
+    NFST(N,M,n,m,f1,f2)
+
+creates the NFST plan structure more convinient.
+
+# Input
+* `N` – a bandwith touple.
+* `M` – the number of nodes.
+* `n` - the oversampling per dimension.
+* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `f1` - the NFST flags.
+* `f2` - the FFTW flags.
+
+# Output 
+* `NFST{D}` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref)
+"""
 function NFST(
     N::NTuple{D,Integer},
     M::Integer,
@@ -156,6 +190,17 @@ function NFST(
     )
 end
 
+@doc raw"""
+    finalize_plan(P)
+
+destroys a NFST plan structure.
+
+# Input
+* `P` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`nfst_init`](@ref)
+"""
 # finalizer
 function finalize_plan(P::NFST{D}) where {D}
     if !P.init_done
@@ -168,6 +213,17 @@ function finalize_plan(P::NFST{D}) where {D}
     end
 end
 
+@doc raw"""
+    nfst_init(p)
+
+intialises a transform plan.
+
+# Input
+* `p` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`finalize_plan`](@ref)
+"""
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 function nfst_init(p::NFST{D}) where {D}
     # convert N and n to vectors for passing them over to C
@@ -327,6 +383,17 @@ function Base.getproperty(p::NFST{D}, v::Symbol) where {D}
     end
 end
 
+@doc raw"""
+    trafo_direct(P)
+
+computes a NFST.
+
+# Input
+* `P` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`trafo`](@ref)
+"""
 # nfst trafo direct [call with NFST.trafo_direct outside module]
 function trafo_direct(P::NFST{D}) where {D}
     # prevent bad stuff from happening
@@ -351,6 +418,17 @@ function trafo_direct(P::NFST{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+@doc raw"""
+    adjoint_direct(P)
+
+computes an adjoint NFST.
+
+# Input
+* `P` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`adjoint`](@ref)
+"""
 # adjoint trafo direct [call with NFST.adjoint_direct outside module]
 function adjoint_direct(P::NFST{D}) where {D}
     # prevent bad stuff from happening
@@ -372,6 +450,17 @@ function adjoint_direct(P::NFST{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+@doc raw"""
+    trafo(P)
+
+computes a NFST.
+
+# Input
+* `P` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`trafo_direct`](@ref)
+"""
 # nfst trafo [call with NFST.trafo outside module]
 function trafo(P::NFST{D}) where {D}
     # prevent bad stuff from happening
@@ -388,6 +477,17 @@ function trafo(P::NFST{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+@doc raw"""
+    adjoint(P)
+
+computes an adjoint NFST.
+
+# Input
+* `P` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`adjoint_direct`](@ref)
+"""
 # adjoint trafo [call with NFST.adjoint outside module]
 function adjoint(P::NFST{D}) where {D}
     # prevent bad stuff from happening
