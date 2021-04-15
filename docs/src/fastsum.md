@@ -1,0 +1,1 @@
+# [Fast Summation Algorithm](@id fastsum)

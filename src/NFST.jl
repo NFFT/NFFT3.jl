@@ -4,9 +4,9 @@ mutable struct nfst_plan end
 @doc raw"""
     NFST{D}
 
-A NFST (Nonequispaced fast cosine transform) plan, where D is the dimension. 
+A NFST (Nonequispaced fast sine transform) plan, where D is the dimension. 
 
-The NFST realizes a direct and fast computation of the discrete nonequispaced cosine transform. The aim is to compute
+The NFST realizes a direct and fast computation of the discrete nonequispaced sine transform. The aim is to compute
 
 ```math
 f^c (x) \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \sin (k \dot x), \quad x \in \mathbb{R}^D
