@@ -1,5 +1,8 @@
 # [Nonequispaced Fast Cosine Transform](@id NFCT)
 
+```@docs
+    NFCT{D}
+```
 
 ## Background
 
@@ -13,10 +16,10 @@ at given (nonequidistant) knots `` x_{k} \in \left[ 0,\pi \right]^d, \ k=0,\ldot
 The transposed (adjoined) problem reads as
 
 ```math
-    h( k) \coloneqq \sum_{ j\in I_M^l} f_{ j}\ \cos({k\,x_j}), \quad  k\in I_{ N}^d \coloneqq \{ k\in \mathbb{N}^d: 0\leq k_i\leq N_i  \}
+    h(k) \coloneqq \sum_{ j\in I_M^l} f_{ j}\ \cos({k\,x_j}), \quad  k\in I_{ N}^d \coloneqq \{ k\in \mathbb{N}^d: 0\leq k_i\leq N_i  \}
 ```
 
-for given knots ``{x}_k\in \left[ 0,\pi \right]^d, \ k=0,\ldots,M-1``, and coefficients ``f_j\in\mathbb{C},j\in I_M^l``.
+for given knots ``{x}_k\in \left[ 0,\pi \right]^d, \ k=0,\ldots,M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
 
 ## Algorithm
 
@@ -63,6 +66,7 @@ The algorithm for the transposed problem
 ```
 can easily be derived from the duality of the two problems.
 
+## Functions
 
 
 ## Literature

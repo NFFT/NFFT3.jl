@@ -1,6 +1,7 @@
 # dummy struct for C
 mutable struct nfct_plan end
 
+# NFCT plan struct
 @doc raw"""
     NFCT{D}
 
@@ -12,15 +13,13 @@ The NFCT realizes a direct and fast computation of the discrete nonequispaced co
 f^c (x) \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \cos (k \dot x), \quad x \in \mathbb{R}^D
 ```
 
-at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, `k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
+at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, ``k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
 
 ```math
 \hat{h}_k \colon = \sum_{j \in I_M} f_j \cos (k \dot x_j), \quad k \in I^{D}_N
 ```
 
-for given knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, and coefficients fj ∈ C, j ∈ I
-l
-M.
+for given knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
 
 # Fields
 * `N` - the multibandlimit of the trigonometric polynomial f.
@@ -39,6 +38,10 @@ M.
 # Constructor
     NFCT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
 
+# Additional Constructor
+    NFCT(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
+    NFCT(N::NTuple{D,Int32},M::Int32) where {D}
+
 # See also
 [`NFFT`](@ref)
 
@@ -52,7 +55,6 @@ M.
     > NFFT 3.0, C subroutine library
     > url: http://www.tu-chemnitz.de/~potts/nfft.
 """
-# NFCT plan struct
 mutable struct NFCT{D}
     N::NTuple{D,Int32}      # bandwidth tuple
     M::Int32                # number of nodes
@@ -79,6 +81,7 @@ mutable struct NFCT{D}
     end
 end
 
+# additional constructor for easy use [NFCT((N,N),M) instead of NFCT{2}((N,N),M)]
 @doc raw"""
 	NFCT(N,M)
 	
@@ -94,7 +97,6 @@ creates the NFCT plan structure more convinient.
 # See also
 [`NFCT{D}`](@ref), [`NFCT`](@ref)
 """
-# additional constructor for easy use [NFCT((N,N),M) instead of NFCT{2}((N,N),M)]
 function NFCT(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
         error("Every entry of N has to be an even, positive integer.")
