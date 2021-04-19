@@ -235,6 +235,7 @@ destroys a FASTSUM plan structure.
 # See also
 [`FASTSUM{D}`](@ref), [`fastsum_init`](@ref)
 """
+# 
 function finalize_plan(p::FASTSUM)
 
     if !p.init_done

@@ -190,6 +190,7 @@ function NFST(
     )
 end
 
+# finalizer
 @doc raw"""
     finalize_plan(P)
 

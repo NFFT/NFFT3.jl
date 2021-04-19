@@ -191,8 +191,9 @@ function NFCT(
     )
 end
 
+# finalizer
 @doc raw"""
-    finalize_plan(P)
+    finalize_plan(P::NFCT{D})
 
 destroys a NFCT plan structure.
 
@@ -202,7 +203,6 @@ destroys a NFCT plan structure.
 # See also
 [`NFCT{D}`](@ref), [`nfct_init`](@ref)
 """
-# finalizer
 function finalize_plan(P::NFCT{D}) where {D}
     if !P.init_done
         error("NFCT not initialized.")
@@ -214,6 +214,7 @@ function finalize_plan(P::NFCT{D}) where {D}
     end
 end
 
+# allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
     nfct_init(p)
 
@@ -225,7 +226,6 @@ intialises a transform plan.
 # See also
 [`NFCT{D}`](@ref), [`finalize_plan`](@ref)
 """
-# allocate plan memory and init with D,N,M,n,m,f1,f2
 function nfct_init(p::NFCT{D}) where {D}
     # convert N and n to vectors for passing them over to C
     Nv = collect(p.N)
@@ -384,6 +384,7 @@ function Base.getproperty(p::NFCT{D}, v::Symbol) where {D}
     end
 end
 
+# nfct trafo direct [call with NFCT.trafo_direct outside module]
 @doc raw"""
     trafo_direct(P)
 
@@ -395,7 +396,6 @@ computes a NFCT.
 # See also
 [`NFCT{D}`](@ref), [`trafo`](@ref)
 """
-# nfct trafo direct [call with NFCT.trafo_direct outside module]
 function trafo_direct(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -419,6 +419,7 @@ function trafo_direct(P::NFCT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+# adjoint trafo direct [call with NFCT.adjoint_direct outside module]
 @doc raw"""
     adjoint_direct(P)
 
@@ -430,7 +431,6 @@ computes an adjoint NFCT.
 # See also
 [`NFCT{D}`](@ref), [`adjoint`](@ref)
 """
-# adjoint trafo direct [call with NFCT.adjoint_direct outside module]
 function adjoint_direct(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -451,6 +451,7 @@ function adjoint_direct(P::NFCT{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+# nfct trafo [call with NFCT.trafo outside module]
 @doc raw"""
     trafo(P)
 
@@ -462,7 +463,6 @@ computes a NFCT.
 # See also
 [`NFCT{D}`](@ref), [`trafo_direct`](@ref)
 """
-# nfct trafo [call with NFCT.trafo outside module]
 function trafo(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -478,6 +478,7 @@ function trafo(P::NFCT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+# adjoint trafo [call with NFCT.adjoint outside module]
 @doc raw"""
     adjoint(P)
 
@@ -489,7 +490,6 @@ computes an adjoint NFCT.
 # See also
 [`NFCT{D}`](@ref), [`adjoint_direct`](@ref)
 """
-# adjoint trafo [call with NFCT.adjoint outside module]
 function adjoint(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized

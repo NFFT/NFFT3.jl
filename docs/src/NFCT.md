@@ -16,7 +16,7 @@ at given (nonequidistant) knots `` x_{k} \in \left[ 0,\pi \right]^d, \ k=0,\ldot
 The transposed (adjoined) problem reads as
 
 ```math
-    h(k) \coloneqq \sum_{ j\in I_M^l} f_{ j}\ \cos({k\,x_j}), \quad  k\in I_{ N}^d \coloneqq \{ k\in \mathbb{N}^d: 0\leq k_i\leq N_i  \}
+	h(k) \coloneqq \sum_{ j\in I_M^l} f_{ j}\ \cos({k\,x_j}), \quad  k\in I_{ N}^d \coloneqq \{ k\in \mathbb{N}^d: 0\leq k_i\leq N_i  \}
 ```
 
 for given knots ``{x}_k\in \left[ 0,\pi \right]^d, \ k=0,\ldots,M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
@@ -51,7 +51,7 @@ Next, we want to replace ``\varphi`` by its truncation
 As in the definition of ``s_1(\cdot)``, we replace ``\psi`` by its periodization ``\tilde{\psi}`` and define
 
 ```math
-  s(x)\coloneqq \sum_{\ell=\lfloor 2\sigma N x\rfloor -m}^{\lceil 2\sigma N x\rceil +m} g_\ell\ \tilde{\psi}\left(x-\frac{\pi \ell}{\sigma N}\right),\quad x\in\mathbb{R}
+  	s(x)\coloneqq \sum_{\ell=\lfloor 2\sigma N x\rfloor -m}^{\lceil 2\sigma N x\rceil +m} g_\ell\ \tilde{\psi}\left(x-\frac{\pi \ell}{\sigma N}\right),\quad x\in\mathbb{R}
 ```
 
 Finally, we arrive at ``f(x)\approx s_1(x) \approx s(x)``. This gives rise to Algorithm \ref{alg:NFCT}.
@@ -62,12 +62,15 @@ Finally, we arrive at ``f(x)\approx s_1(x) \approx s(x)``. This gives rise to Al
 The algorithm for the transposed problem 
 
 ```math
-  h(k) \coloneqq \sum_{j=0}^{M-1} h_j \ \cos(kx_j), \quad k=0,\ldots,N-1
+  	h(k) \coloneqq \sum_{j=0}^{M-1} h_j \ \cos(kx_j), \quad k=0,\ldots,N-1
 ```
 can easily be derived from the duality of the two problems.
 
 ## Functions
 
+```@docs
+  	finalize_plan
+```
 
 ## Literature
 
