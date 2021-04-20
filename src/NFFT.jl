@@ -1,6 +1,7 @@
 # dummy struct for C
 mutable struct nfft_plan end
 
+# NFFT plan struct
 @doc raw"""
     NFFT{D}
 
@@ -75,7 +76,6 @@ for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb
     > NFFT 3.0, C subroutine library
     > url: http://www.tu-chemnitz.de/~potts/nfft.
 """
-# NFFT plan struct
 mutable struct NFFT{D}
     N::NTuple{D,Int32}      # bandwidth tuple
     M::Int32                # number of nodes
@@ -102,6 +102,7 @@ mutable struct NFFT{D}
     end
 end
 
+# additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
 @doc raw"""
 	NFFT(N,M)
 	
@@ -117,7 +118,6 @@ creates the NFFT plan structure more convinient.
 # See also
 [`NFFT{D}`](@ref), [`NFFT`](@ref)
 """
-# additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
 function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
         error("Every entry of N has to be an even, positive integer.")
@@ -216,6 +216,7 @@ function NFFT(
     )
 end
 
+# finalizer
 @doc raw"""
     finalize_plan(P)
 
@@ -227,7 +228,6 @@ destroys a NFFT plan structure.
 # See also
 [`NFFT{D}`](@ref), [`nfft_init`](@ref)
 """
-# finalizer
 function finalize_plan(P::NFFT{D}) where {D}
     if !P.init_done
         error("NFFT not initialized.")
@@ -239,6 +239,7 @@ function finalize_plan(P::NFFT{D}) where {D}
     end
 end
 
+# allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
     nfft_init(p)
 
@@ -250,7 +251,6 @@ intialises a transform plan.
 # See also
 [`NFFT{D}`](@ref), [`finalize_plan`](@ref)
 """
-# allocate plan memory and init with D,N,M,n,m,f1,f2
 function nfft_init(p::NFFT{D}) where {D}
     # convert N and n to vectors for passing them over to C
     Nv = collect(p.N)
@@ -406,6 +406,7 @@ function Base.getproperty(p::NFFT{D}, v::Symbol) where {D}
     end
 end
 
+# nfft trafo direct [call with NFFT.trafo_direct outside module]
 @doc raw"""
     trafo_direct(P)
 
@@ -417,7 +418,6 @@ computes a NFFT.
 # See also
 [`NFFT{D}`](@ref), [`trafo`](@ref)
 """
-# nfft trafo direct [call with NFFT.trafo_direct outside module]
 function trafo_direct(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -441,6 +441,7 @@ function trafo_direct(P::NFFT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+# adjoint trafo direct [call with NFFT.adjoint_direct outside module]
 @doc raw"""
     adjoint_direct(P)
 
@@ -452,7 +453,6 @@ computes an adjoint NFFT.
 # See also
 [`NFFT{D}`](@ref), [`adjoint`](@ref)
 """
-# adjoint trafo direct [call with NFFT.adjoint_direct outside module]
 function adjoint_direct(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -473,6 +473,7 @@ function adjoint_direct(P::NFFT{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+# nfft trafo [call with NFFT.trafo outside module]
 @doc raw"""
     trafo(P)
 
@@ -484,7 +485,6 @@ computes a NFFT.
 # See also
 [`NFFT{D}`](@ref), [`trafo_direct`](@ref)
 """
-# nfft trafo [call with NFFT.trafo outside module]
 function trafo(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -500,6 +500,7 @@ function trafo(P::NFFT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+# adjoint trafo [call with NFFT.adjoint outside module]
 @doc raw"""
     adjoint(P)
 
@@ -511,7 +512,6 @@ computes an adjoint NFFT.
 # See also
 [`NFFT{D}`](@ref), [`adjoint_direct`](@ref)
 """
-# adjoint trafo [call with NFFT.adjoint outside module]
 function adjoint(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized

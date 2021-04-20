@@ -1,6 +1,4 @@
-# [Nonequispaced Fast Fourier Transform 3](@id NFFT3)
-
-## Flags 
+# [Flags](@id Flags)
 
 ```@docs
 PRE_PHI_HUT

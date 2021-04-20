@@ -1,6 +1,7 @@
 # dummy struct for C
 mutable struct nfst_plan end
 
+# NFST plan struct
 @doc raw"""
     NFST{D}
 
@@ -52,7 +53,6 @@ M.
     > NFFT 3.0, C subroutine library
     > url: http://www.tu-chemnitz.de/~potts/nfft.
 """
-# NFST plan struct
 mutable struct NFST{D}
     N::NTuple{D,Int32}      # bandwidth tuple
     M::Int32                # number of nodes
@@ -79,6 +79,7 @@ mutable struct NFST{D}
     end
 end
 
+# additional constructor for easy use [NFST((N,N),M) instead of NFST{2}((N,N),M)]
 @doc raw"""
 	NFST(N,M)
 	
@@ -94,7 +95,6 @@ creates the NFST plan structure more convinient.
 # See also
 [`NFST{D}`](@ref), [`NFST`](@ref)
 """
-# additional constructor for easy use [NFST((N,N),M) instead of NFST{2}((N,N),M)]
 function NFST(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
         error("Every entry of N has to be an even, positive integer.")
@@ -202,7 +202,6 @@ destroys a NFST plan structure.
 # See also
 [`NFST{D}`](@ref), [`nfst_init`](@ref)
 """
-# finalizer
 function finalize_plan(P::NFST{D}) where {D}
     if !P.init_done
         error("NFST not initialized.")
@@ -214,6 +213,7 @@ function finalize_plan(P::NFST{D}) where {D}
     end
 end
 
+# allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
     nfst_init(p)
 
@@ -225,7 +225,6 @@ intialises a transform plan.
 # See also
 [`NFST{D}`](@ref), [`finalize_plan`](@ref)
 """
-# allocate plan memory and init with D,N,M,n,m,f1,f2
 function nfst_init(p::NFST{D}) where {D}
     # convert N and n to vectors for passing them over to C
     Nv = collect(p.N)
@@ -384,6 +383,7 @@ function Base.getproperty(p::NFST{D}, v::Symbol) where {D}
     end
 end
 
+# nfst trafo direct [call with NFST.trafo_direct outside module]
 @doc raw"""
     trafo_direct(P)
 
@@ -395,7 +395,6 @@ computes a NFST.
 # See also
 [`NFST{D}`](@ref), [`trafo`](@ref)
 """
-# nfst trafo direct [call with NFST.trafo_direct outside module]
 function trafo_direct(P::NFST{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -419,6 +418,7 @@ function trafo_direct(P::NFST{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+# adjoint trafo direct [call with NFST.adjoint_direct outside module]
 @doc raw"""
     adjoint_direct(P)
 
@@ -430,7 +430,6 @@ computes an adjoint NFST.
 # See also
 [`NFST{D}`](@ref), [`adjoint`](@ref)
 """
-# adjoint trafo direct [call with NFST.adjoint_direct outside module]
 function adjoint_direct(P::NFST{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -451,6 +450,7 @@ function adjoint_direct(P::NFST{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+# nfst trafo [call with NFST.trafo outside module]
 @doc raw"""
     trafo(P)
 
@@ -462,7 +462,6 @@ computes a NFST.
 # See also
 [`NFST{D}`](@ref), [`trafo_direct`](@ref)
 """
-# nfst trafo [call with NFST.trafo outside module]
 function trafo(P::NFST{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
@@ -478,6 +477,7 @@ function trafo(P::NFST{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+# adjoint trafo [call with NFST.adjoint outside module]
 @doc raw"""
     adjoint(P)
 
@@ -489,7 +489,6 @@ computes an adjoint NFST.
 # See also
 [`NFST{D}`](@ref), [`adjoint_direct`](@ref)
 """
-# adjoint trafo [call with NFST.adjoint outside module]
 function adjoint(P::NFST{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
