@@ -4,7 +4,7 @@
     NFCT{D}
 ```
 
-## Background
+## NFCT
 
 The NFCT (Nonequispaced fast cosine transform) ([[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)], Sec. 7.4) realizes a multivariate fast cosine transform for nonequispaced knots. The aim is to compute 
 
@@ -13,16 +13,6 @@ The NFCT (Nonequispaced fast cosine transform) ([[Plonka, Potts, Steidl, Tasche,
 ```
 at given (nonequidistant) knots `` x_{k} \in \left[ 0,\pi \right]^d, \ k=0,\ldots,M-1``, coefficients ``\hat{f_{ k}^c} \in \mathbb{R}, \  k\in I_{ N} \coloneqq \{ k\in \mathbb{N}^d:\ 0\leq k_i \leq N_i\ \forall\, i=1,\ldots,d \}`` for some multibandlimit vector `` N \in \mathbb{N}^d``. 
 \
-The transposed (adjoined) problem reads as
-
-```math
-	h(k) \coloneqq \sum_{ j\in I_M^l} f_{ j}\ \cos({k\,x_j}), \quad  k\in I_{ N}^d \coloneqq \{ k\in \mathbb{N}^d: 0\leq k_i\leq N_i  \}
-```
-
-for given knots ``{x}_k\in \left[ 0,\pi \right]^d, \ k=0,\ldots,M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
-
-## Algorithm
-
 For simplicity, we only consider the univariate case (``d=1``). The multivariate case, which is also implemented in the module, can be derived analogously from the NFFT algorithm (see e.g. [[Schmischke, 2018](#Schmischke2018)] or [[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)], Chapter 7). Hence, we want to approximate 
 
 ```math
@@ -54,10 +44,25 @@ As in the definition of ``s_1(\cdot)``, we replace ``\psi`` by its periodization
   	s(x)\coloneqq \sum_{\ell=\lfloor 2\sigma N x\rfloor -m}^{\lceil 2\sigma N x\rceil +m} g_\ell\ \tilde{\psi}\left(x-\frac{\pi \ell}{\sigma N}\right),\quad x\in\mathbb{R}
 ```
 
-Finally, we arrive at ``f(x)\approx s_1(x) \approx s(x)``. This gives rise to Algorithm \ref{alg:NFCT}.
+Finally, we arrive at ``f(x)\approx s_1(x) \approx s(x)``. 
 
 # Pseudocode
 
+Input: ``N, M \in \mathbb{N}, \, \sigma > 1, \, m \in \mathbb{N}, \, x_j \in [0, \pi] \text{ for } j = 0, \ldots, M - 1, \, f^{c}_k \in \mathbb{R} \text{ for } k = 0, \ldots, N - 1.``
+
+Precomputation:  
+
+## Transposed (adjoint) problem
+
+The transposed (adjoined) problem reads as
+
+```math
+	h(k) \coloneqq \sum_{ j\in I_M^l} f_{ j}\ \cos({k\,x_j}), \quad  k\in I_{ N}^d \coloneqq \{ k\in \mathbb{N}^d: 0\leq k_i\leq N_i  \}
+```
+
+for given knots ``{x}_k\in \left[ 0,\pi \right]^d, \ k=0,\ldots,M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
+
+# Pseudocode 
 
 The algorithm for the transposed problem 
 
