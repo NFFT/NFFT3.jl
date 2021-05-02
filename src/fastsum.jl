@@ -37,6 +37,9 @@ for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d, \; k = 1, \cdots,
 # Constructor
     FASTSUM(d::Integer,N::Integer,M::Integer,n::Integer,p::Integer,kernel::String,c::Vector{<:Real},eps_I::Real,eps_B::Real,nn_x::Integer,nn_y::Integer,m_x::Integer,m_y::Integer,flags::UInt32)
 
+# Additional Constructor
+    FASTSUM(d::Integer,N::Integer,M::Integer,n::Integer,p::Integer,kernel::String,c::Real,eps_I::Real,eps_B::Real,nn::Integer,m::Integer)
+
 # See also
 [`NFFT`](@ref)
 
@@ -110,21 +113,6 @@ mutable struct FASTSUM
     end
 end #struct fastsumplan
 
-@doc raw"""
-	FASTSUM(N,M)
-	
-creates the FASTSUM plan structure more convinient.
-
-# Input
-* `N` – a bandwith touple.
-* `M` – the number of nodes.
-
-# Output 
-* `FASTSUM{D}` - a FASTSUM plan structure.
-
-# See also
-[`FASTSUM{D}`](@ref), [`FASTSUM`](@ref)
-"""
 function FASTSUM(
     d::Integer,
     N::Integer,
@@ -163,7 +151,7 @@ function FASTSUM(
 end #constructor
 
 @doc raw"""
-    fastsum_init(p)
+    fastsum_init(P)
 
 intialises a transform plan.
 
@@ -171,12 +159,12 @@ intialises a transform plan.
 * `p` - a FASTSUM plan structure.
 
 # See also
-[`FASTSUM{D}`](@ref), [`finalize_plan`](@ref)
+[`FASTSUM{D}`](@ref), [`fastsum_finalize_plan`](@ref)
 """
-function fastsum_init(p::FASTSUM)
+function fastsum_init(P::FASTSUM)
 
     ptr = ccall(("jfastsum_alloc", lib_path_fastsum), Ptr{fastsum_plan}, ())
-    Core.setfield!(p, :plan, ptr)
+    Core.setfield!(P, :plan, ptr)
 
     code = ccall(
         ("jfastsum_init", lib_path_fastsum),
@@ -199,33 +187,33 @@ function fastsum_init(p::FASTSUM)
             Int32,
         ),
         ptr,
-        Int32(p.d),
-        p.kernel,
-        p.c,
-        p.flags,
-        Int32(p.n),
-        Int32(p.p),
-        Float64(p.eps_I),
-        Float64(p.eps_B),
-        Int32(p.N),
-        Int32(p.M),
-        Int32(p.nn_x),
-        Int32(p.nn_y),
-        Int32(p.m_x),
-        Int32(p.m_y),
+        Int32(P.d),
+        P.kernel,
+        P.c,
+        P.flags,
+        Int32(P.n),
+        Int32(P.P),
+        Float64(P.eps_I),
+        Float64(P.eps_B),
+        Int32(P.N),
+        Int32(P.M),
+        Int32(P.nn_x),
+        Int32(P.nn_y),
+        Int32(P.m_x),
+        Int32(P.m_y),
     )
 
     if code == 1
         error("Unkown kernel.")
     end
 
-    Core.setfield!(p, :init_done, true)
-    finalizer(finalize_plan, p)
+    Core.setfield!(P, :init_done, true)
+    finalizer(fastsum_finalize_plan, P)
 
 end #fastsum_init
 
 @doc raw"""
-    finalize_plan(P)
+    fastsum_finalize_plan(P)
 
 destroys a FASTSUM plan structure.
 
@@ -235,49 +223,49 @@ destroys a FASTSUM plan structure.
 # See also
 [`FASTSUM{D}`](@ref), [`fastsum_init`](@ref)
 """
-function finalize_plan(p::FASTSUM)
+function fastsum_finalize_plan(P::FASTSUM)
 
-    if !p.init_done
+    if !P.init_done
         error("FASTSUM not initialized.")
     end
 
-    if !p.finalized
+    if !P.finalized
         ccall(
             ("jfastsum_finalize", lib_path_fastsum),
             Nothing,
             (Ref{fastsum_plan},),
-            p.plan,
+            P.plan,
         )
-        Core.setfield!(p, :finalized, true)
+        Core.setfield!(P, :finalized, true)
     end
 
-end #finalize_plan
+end #fastsum_finalize_plan
 
-function Base.setproperty!(p::FASTSUM, v::Symbol, val)
+function Base.setproperty!(P::FASTSUM, v::Symbol, val)
 
-    if !p.init_done
-        fastsum_init(p)
+    if !P.init_done
+        fastsum_init(P)
     end
 
-    if p.finalized
+    if P.finalized
         error("FASTSUM already finalized")
     end
 
     # edit source nodes
     if v == :x
 
-        if p.d == 1
+        if P.d == 1
             if typeof(val) != Vector{Float64}
                 error("x has to be a Float64 vector.")
             end
-            if size(val)[1] != p.N
+            if size(val)[1] != P.N
                 error("x has to be a Float64 vector of length N.")
             end
         else # => D >1
             if typeof(val) != Array{Float64,2}
                 error("x has to be a Float64 matrix.")
             end
-            if size(val)[1] != p.N || size(val)[2] != p.d
+            if size(val)[1] != P.N || size(val)[2] != P.d
                 error("x has to be a Float64 matrix of size N.")
             end
         end
@@ -286,26 +274,26 @@ function Base.setproperty!(p::FASTSUM, v::Symbol, val)
             ("jfastsum_set_x", lib_path_fastsum),
             Ptr{Float64},
             (Ref{fastsum_plan}, Ref{Cdouble}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
 
         # edit target nodes
     elseif v == :y
 
-        if p.d == 1
+        if P.d == 1
             if typeof(val) != Vector{Float64}
                 error("y has to be a Float64 vector.")
             end
-            if size(val)[1] != p.M
+            if size(val)[1] != P.M
                 error("y has to be a Float64 vector of length M.")
             end
         else # => D > 1
             if typeof(val) != Array{Float64,2}
                 error("y has to be a Float64 matrix.")
             end
-            if size(val)[1] != p.M || size(val)[2] != p.d
+            if size(val)[1] != P.M || size(val)[2] != P.d
                 error("y has to be a Float64 matrix of size M.")
             end
         end
@@ -314,10 +302,10 @@ function Base.setproperty!(p::FASTSUM, v::Symbol, val)
             ("jfastsum_set_y", lib_path_fastsum),
             Ptr{Float64},
             (Ref{fastsum_plan}, Ref{Cdouble}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
 
         # edit source coefficients
     elseif v == :alpha
@@ -325,7 +313,7 @@ function Base.setproperty!(p::FASTSUM, v::Symbol, val)
         if typeof(val) != Vector{ComplexF64}
             error("alpha has to be a ComplexF64 vector.")
         end
-        if size(val)[1] != p.N
+        if size(val)[1] != P.N
             error("alpha has to be a ComplexF64 vector of length N.")
         end
 
@@ -333,10 +321,10 @@ function Base.setproperty!(p::FASTSUM, v::Symbol, val)
             ("jfastsum_set_alpha", lib_path_fastsum),
             Ptr{ComplexF64},
             (Ref{fastsum_plan}, Ref{ComplexF64}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
 
     elseif v == :M
         @warn("You can't modify the number of target nodes.")
@@ -359,67 +347,67 @@ function Base.setproperty!(p::FASTSUM, v::Symbol, val)
     elseif v == :plan
         @warn("You can't modify the pointer to the fastsum plan.")
     else
-        Core.setfield!(p, v, val)
+        Core.setfield!(P, v, val)
     end
 
 end # Base.setproperty!
 
 # overwrite dot notation for plan struct in order to use C memory
-function Base.getproperty(p::FASTSUM, v::Symbol)
+function Base.getproperty(P::FASTSUM, v::Symbol)
 
     if v == :x
 
-        if !isdefined(p, :x)
+        if !isdefined(P, :x)
             error("x is not set.")
         end
 
-        ptr = Core.getfield(p, :x)
+        ptr = Core.getfield(P, :x)
 
-        if p.d == 1
-            return unsafe_wrap(Vector{Float64}, ptr, p.N) # get source nodes from C memory and convert to Julia type
+        if P.d == 1
+            return unsafe_wrap(Vector{Float64}, ptr, P.N) # get source nodes from C memory and convert to Julia type
         else
-            return unsafe_wrap(Matrix{Float64}, ptr, (p.d, p.N))  # get source nodes from C memory and convert to Julia type
+            return unsafe_wrap(Matrix{Float64}, ptr, (P.d, P.N))  # get source nodes from C memory and convert to Julia type
         end
 
     elseif v == :y
 
-        if !isdefined(p, :y)
+        if !isdefined(P, :y)
             error("y is not set.")
         end
 
-        ptr = Core.getfield(p, :y)
+        ptr = Core.getfield(P, :y)
 
-        if p.d == 1
-            return unsafe_wrap(Vector{Float64}, ptr, p.M)
+        if P.d == 1
+            return unsafe_wrap(Vector{Float64}, ptr, P.M)
         else
-            return unsafe_wrap(Matrix{Float64}, ptr, (p.d, p.M))
+            return unsafe_wrap(Matrix{Float64}, ptr, (P.d, P.M))
         end
 
     elseif v == :alpha
 
-        if !isdefined(p, :alpha)
+        if !isdefined(P, :alpha)
             error("alpha is not set.")
         end
 
-        ptr = Core.getfield(p, :alpha)
-        return unsafe_wrap(Vector{ComplexF64}, ptr, p.N) # get coefficients from C memory and convert to Julia type
+        ptr = Core.getfield(P, :alpha)
+        return unsafe_wrap(Vector{ComplexF64}, ptr, P.N) # get coefficients from C memory and convert to Julia type
 
     elseif v == :f
 
-        if !isdefined(p, :f)
+        if !isdefined(P, :f)
             error("f is not set.")
         end
 
-        ptr = Core.getfield(p, :f)
-        return unsafe_wrap(Vector{ComplexF64}, ptr, p.M)  # get function values from C memory and convert to Julia type
+        ptr = Core.getfield(P, :f)
+        return unsafe_wrap(Vector{ComplexF64}, ptr, P.M)  # get function values from C memory and convert to Julia type
 
     else
-        return Core.getfield(p, v)
+        return Core.getfield(P, v)
     end
 end # Base.getproperty
 
 @doc raw"""
-    trafo(P)
+    fastsum_trafo(P)
 
 fast NFFT-based summation.
 
@@ -427,23 +415,23 @@ fast NFFT-based summation.
 * `P` - a FASTSUM plan structure.
 
 # See also
-[`FASTSUM{D}`](@ref), [`trafo_direct`](@ref)
+[`FASTSUM{D}`](@ref), [`fastsum_trafo_exact`](@ref)
 """
-function trafo(p::FASTSUM)
+function fastsum_trafo(P::FASTSUM)
 
-    if p.finalized
+    if P.finalized
         error("FASTSUM already finalized.")
     end
 
-    if !isdefined(p, :x)
+    if !isdefined(P, :x)
         error("x has not been set.")
     end
 
-    if !isdefined(p, :y)
+    if !isdefined(P, :y)
         error("y has not been set.")
     end
 
-    if !isdefined(p, :alpha)
+    if !isdefined(P, :alpha)
         error("alpha has not been set.")
     end
 
@@ -451,14 +439,14 @@ function trafo(p::FASTSUM)
         ("jfastsum_trafo", lib_path_fastsum),
         Ptr{ComplexF64},
         (Ref{fastsum_plan},),
-        p.plan,
+        P.plan,
     )
-    Core.setfield!(p, :f, ptr)
+    Core.setfield!(P, :f, ptr)
 
 end #trafo
 
 @doc raw"""
-    trafo_exact(P)
+    fastsum_trafo_exact(P)
 
 direct computation of sums.
 
@@ -466,23 +454,23 @@ direct computation of sums.
 * `P` - a FASTSUM plan structure.
 
 # See also
-[`FASTSUM{D}`](@ref), [`trafo_direct`](@ref)
+[`FASTSUM{D}`](@ref), [`fastsum_trafo`](@ref)
 """
-function trafo_exact(p::FASTSUM)
+function fastsum_trafo_exact(P::FASTSUM)
 
-    if p.finalized
+    if P.finalized
         error("FASTSUM already finalized.")
     end
 
-    if !isdefined(p, :x)
+    if !isdefined(P, :x)
         error("x has not been set.")
     end
 
-    if !isdefined(p, :y)
+    if !isdefined(P, :y)
         error("y has not been set.")
     end
 
-    if !isdefined(p, :alpha)
+    if !isdefined(P, :alpha)
         error("alpha has not been set.")
     end
 
@@ -490,8 +478,8 @@ function trafo_exact(p::FASTSUM)
         ("jfastsum_exact", lib_path_fastsum),
         Ptr{ComplexF64},
         (Ref{fastsum_plan},),
-        p.plan,
+        P.plan,
     )
-    Core.setfield!(p, :f, ptr)
+    Core.setfield!(P, :f, ptr)
 
 end #trafo

@@ -25,8 +25,34 @@ include("NFST.jl")
 include("fastsum.jl")
 include("flags.jl")
 
+
+
 # plan structures
 export NFFT, NFCT, NFST, FASTSUM
+
+# functions
+export nfft_finalize_plan,
+    nfft_init,
+    nfft_trafo,
+    nfft_adjoint,
+    nfft_trafo_direct,
+    nfft_adjoint_direct,
+    nfct_finalize_plan,
+    nfct_init,
+    nfct_trafo,
+    nfct_adjoint,
+    nfct_trafo_direct,
+    nfct_adjoint_direct,
+    nfst_finalize_plan,
+    nfst_init,
+    nfst_trafo,
+    nfst_adjoint,
+    nfst_trafo_direct,
+    nfst_adjoint_direct,
+    fastsum_finalize_plan,
+    fastsum_init,
+    fastsum_trafo,
+    fastsum_trafo_exact
 
 # flags 
 export PRE_PHI_HUT,

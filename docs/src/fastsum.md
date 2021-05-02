@@ -1,5 +1,9 @@
 # [Fast Summation Algorithm](@id fastsum)
 
+```@meta
+    CurrentModule = NFFT3
+```
+
 ```@docs
     FASTSUM
 ```

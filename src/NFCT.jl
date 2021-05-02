@@ -82,21 +82,6 @@ mutable struct NFCT{D}
 end
 
 # additional constructor for easy use [NFCT((N,N),M) instead of NFCT{2}((N,N),M)]
-@doc raw"""
-	NFCT(N,M)
-	
-creates the NFCT plan structure more convinient.
-
-# Input
-* `N` – a bandwith touple.
-* `M` – the number of nodes.
-
-# Output 
-* `NFCT{D}` - a NFCT plan structure.
-
-# See also
-[`NFCT{D}`](@ref), [`NFCT`](@ref)
-"""
 function NFCT(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
         error("Every entry of N has to be an even, positive integer.")
@@ -125,25 +110,6 @@ function NFCT(N::NTuple{D,Integer}, M::Integer) where {D}
     NFCT{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(8), f1, f2_default)
 end
 
-@doc raw"""
-    NFCT(N,M,n,m,f1,f2)
-
-creates the NFCT plan structure more convinient.
-
-# Input
-* `N` – a bandwith touple.
-* `M` – the number of nodes.
-* `n` - the oversampling per dimension.
-* `m` - the window size. Larger m means more accuracy but also more computational costs. 
-* `f1` - the NFCT flags.
-* `f2` - the FFTW flags.
-
-# Output 
-* `NFCT{D}` - a NFCT plan structure.
-
-# See also
-[`NFCT{D}`](@ref)
-"""
 function NFCT(
     N::NTuple{D,Integer},
     M::Integer,
@@ -193,7 +159,7 @@ end
 
 # finalizer
 @doc raw"""
-    finalize_plan(P::NFCT{D})
+    nfct_finalize_plan(P::NFCT{D})
 
 destroys a NFCT plan structure.
 
@@ -203,7 +169,7 @@ destroys a NFCT plan structure.
 # See also
 [`NFCT{D}`](@ref), [`nfct_init`](@ref)
 """
-function finalize_plan(P::NFCT{D}) where {D}
+function nfct_finalize_plan(P::NFCT{D}) where {D}
     if !P.init_done
         error("NFCT not initialized.")
     end
@@ -216,26 +182,26 @@ end
 
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
-    nfct_init(p)
+    nfct_init(P)
 
 intialises a transform plan.
 
 # Input
-* `p` - a NFCT plan structure.
+* `P` - a NFCT plan structure.
 
 # See also
-[`NFCT{D}`](@ref), [`finalize_plan`](@ref)
+[`NFCT{D}`](@ref), [`nfct_finalize_plan`](@ref)
 """
-function nfct_init(p::NFCT{D}) where {D}
+function nfct_init(P::NFCT{D}) where {D}
     # convert N and n to vectors for passing them over to C
-    Nv = collect(p.N)
-    n = collect(p.n)
+    Nv = collect(P.N)
+    n = collect(P.n)
 
     # call init for memory allocation
     ptr = ccall(("jnfct_alloc", lib_path_nfct), Ptr{nfct_plan}, ())
 
     # set pointer
-    Core.setfield!(p, :plan, ptr)
+    Core.setfield!(P, :plan, ptr)
 
     # initialize values
     ccall(
@@ -245,25 +211,25 @@ function nfct_init(p::NFCT{D}) where {D}
         ptr,
         D,
         Nv,
-        p.M,
+        P.M,
         n,
-        p.m,
-        p.f1,
-        p.f2,
+        P.m,
+        P.f1,
+        P.f2,
     )
-    Core.setfield!(p, :init_done, true)
-    finalizer(finalize_plan, p)
+    Core.setfield!(P, :init_done, true)
+    finalizer(nfct_finalize_plan, P)
 end
 
 # overwrite dot notation for plan struct in order to use C memory
-function Base.setproperty!(p::NFCT{D}, v::Symbol, val) where {D}
+function Base.setproperty!(P::NFCT{D}, v::Symbol, val) where {D}
     # init plan if not done [usually with setting nodes]
-    if !p.init_done
-        nfct_init(p)
+    if !P.init_done
+        nfct_init(P)
     end
 
     # prevent bad stuff from happening
-    if p.finalized
+    if P.finalized
         error("NFCT already finalized")
     end
 
@@ -273,14 +239,14 @@ function Base.setproperty!(p::NFCT{D}, v::Symbol, val) where {D}
             if typeof(val) != Vector{Float64}
                 error("x has to be a Float64 vector.")
             end
-            if size(val)[1] != p.M
+            if size(val)[1] != P.M
                 error("x has to be a Float64 vector of length M.")
             end
         else
             if typeof(val) != Array{Float64,2}
                 error("x has to be a Float64 matrix.")
             end
-            if size(val)[1] != D || size(val)[2] != p.M
+            if size(val)[1] != D || size(val)[2] != P.M
                 error("x has to be a Float64 matrix of size dxM.")
             end
         end
@@ -288,34 +254,34 @@ function Base.setproperty!(p::NFCT{D}, v::Symbol, val) where {D}
             ("jnfct_set_x", lib_path_nfct),
             Ptr{Float64},
             (Ref{nfct_plan}, Ref{Cdouble}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
 
         # setting values
     elseif v == :f
         if typeof(val) != Array{Float64,1}
             error("f has to be a Float64 vector.")
         end
-        if size(val)[1] != p.M
+        if size(val)[1] != P.M
             error("f has to be a Float64 vector of size M.")
         end
         ptr = ccall(
             ("jnfct_set_f", lib_path_nfct),
             Ptr{Float64},
             (Ref{nfct_plan}, Ref{Float64}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
 
         # setting Fourier coefficients
     elseif v == :fhat
         if typeof(val) != Array{Float64,1}
             error("fhat has to be a Float64 vector.")
         end
-        l = prod(p.N)
+        l = prod(P.N)
         if size(val)[1] != l
             error("fhat has to be a Float64 vector of size prod(N).")
         end
@@ -323,10 +289,10 @@ function Base.setproperty!(p::NFCT{D}, v::Symbol, val) where {D}
             ("jnfct_set_fhat", lib_path_nfct),
             Ptr{Float64},
             (Ref{nfct_plan}, Ref{Float64}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
 
         # prevent modification of NFCT plan pointer
     elseif v == :plan
@@ -349,44 +315,44 @@ function Base.setproperty!(p::NFCT{D}, v::Symbol, val) where {D}
         @warn "You can't modify the FFTW flags, please create an additional plan."
         # handle other set operations the default way
     else
-        Core.setfield!(p, v, val)
+        Core.setfield!(P, v, val)
     end
 end
 
 # overwrite dot notation for plan struct in order to use C memory
-function Base.getproperty(p::NFCT{D}, v::Symbol) where {D}
+function Base.getproperty(P::NFCT{D}, v::Symbol) where {D}
     if v == :x
-        if !isdefined(p, :x)
+        if !isdefined(P, :x)
             error("x is not set.")
         end
-        ptr = Core.getfield(p, :x)
+        ptr = Core.getfield(P, :x)
         if D == 1
-            return unsafe_wrap(Vector{Float64}, ptr, p.M)             # get nodes from C memory and convert to Julia type
+            return unsafe_wrap(Vector{Float64}, ptr, P.M)             # get nodes from C memory and convert to Julia type
         else
-            return unsafe_wrap(Matrix{Float64}, ptr, (D, Int64(p.M)))  # get nodes from C memory and convert to Julia type
+            return unsafe_wrap(Matrix{Float64}, ptr, (D, Int64(P.M)))  # get nodes from C memory and convert to Julia type
         end
     elseif v == :num_threads
         return ccall(("nfft_get_num_threads", lib_path_nfct), Int64, ())
     elseif v == :f
-        if !isdefined(p, :f)
+        if !isdefined(P, :f)
             error("f is not set.")
         end
-        ptr = Core.getfield(p, :f)
-        return unsafe_wrap(Vector{Float64}, ptr, p.M)  # get function values from C memory and convert to Julia type
+        ptr = Core.getfield(P, :f)
+        return unsafe_wrap(Vector{Float64}, ptr, P.M)  # get function values from C memory and convert to Julia type
     elseif v == :fhat
-        if !isdefined(p, :fhat)
+        if !isdefined(P, :fhat)
             error("fhat is not set.")
         end
-        ptr = Core.getfield(p, :fhat)
-        return unsafe_wrap(Vector{Float64}, ptr, prod(p.N)) # get Fourier coefficients from C memory and convert to Julia type
+        ptr = Core.getfield(P, :fhat)
+        return unsafe_wrap(Vector{Float64}, ptr, prod(P.N)) # get Fourier coefficients from C memory and convert to Julia type
     else
-        return Core.getfield(p, v)
+        return Core.getfield(P, v)
     end
 end
 
 # nfct trafo direct [call with NFCT.trafo_direct outside module]
 @doc raw"""
-    trafo_direct(P)
+    nfct_trafo_direct(P)
 
 computes a NFCT.
 
@@ -394,9 +360,9 @@ computes a NFCT.
 * `P` - a NFCT plan structure.
 
 # See also
-[`NFCT{D}`](@ref), [`trafo`](@ref)
+[`NFCT{D}`](@ref), [`nfct_trafo`](@ref)
 """
-function trafo_direct(P::NFCT{D}) where {D}
+function nfct_trafo_direct(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFCT already finalized")
@@ -421,7 +387,7 @@ end
 
 # adjoint trafo direct [call with NFCT.adjoint_direct outside module]
 @doc raw"""
-    adjoint_direct(P)
+    nfct_adjoint_direct(P)
 
 computes an adjoint NFCT.
 
@@ -431,7 +397,7 @@ computes an adjoint NFCT.
 # See also
 [`NFCT{D}`](@ref), [`adjoint`](@ref)
 """
-function adjoint_direct(P::NFCT{D}) where {D}
+function nfct_adjoint_direct(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFCT already finalized")
@@ -453,7 +419,7 @@ end
 
 # nfct trafo [call with NFCT.trafo outside module]
 @doc raw"""
-    trafo(P)
+    nfct_trafo(P)
 
 computes a NFCT.
 
@@ -463,7 +429,7 @@ computes a NFCT.
 # See also
 [`NFCT{D}`](@ref), [`trafo_direct`](@ref)
 """
-function trafo(P::NFCT{D}) where {D}
+function nfct_trafo(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFCT already finalized")
@@ -480,7 +446,7 @@ end
 
 # adjoint trafo [call with NFCT.adjoint outside module]
 @doc raw"""
-    adjoint(P)
+    nfct_adjoint(P)
 
 computes an adjoint NFCT.
 
@@ -490,7 +456,7 @@ computes an adjoint NFCT.
 # See also
 [`NFCT{D}`](@ref), [`adjoint_direct`](@ref)
 """
-function adjoint(P::NFCT{D}) where {D}
+function nfct_adjoint(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFCT already finalized")

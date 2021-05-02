@@ -1,5 +1,9 @@
 # [Nonequispaced Fast Cosine Transform](@id NFCT)
 
+```@meta
+    CurrentModule = NFFT3
+```
+
 ```@docs
     NFCT{D}
 ```
@@ -85,7 +89,12 @@ can easily be derived from the duality of the two problems.
 ## Functions
 
 ```@docs
-  	finalize_plan
+  	nfct_finalize_plan
+    nfct_init
+    nfct_trafo
+    nfct_adjoint
+    nfct_trafo_direct
+    nfct_adjoint_direct
 ```
 
 ## Literature

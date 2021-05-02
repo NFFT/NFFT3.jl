@@ -59,6 +59,9 @@ for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb
 # Constructor
     NFFT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where D
 
+# Additional Constructor
+    NFFT(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
+    NFFT(N::NTuple{D,Int32},M::Int32) where {D}
 
 [^Schmischke2018]:
     > Schmischke, Michael 
@@ -103,21 +106,6 @@ mutable struct NFFT{D}
 end
 
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
-@doc raw"""
-	NFFT(N,M)
-	
-creates the NFFT plan structure more convinient.
-
-# Input
-* `N` – a bandwith touple.
-* `M` – the number of nodes.
-
-# Output 
-* `NFFT{D}` - a NFFT plan structure.
-
-# See also
-[`NFFT{D}`](@ref), [`NFFT`](@ref)
-"""
 function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
         error("Every entry of N has to be an even, positive integer.")
@@ -150,25 +138,6 @@ function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
     NFFT{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(8), f1, f2_default)
 end
 
-@doc raw"""
-    NFFT(N,M,n,m,f1,f2)
-
-creates the NFFT plan structure more convinient.
-
-# Input
-* `N` – a bandwith touple.
-* `M` – the number of nodes.
-* `n` - the oversampling per dimension.
-* `m` - the window size. Larger m means more accuracy but also more computational costs. 
-* `f1` - the NFFT flags.
-* `f2` - the FFTW flags.
-
-# Output 
-* `NFFT{D}` - a NFFT plan structure.
-
-# See also
-[`NFFT{D}`](@ref)
-"""
 function NFFT(
     N::NTuple{D,Integer},
     M::Integer,
@@ -218,7 +187,7 @@ end
 
 # finalizer
 @doc raw"""
-    finalize_plan(P)
+    nfft_finalize_plan(P)
 
 destroys a NFFT plan structure.
 
@@ -228,7 +197,7 @@ destroys a NFFT plan structure.
 # See also
 [`NFFT{D}`](@ref), [`nfft_init`](@ref)
 """
-function finalize_plan(P::NFFT{D}) where {D}
+function nfft_finalize_plan(P::NFFT{D}) where {D}
     if !P.init_done
         error("NFFT not initialized.")
     end
@@ -241,26 +210,26 @@ end
 
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
-    nfft_init(p)
+    nfft_init(P)
 
 intialises a transform plan.
 
 # Input
-* `p` - a NFFT plan structure.
+* `P` - a NFFT plan structure.
 
 # See also
-[`NFFT{D}`](@ref), [`finalize_plan`](@ref)
+[`NFFT{D}`](@ref), [`nfft_finalize_plan`](@ref)
 """
-function nfft_init(p::NFFT{D}) where {D}
+function nfft_init(P::NFFT{D}) where {D}
     # convert N and n to vectors for passing them over to C
-    Nv = collect(p.N)
-    n = collect(p.n)
+    Nv = collect(P.N)
+    n = collect(P.n)
 
     # call init for memory allocation
     ptr = ccall(("jnfft_alloc", lib_path_nfft), Ptr{nfft_plan}, ())
 
     # set pointer
-    Core.setfield!(p, :plan, ptr)
+    Core.setfield!(P, :plan, ptr)
 
     # initialize values
     ccall(
@@ -270,25 +239,25 @@ function nfft_init(p::NFFT{D}) where {D}
         ptr,
         D,
         Nv,
-        p.M,
+        P.M,
         n,
-        p.m,
-        p.f1,
-        p.f2,
+        P.m,
+        P.f1,
+        P.f2,
     )
-    Core.setfield!(p, :init_done, true)
-    finalizer(finalize_plan, p)
+    Core.setfield!(P, :init_done, true)
+    finalizer(nfft_finalize_plan, P)
 end
 
 # overwrite dot notation for plan struct in order to use C memory
-function Base.setproperty!(p::NFFT{D}, v::Symbol, val) where {D}
+function Base.setproperty!(P::NFFT{D}, v::Symbol, val) where {D}
     # init plan if not done [usually with setting nodes]
-    if !p.init_done
-        nfft_init(p)
+    if !P.init_done
+        nfft_init(P)
     end
 
     # prevent bad stuff from happening
-    if p.finalized
+    if P.finalized
         error("NFFT already finalized")
     end
 
@@ -298,14 +267,14 @@ function Base.setproperty!(p::NFFT{D}, v::Symbol, val) where {D}
             if typeof(val) != Vector{Float64}
                 error("x has to be a Float64 vector.")
             end
-            if size(val)[1] != p.M
+            if size(val)[1] != P.M
                 error("x has to be a Float64 vector of length M.")
             end
         else
             if typeof(val) != Array{Float64,2}
                 error("x has to be a Float64 matrix.")
             end
-            if size(val)[1] != D || size(val)[2] != p.M
+            if size(val)[1] != D || size(val)[2] != P.M
                 error("x has to be a Float64 matrix of size dxM.")
             end
         end
@@ -313,32 +282,32 @@ function Base.setproperty!(p::NFFT{D}, v::Symbol, val) where {D}
             ("jnfft_set_x", lib_path_nfft),
             Ptr{Float64},
             (Ref{nfft_plan}, Ref{Cdouble}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
         # setting values
     elseif v == :f
         if typeof(val) != Array{ComplexF64,1}
             error("f has to be a ComplexFloat64 vector.")
         end
-        if size(val)[1] != p.M
+        if size(val)[1] != P.M
             error("f has to be a ComplexFloat64 vector of size M.")
         end
         ptr = ccall(
             ("jnfft_set_f", lib_path_nfft),
             Ptr{ComplexF64},
             (Ref{nfft_plan}, Ref{ComplexF64}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
         # setting Fourier coefficients
     elseif v == :fhat
         if typeof(val) != Array{ComplexF64,1}
             error("fhat has to be a ComplexFloat64 vector.")
         end
-        l = prod(p.N)
+        l = prod(P.N)
         if size(val)[1] != l
             error("fhat has to be a ComplexFloat64 vector of size prod(N).")
         end
@@ -346,10 +315,10 @@ function Base.setproperty!(p::NFFT{D}, v::Symbol, val) where {D}
             ("jnfft_set_fhat", lib_path_nfft),
             Ptr{ComplexF64},
             (Ref{nfft_plan}, Ref{ComplexF64}),
-            p.plan,
+            P.plan,
             val,
         )
-        Core.setfield!(p, v, ptr)
+        Core.setfield!(P, v, ptr)
         # prevent modification of NFFT plan pointer
     elseif v == :plan
         @warn "You can't modify the C pointer to the NFFT plan."
@@ -371,44 +340,44 @@ function Base.setproperty!(p::NFFT{D}, v::Symbol, val) where {D}
         @warn "You can't modify the FFTW flags, please create an additional plan."
         # handle other set operations the default way
     else
-        Core.setfield!(p, v, val)
+        Core.setfield!(P, v, val)
     end
 end
 
 # overwrite dot notation for plan struct in order to use C memory
-function Base.getproperty(p::NFFT{D}, v::Symbol) where {D}
+function Base.getproperty(P::NFFT{D}, v::Symbol) where {D}
     if v == :x
-        if !isdefined(p, :x)
+        if !isdefined(P, :x)
             error("x is not set.")
         end
-        ptr = Core.getfield(p, :x)
+        ptr = Core.getfield(P, :x)
         if D == 1
-            return unsafe_wrap(Vector{Float64}, ptr, p.M)             # get nodes from C memory and convert to Julia type
+            return unsafe_wrap(Vector{Float64}, ptr, P.M)             # get nodes from C memory and convert to Julia type
         else
-            return unsafe_wrap(Matrix{Float64}, ptr, (D, Int64(p.M)))  # get nodes from C memory and convert to Julia type
+            return unsafe_wrap(Matrix{Float64}, ptr, (D, Int64(P.M)))  # get nodes from C memory and convert to Julia type
         end
     elseif v == :num_threads
         return ccall(("nfft_get_num_threads", lib_path_nfft), Int64, ())
     elseif v == :f
-        if !isdefined(p, :f)
+        if !isdefined(P, :f)
             error("f is not set.")
         end
-        ptr = Core.getfield(p, :f)
-        return unsafe_wrap(Vector{ComplexF64}, ptr, p.M)  # get function values from C memory and convert to Julia type
+        ptr = Core.getfield(P, :f)
+        return unsafe_wrap(Vector{ComplexF64}, ptr, P.M)  # get function values from C memory and convert to Julia type
     elseif v == :fhat
-        if !isdefined(p, :fhat)
+        if !isdefined(P, :fhat)
             error("fhat is not set.")
         end
-        ptr = Core.getfield(p, :fhat)
-        return unsafe_wrap(Vector{ComplexF64}, ptr, prod(p.N)) # get Fourier coefficients from C memory and convert to Julia type
+        ptr = Core.getfield(P, :fhat)
+        return unsafe_wrap(Vector{ComplexF64}, ptr, prod(P.N)) # get Fourier coefficients from C memory and convert to Julia type
     else
-        return Core.getfield(p, v)
+        return Core.getfield(P, v)
     end
 end
 
 # nfft trafo direct [call with NFFT.trafo_direct outside module]
 @doc raw"""
-    trafo_direct(P)
+    nfft_trafo_direct(P)
 
 computes a NFFT.
 
@@ -418,7 +387,7 @@ computes a NFFT.
 # See also
 [`NFFT{D}`](@ref), [`trafo`](@ref)
 """
-function trafo_direct(P::NFFT{D}) where {D}
+function nfft_trafo_direct(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFFT already finalized")
@@ -443,7 +412,7 @@ end
 
 # adjoint trafo direct [call with NFFT.adjoint_direct outside module]
 @doc raw"""
-    adjoint_direct(P)
+    nfft_adjoint_direct(P)
 
 computes an adjoint NFFT.
 
@@ -453,7 +422,7 @@ computes an adjoint NFFT.
 # See also
 [`NFFT{D}`](@ref), [`adjoint`](@ref)
 """
-function adjoint_direct(P::NFFT{D}) where {D}
+function nfft_adjoint_direct(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFFT already finalized")
@@ -475,7 +444,7 @@ end
 
 # nfft trafo [call with NFFT.trafo outside module]
 @doc raw"""
-    trafo(P)
+    nfft_trafo(P)
 
 computes a NFFT.
 
@@ -483,9 +452,9 @@ computes a NFFT.
 * `P` - a NFFT plan structure.
 
 # See also
-[`NFFT{D}`](@ref), [`trafo_direct`](@ref)
+[`NFFT{D}`](@ref), [`nfft_trafo_direct`](@ref)
 """
-function trafo(P::NFFT{D}) where {D}
+function nfft_trafo(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFFT already finalized")
@@ -502,7 +471,7 @@ end
 
 # adjoint trafo [call with NFFT.adjoint outside module]
 @doc raw"""
-    adjoint(P)
+    nfft_adjoint(P)
 
 computes an adjoint NFFT.
 
@@ -510,9 +479,9 @@ computes an adjoint NFFT.
 * `P` - a NFFT plan structure.
 
 # See also
-[`NFFT{D}`](@ref), [`adjoint_direct`](@ref)
+[`NFFT{D}`](@ref), [`nfft_adjoint_direct`](@ref)
 """
-function adjoint(P::NFFT{D}) where {D}
+function nfft_adjoint(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFFT already finalized")

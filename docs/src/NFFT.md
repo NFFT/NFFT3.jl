@@ -10,6 +10,17 @@ The nonequispaced fast Fourier transform [[Keiner, Kunis, Potts, 2006](#KeinerKu
 
 ## Algorithm
 
+## Functions
+
+```@docs
+  	nfft_finalize_plan
+    nfft_init
+    nfft_trafo
+    nfft_adjoint
+    nfft_trafo_direct
+    nfft_adjoint_direct
+```
+
 ## Literature
 
 ```@raw html
