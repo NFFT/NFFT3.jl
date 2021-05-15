@@ -6,10 +6,10 @@ mutable struct fastsum_plan end
 The fast summation algorithm evaluates the function
 
 ```math
-f (y) \coloneqq \sum^{N}_{k = 1} \alpha_k \mathcal{K} (y - x_k) = \sum^{N}_{k = 1} \alpha_k K (\lVert y - x_k \rVert_2)
+f (y) \coloneqq \sum^{N}_{k = 1} \alpha_k \mathscr{K} (y - x_k) = \sum^{N}_{k = 1} \alpha_k K (\lVert y - x_k \rVert_2)
 ```
 
-for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d, \; k = 1, \cdots, N`` and a given kernel function ``\mathcal{K} (\cdot) = K (\cdot), \; x \in \mathbb{R}^d``, which is an even, real univariate function which is infinitely differentiable at least in ``\mathbb{R} \setminus \{ 0 \}``. If ``K`` is infinitely differentiable at zero as well, then ``\mathcal{K}`` is defined on ``\mathbb{R}^d`` and is called nonsingular kernel function. The evaluation is done at ``M`` different points ``y_j \in \mathbb{R}^d, \; j = 1, \cdots, M``. 
+for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d, \; k = 1, \cdots, N`` and a given kernel function ``\mathscr{K} (\cdot) = K (\cdot), \; x \in \mathbb{R}^d``, which is an even, real univariate function which is infinitely differentiable at least in ``\mathbb{R} \setminus \{ 0 \}``. If ``K`` is infinitely differentiable at zero as well, then ``\mathscr{K}`` is defined on ``\mathbb{R}^d`` and is called nonsingular kernel function. The evaluation is done at ``M`` different points ``y_j \in \mathbb{R}^d, \; j = 1, \cdots, M``. 
 
 # Fields
 * `d` - dimension.

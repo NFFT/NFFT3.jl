@@ -13,20 +13,20 @@
 The fast summation algorithm evaluates the function 
 
 ```math
-    f(y) \coloneqq \sum_{k=1}^{M_1} \alpha_k \ \mathcal{K} (y-x_k)
+    f(y) \coloneqq \sum_{k=1}^{M_1} \alpha_k \ \mathscr{K} (y-x_k)
 ``` 
 
-for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d,\ k = 1, \ldots, M_1`` and a given kernel function ``\mathcal{K} (x) \coloneqq K(\lVert x \rVert_2),\ x \in \mathbb{R}^d``. Here, ``K`` is required to be infinitely differentiable at ``x\in \mathbb{R} \setminus \{ 0 \}``. If ``K`` is even infinitely differentiable at 0, ``\mathcal{K}`` is called \emph{nonsingular kernel function}, otherwise \emph{singular kernel function}. 
+for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d,\ k = 1, \ldots, M_1`` and a given kernel function ``\mathscr{K} (x) \coloneqq K(\lVert x \rVert_2),\ x \in \mathbb{R}^d``. Here, ``K`` is required to be infinitely differentiable at ``x\in \mathbb{R} \setminus \{ 0 \}``. If ``K`` is even infinitely differentiable at 0, ``\mathscr{K}`` is called \emph{nonsingular kernel function}, otherwise \emph{singular kernel function}. 
 
 # Pseudocode
 
 The evaluation is done at ``M_2`` different points ``y_j \in \mathbb{R}^d,\ j=0,\ldots,M_2``. W.l.o.g. we assume ``y_j \neq x_i  \ (j\neq i)``, i.e., one wants to compute
 
 ```math
-    f(y_j) \coloneqq \sum_{k=1}^{M_1} \alpha_k \ \mathcal{K} (y_j-x_k), \qquad j=1,\ldots,M_2
+    f(y_j) \coloneqq \sum_{k=1}^{M_1} \alpha_k \ \mathscr{K} (y_j-x_k), \qquad j=1,\ldots,M_2
 ```
 
-We replace ``\mathcal{K}`` in the definition above by a periodic function. Hence, we assume ``\lVert y_k \rVert_2 \leq \frac{\pi}{2} - \frac{\varepsilon_B}{2}`` and ``\lVert x_k \rVert_2 \leq \frac{\pi}{2} - \frac{\varepsilon_B}{2}`` with ``\varepsilon_B \in (0,\pi)``. By the triangle inequality, we conclude 
+We replace ``\mathscr{K}`` in the definition above by a periodic function. Hence, we assume ``\lVert y_k \rVert_2 \leq \frac{\pi}{2} - \frac{\varepsilon_B}{2}`` and ``\lVert x_k \rVert_2 \leq \frac{\pi}{2} - \frac{\varepsilon_B}{2}`` with ``\varepsilon_B \in (0,\pi)``. By the triangle inequality, we conclude 
 
 ```math
     y_j-x_i \in [-\pi+\varepsilon_B, \pi-\varepsilon_B]
@@ -42,25 +42,25 @@ With ``\lvert x \rvert \coloneqq (\lvert x_k \rvert)_{k=0}^{N-1}`` we mean to co
 We define 
 
 ```math
-    \mathcal{K}_R (x) \coloneqq \begin{cases} K_R (\lVert x \rVert_2) & \lVert x \rVert < \pi \\ T_B (\pi) & \lVert x \rVert_2 \geq \pi \end{cases}
+    \mathscr{K}_R (x) \coloneqq \begin{cases} K_R (\lVert x \rVert_2) & \lVert x \rVert < \pi \\ T_B (\pi) & \lVert x \rVert_2 \geq \pi \end{cases}
 ```
 
-Since ``\mathcal{K}_R`` is sufficiently smooth, we replace it by its partial sum  ``\mathcal{K}_{RF} (x) \coloneqq \sum_{\ell \in I_n^d} b_{\ell}\mathrm{e}^{\mathrm{i} \ell\cdot x}`` and obtain `` \mathcal{K} \approx \mathcal{K}-\mathcal{K}_R + \mathcal{K}_{RF}``.  Using quadrature rules, we replace ``b_{\ell}`` by
+Since ``\mathscr{K}_R`` is sufficiently smooth, we replace it by its partial sum  ``\mathscr{K}_{RF} (x) \coloneqq \sum_{\ell \in I_n^d} b_{\ell}\mathrm{e}^{\mathrm{i} \ell\cdot x}`` and obtain `` \mathscr{K} \approx \mathscr{K}-\mathscr{K}_R + \mathscr{K}_{RF}``.  Using quadrature rules, we replace ``b_{\ell}`` by
 
 ```math
-    b_{\ell} \coloneqq \frac{1}{n^d} \sum_{j \in I_n^d} \mathcal{K}_R(\frac{2 \pi j}{n}) \mathrm{e}^{-2 \pi j * \ell / n}, \quad \ell \in I_n^d \coloneqq [- \frac{n}{2},\frac{n}{2} ]^d \cap \mathbb{Z}^d 
+    b_{\ell} \coloneqq \frac{1}{n^d} \sum_{j \in I_n^d} \mathscr{K}_R(\frac{2 \pi j}{n}) \mathrm{e}^{-2 \pi j * \ell / n}, \quad \ell \in I_n^d \coloneqq [- \frac{n}{2},\frac{n}{2} ]^d \cap \mathbb{Z}^d 
 ```
 
 Hence, we have to compute the \emph{nearfield sum}
 
 ```math
-    f_{N} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathcal{K}_{N} (x-x_k), \quad \mathcal{K}_N \coloneqq \mathcal{K} - \mathcal{K}_R
+    f_{N} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathscr{K}_{N} (x-x_k), \quad \mathscr{K}_N \coloneqq \mathscr{K} - \mathscr{K}_R
 ```
 
 and the \emph{far field sum}
 
 ```math
-  f_{RF} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathcal{K}_{RF} (x-x_k)
+  f_{RF} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathscr{K}_{RF} (x-x_k)
 ```
 
 and approximate ``f`` by ``\tilde{f} \coloneqq f_N + f_{RF}``.
@@ -78,9 +78,7 @@ In total, we obtain an arithmetic cost of ``\mathcal{O}(m^d(M_1+M_2)+(\rho n)^d 
 
 ## Functions
 
-```@docs
-  	finalize_plan
-```
+
 
 ## Literature
 
