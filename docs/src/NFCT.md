@@ -9,7 +9,7 @@
     NFCT{D}
 ```
 
-## NFCT
+# NFCT
 
 The NFCT (Nonequispaced fast cosine transform) ([[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)], Sec. 7.4) realizes a multivariate fast cosine transform for nonequispaced knots. The aim is to compute 
 
@@ -51,7 +51,7 @@ As in the definition of ``s_1(\cdot)``, we replace ``\psi`` by its periodization
 
 Finally, we arrive at ``f(x)\approx s_1(x) \approx s(x)``. 
 
-# Pseudocode
+## Pseudocode
 
 **Input:** ``N, M \in \mathbb{N}, \, \sigma > 1, \, m \in \mathbb{N}, \, x_j \in [0, \pi] \text{ for } j = 0, \ldots, M - 1, \, f^{c}_k \in \mathbb{R} \text{ for } k = 0, \ldots, N - 1.``
 

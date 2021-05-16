@@ -1,6 +1,16 @@
 # [Nonequispaced Fast Sine Transform](@id NFST)
 
-# Pseudocode
+```@meta
+    CurrentModule = NFFT3
+```
+
+```@docs
+    NFST{D}
+```
+
+# NFST
+
+## Pseudocode
 
 **Input:** ``N, M \in \mathbb{N}, \, \sigma > 1, \, m \in \mathbb{N}, \, x_j \in (0, \pi) \text{ for } j = 0, \ldots, M - 1, \, f^{s}_k \in \mathbb{R} \text{ for } k = 0, \ldots, N - 1.``
 

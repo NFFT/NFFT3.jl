@@ -1,14 +1,18 @@
 # [Nonequispaced Fast Fourier Transform](@id NFFT)
 
+```@meta
+    CurrentModule = NFFT3
+```
+
 ```@docs
     NFFT{D}
 ```
 
-## Background
+# NFFT
 
 The nonequispaced fast Fourier transform [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)] (NFFT or NUFFT) overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a d-dimensional trigonometric polynomial
 
-# Pseudocode
+## Pseudocode
 
 **Input:** ``N, M \in \mathbb{N}, \, \sigma > 1, \, m \in \mathbb{N}, \, x_j \in \mathbb{T}^d \text{ for } j \in I^{1}_{M}, \, f_k \in \mathbb{C} \text{ for } k \in I^{d}_{N}.``
 
