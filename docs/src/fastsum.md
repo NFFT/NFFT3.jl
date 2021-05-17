@@ -16,12 +16,12 @@ The fast summation algorithm evaluates the function
     f(y) \coloneqq \sum_{k=1}^{M_1} \alpha_k \ \mathscr{K} (y-x_k)
 ``` 
 
-for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d,\ k = 1, \ldots, M_1`` and a given kernel function ``\mathscr{K} (x) \coloneqq K(\lVert x \rVert_2),\ x \in \mathbb{R}^d``. Here, ``K`` is required to be infinitely differentiable at ``x\in \mathbb{R} \setminus \{ 0 \}``. If ``K`` is even infinitely differentiable at 0, ``\mathscr{K}`` is called \emph{nonsingular kernel function}, otherwise \emph{singular kernel function}. 
+for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d,\ k = 1, \ldots, M_1`` and a given kernel function ``\mathscr{K} (x) \coloneqq K(\lVert x \rVert_2),\ x \in \mathbb{R}^d``. Here, ``K`` is required to be infinitely differentiable at ``x \in \mathbb{R} \setminus \{ 0 \}``. If ``K`` is even infinitely differentiable at ``0``, ``\mathscr{K}`` is called *nonsingular kernel function*, otherwise *singular kernel function*. 
 \
-The evaluation is done at ``M_2`` different points ``y_j \in \mathbb{R}^d,\ j=0,\ldots,M_2``. W.l.o.g. we assume ``y_j \neq x_i  \ (j\neq i)``, i.e., one wants to compute
+The evaluation is done at ``M_2`` different points ``y_j \in \mathbb{R}^d,\ j=0, \ldots, M_2``. W.l.o.g. we assume ``y_j \neq x_i  \ (j\neq i)``, i.e., one wants to compute
 
 ```math
-    f(y_j) \coloneqq \sum_{k=1}^{M_1} \alpha_k \ \mathscr{K} (y_j-x_k), \qquad j=1,\ldots,M_2
+    f(y_j) \coloneqq \sum_{k=1}^{M_1} \alpha_k \ \mathscr{K} (y_j-x_k), \qquad j=1,\ldots,M_2.
 ```
 
 We replace ``\mathscr{K}`` in the definition above by a periodic function. Hence, we assume ``\lVert y_k \rVert_2 \leq \frac{1}{2} \ (\pi - \varepsilon_B)`` and ``\lVert x_k \rVert_2 \leq \frac{1}{2} \ (\pi - \varepsilon_B)`` with ``\varepsilon_B \in (0,\pi)``. By the triangle inequality, we conclude 
@@ -35,7 +35,7 @@ Next, we regularize the kernel near zero and ``\pm \pi``:
     K_R (x) \coloneqq \begin{cases} T_I(x) & \lvert x \rvert < \varepsilon_I \\ K(x) & \varepsilon_I < \lvert x \rvert \leq \pi - \varepsilon_B \\ T_B(\lvert x \rvert) & \pi - \varepsilon_B < \lvert x \rvert \leq \pi \end{cases}
 ```
 
-With ``\lvert x \rvert \coloneqq (\lvert x_k \rvert)_{k=0}^{N-1}`` we mean to componentwise absolute value. ``T_I,\, T_B \in \mathcal{P}_{2p-1}`` are chosen such that the ``2\pi``-periodic extension of ``K_R`` is of class ``\mathcal{C}^{p-1}``. Further details about the computation of ``T_I,T_B`` is given in [[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)]. 
+With ``\lvert x \rvert \coloneqq (\lvert x_k \rvert)_{k=0}^{N-1}`` we mean to componentwise absolute value and ``T_I,\, T_B \in \mathcal{P}_{2p-1}`` are chosen such that the ``2\pi``-periodic extension of ``K_R`` is of class ``\mathcal{C}^{p-1}``. Further details about the computation of ``T_I, T_B`` are given in Chapter 7.5, [[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)]. 
 \
 We define 
 
@@ -43,19 +43,19 @@ We define
     \mathscr{K}_R (x) \coloneqq \begin{cases} K_R (\lVert x \rVert_2) & \lVert x \rVert < \pi \\ T_B (\pi) & \lVert x \rVert_2 \geq \pi \end{cases}
 ```
 
-Since ``\mathscr{K}_R`` is sufficiently smooth, we replace it by its partial sum  ``\mathscr{K}_{RF} (x) \coloneqq \sum_{\pmb{l} \in I_n^d} b_{\pmb{l}}\mathrm{e}^{\mathrm{i} \ \pmb{l} \cdot x}`` and obtain `` \mathscr{K} \approx \mathscr{K}-\mathscr{K}_R + \mathscr{K}_{RF}``. Using quadrature rules, we replace ``b_{\pmb{l}}`` by
+Since ``\mathscr{K}_R`` is sufficiently smooth, we replace it by its partial sum  ``\mathscr{K}_{RF} (x) \coloneqq \sum_{\pmb{l} \in I_n^d} b_{\pmb{l}}\mathrm{e}^{\mathrm{i} \ \pmb{l} \cdot x}`` and obtain ``\mathscr{K} \approx \mathscr{K} - \mathscr{K}_R + \mathscr{K}_{RF}``. Using quadrature rules, we replace ``b_{\pmb{l}}`` by
 
 ```math
     b_{\pmb{l}} \coloneqq \frac{1}{n^d} \sum_{j \in I_n^d} \mathscr{K}_R(\frac{2 \pi j}{n}) \mathrm{e}^{-2 \pi j * \pmb{l} / n}, \quad \pmb{l} \in I_n^d \coloneqq [- \frac{n}{2},\frac{n}{2} ]^d \cap \mathbb{Z}^d 
 ```
 
-Hence, we have to compute the \emph{nearfield sum}
+Hence, we have to compute the *nearfield sum*
 
 ```math
     f_{NE} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathscr{K}_{NE} (x-x_k), \quad \mathscr{K}_{NE} \coloneqq \mathscr{K} - \mathscr{K}_R
 ```
 
-and the \emph{far field sum}
+and the *far field sum*
 
 ```math
     f_{RF} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathscr{K}_{RF} (x-x_k)
