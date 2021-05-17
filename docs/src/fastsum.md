@@ -73,7 +73,7 @@ For the evaluation of ``f_{RF}(\cdot)``, we rearrange the sums
 
 where the inner sum can be computed by a NFFT``^\mathrm{T}`` which is then followed by a NFFT for the computation of the outer sum. 
 
-## Pseudocode
+### Pseudocode
 
 **Input:** ``\alpha_k \in \mathbb{C} \text{ for } k = 1, \ldots, M_1, \; x_k \in \mathbb{R}^d \text{ for } k = 1, \ldots, M_1 \text{ with } \lVert x_k \rVert_2 \leq \frac{1}{2} \ (\pi - \varepsilon_B), \; y_j \in \mathbb{R}^d \text{ for } j = 1, \ldots, M_2 \text{ with } \lVert y_j \rVert_2 \leq \frac{1}{2} \ (\pi - \varepsilon_B).``
 
@@ -89,7 +89,7 @@ where the inner sum can be computed by a NFFT``^\mathrm{T}`` which is then follo
 
 **Computational cost:** ``\mathcal{O}(m^d (M_1+M_2)+ n^d \log n) `` 
 
-## Functions
+# Functions
 
 ```@docs
   	fastsum_init
@@ -98,7 +98,6 @@ where the inner sum can be computed by a NFFT``^\mathrm{T}`` which is then follo
     fastsum_trafo_exact
 ```
 
-## Functions
 
 
 
