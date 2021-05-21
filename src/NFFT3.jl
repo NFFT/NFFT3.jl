@@ -1,5 +1,5 @@
 """
-`NFFT3.jl` – 
+`NFFT3.jl` – Nonequispaced Fast Fourier Transform
 """
 module NFFT3
 

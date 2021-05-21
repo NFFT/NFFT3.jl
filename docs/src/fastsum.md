@@ -98,9 +98,6 @@ where the inner sum can be computed by a NFFT``^\mathrm{T}`` which is then follo
     fastsum_trafo_exact
 ```
 
-
-
-
 ## Literature
 
 ```@raw html

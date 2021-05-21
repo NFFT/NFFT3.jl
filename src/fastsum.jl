@@ -42,16 +42,6 @@ for given (nonequispaced) source knots ``x_k \in \mathbb{R}^d, \; k = 1, \cdots,
 
 # See also
 [`NFFT`](@ref)
-
-[^PlonkaPottsSteidelTasche2018]:
-    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred 
-    > Numerical Fourier Analysis
-    > 2018
-
-[^KeinerKunisPotts]:
-    > J. Keiner, S. Kunis, and D. Potts
-    > NFFT 3.0, C subroutine library
-    > url: http://www.tu-chemnitz.de/~potts/nfft.
 """
 mutable struct FASTSUM
     d::Integer# dimension

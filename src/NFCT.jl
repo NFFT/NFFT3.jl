@@ -44,16 +44,6 @@ for given knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, and coefficients
 
 # See also
 [`NFFT`](@ref)
-
-[^PlonkaPottsSteidelTasche2018]:
-    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred 
-    > Numerical Fourier Analysis
-    > 2018
-
-[^KeinerKunisPotts]:
-    > J. Keiner, S. Kunis, and D. Potts
-    > NFFT 3.0, C subroutine library
-    > url: http://www.tu-chemnitz.de/~potts/nfft.
 """
 mutable struct NFCT{D}
     N::NTuple{D,Int32}      # bandwidth tuple
