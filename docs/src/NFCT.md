@@ -67,7 +67,7 @@ We arrive at ``f(x)\approx s_1(x) \approx s(x)``.
 **Computational cost:** ``\mathcal{O}(N \log{N} + m \ M)`` 
 
 
-## Transposed (adjoint) problem
+## Transposed problem
 
 The transposed (adjoined) problem reads as
 

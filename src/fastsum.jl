@@ -146,7 +146,7 @@ end #constructor
 intialises a transform plan.
 
 # Input
-* `p` - a FASTSUM plan structure.
+* `P` - a FASTSUM plan structure.
 
 # See also
 [`FASTSUM{D}`](@ref), [`fastsum_finalize_plan`](@ref)
@@ -182,7 +182,7 @@ function fastsum_init(P::FASTSUM)
         P.c,
         P.flags,
         Int32(P.n),
-        Int32(P.P),
+        Int32(P.p),
         Float64(P.eps_I),
         Float64(P.eps_B),
         Int32(P.N),

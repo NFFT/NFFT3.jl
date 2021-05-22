@@ -15,7 +15,7 @@ p = NFFT(N, M)
 p.x = X
 p.fhat = fhat
 
-NFFT3.trafo(p)
+NFFT3.nfft_trafo(p)
 f2 = p.f
 
 #generate correctly ordered index set
@@ -35,7 +35,7 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
-NFFT3.adjoint(p)
+NFFT3.nfft_adjoint(p)
 f2 = p.fhat
 
 #multiply Fourier matrix with vector of Fourier coefficients
@@ -58,7 +58,7 @@ p = NFCT(N, M)
 p.x = X
 p.fhat = fhat
 
-NFFT3.trafo(p)
+NFFT3.nfct_trafo(p)
 f2 = p.f
 
 #generate correctly ordered index set
@@ -82,7 +82,7 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
-NFFT3.adjoint(p)
+NFFT3.nfct_adjoint(p)
 f2 = p.fhat
 
 #multiply Fourier matrix with vector of Fourier coefficients
@@ -104,7 +104,7 @@ p = NFST(N, M)
 p.x = X
 p.fhat = fhat
 
-NFFT3.trafo(p)
+NFFT3.nfst_trafo(p)
 f2 = p.f
 
 #generate correctly ordered index set
@@ -128,7 +128,7 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
-NFFT3.adjoint(p)
+NFFT3.nfst_adjoint(p)
 f2 = p.fhat
 
 #multiply Fourier matrix with vector of Fourier coefficients
@@ -175,10 +175,10 @@ phi = rand(M) .* (2 * pi)
 Y = [(r .* cos.(phi)) (r .* sin.(phi))]
 plan.y = Y
 
-NFFT3.trafo(plan)
+NFFT3.fastsum_trafo(plan)
 f1 = copy(plan.f)
 
-NFFT3.trafo_exact(plan)
+NFFT3.fastsum_trafo_exact(plan)
 f2 = copy(plan.f)
 
 error_vector = f1 - f2
