@@ -1,4 +1,4 @@
-# [Nonequispaced Fast Fourier Transform](@id NFFT)
+# [Nonequispaced Fast Fourier Transform](@id NFFT_site)
 
 ```@meta
     CurrentModule = NFFT3

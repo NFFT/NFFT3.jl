@@ -1,4 +1,4 @@
-# [Nonequispaced Fast Cosine Transform](@id NFCT)
+# [Nonequispaced Fast Cosine Transform](@id NFCT_site)
 
 ```@meta
     CurrentModule = NFFT3
@@ -76,8 +76,6 @@ The transposed (adjoined) problem reads as
 ```
 
 for given knots ``{x}_k\in [ 0,\pi ]^d, \, k=0,\ldots,M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
-
-### Pseudocode
 
 # Functions
 
