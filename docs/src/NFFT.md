@@ -13,22 +13,22 @@
 The nonequispaced fast Fourier transform [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)] (NFFT or NUFFT) overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering the evaluation of the ``d``-dimensional trigonometric polynomial
 
 ```math
-  f \colon \mathbb{T}^d \to \mathbb{C}, \; x \mapsto \sum_{k \in I_{N}} \hat{f}_{k} \mathrm{e}^{-2 \pi \mathrm{i} \ k \cdot x}
+  f \colon \mathbb{T}^d \to \mathbb{C}, \; \pmb{x} \mapsto \sum_{\pmb{k} \in I_{N}} \hat{f}_{\pmb{k}} \mathrm{e}^{-2 \pi \mathrm{i} \ \pmb{k} \cdot \pmb{x}}
 ```
 
-with multibandlimit ``N \in 2 \mathbb{N}^d`` and index set
+with multibandlimit ``\pmb{N} \in 2 \mathbb{N}^d`` and index set
 
 ```math
-  I_{N} \coloneqq \{ k \in \mathbb{Z}^d: - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1 \; \forall i \in \{ 1,2,\ldots, d \} \}.
+  I_{N} \coloneqq \{ \pmb{k} \in \mathbb{Z}^d: - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1 \; \forall i \in \{ 1,2,\ldots, d \} \}.
 ```
 
 The first approximation is a linear combination of a shifted periodized window function ``\tilde{\varphi}``
 
 ```math
-  s_1(x) = \sum_{\ell \in I_{n}} g_{\ell} \tilde{\varphi} \left( x - \frac{1}{n} \odot \ell \right)
+  s_1(\pmb{x}) = \sum_{\pmb{\ell} \in I_{\pmb{n}}} g_{\pmb{\ell}} \tilde{\varphi} \left( \pmb{x} - \frac{1}{\pmb{n}} \odot \pmb{\ell} \right)
 ```
 
-where ``\frac{1}{n}`` is the elementwise inversion of the vector ``n``. We choose an oversampling vector ``\sigma > 1`` componentwise and obtain the index set by
+where ``\frac{1}{\pmb{n}}`` is the elementwise inversion of the vector ``\pmb{n}``. We choose an oversampling vector ``\pmb{\sigma} > 1`` componentwise and obtain the index set by
 
 ```math
   \pmb{n} \coloneqq \pmb{\sigma} \odot \pmb{N}.
@@ -145,10 +145,10 @@ Using the transposed index set
 we obtain the adjoint NFFT algorithm for the fast evaluation the adjoint problem
 
 ```math
-	\hat{h}_{\b k} = \sum_{j = 0}^{M-1} f_j \e^{2\pi\i\b{k}\b{x}_j}, \b k \in I_{\b N}
+	\hat{h}_{\pmb{k}} = \sum_{j = 0}^{M-1} f_j \mathrm{e}^{2 \pi \ \mathrm{i} \ \pmb{k} \ \pmb{x}_j}, \pmb{k} \in I_{\pmb{N}}
 ```
 
-for given coefficients ``f_j \in \nathbb{C}``.
+for given coefficients ``f_j \in \mathbb{C}``.
 
 # Functions
 
