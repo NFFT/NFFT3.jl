@@ -142,7 +142,13 @@ Using the transposed index set
   I_{\pmb{n},m}^\top(\pmb{\ell}) = \{ j= 0, 1, \ldots, M-1 : \pmb{\ell} - m\pmb{1} \leq \pmb{n} \odot \pmb{x}_j \leq \pmb{\ell} + m \pmb{1} \},
 ```
 
-we obtain the adjoint NFFT algorithm.
+we obtain the adjoint NFFT algorithm for the fast evaluation the adjoint problem
+
+```math
+	\hat{h}_{\b k} = \sum_{j = 0}^{M-1} f_j \e^{2\pi\i\b{k}\b{x}_j}, \b k \in I_{\b N}
+```
+
+for given coefficients ``f_j \in \nathbb{C}``.
 
 # Functions
 
@@ -155,7 +161,7 @@ we obtain the adjoint NFFT algorithm.
     nfft_adjoint_direct
 ```
 
-## Literature
+### Literature
 
 ```@raw html
 <ul>

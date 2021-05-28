@@ -50,7 +50,24 @@ and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \m
 
 **Computational cost:** ``\mathcal{O}(N \log{N} + m \ M)`` 
 
-## Functions
+## Transposed problem
+
+The transposed problem reads as
+
+```math
+	h(k) \coloneqq \sum_{ j \in I_M^l} f_{j}\ \sin( k \ x_j}), \quad  k \in I_{ N}^d \coloneqq \{ k \in \mathbb{N}^d \colon 0 \leq k_i \leq N_i  \}
+```
+
+for given knots ``{x}_k \in [ 0,\pi ]^d, \, k=0,\ldots,M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
+The algorithm for the fast evaluation of 
+
+```math
+	h(k) \coloneqq \sum^{M-1}_{ j = 0} h_{j} \ \sin(k \ x_j), \quad k = 0, \ldots, N-1,
+```
+
+with nonequispaced nodes ``{x}_j \in [ 0,\pi ], \, j=0,\ldots,M-1,`` can easily be derived from the duality of the two problems.
+
+# Functions
 
 ```@docs
   	nfst_finalize_plan
