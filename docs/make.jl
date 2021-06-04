@@ -11,6 +11,5 @@ makedocs(
         "Transformations" =>
             ["NFFT" => "NFFT.md", "NFST" => "NFST.md", "NFCT" => "NFCT.md"],
         "Fast Summation Algorithm" => "fastsum.md",
-        "Notation" => "notation.md",
     ],
 )
