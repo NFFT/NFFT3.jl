@@ -208,6 +208,10 @@ function nfft_finalize_plan(P::NFFT{D}) where {D}
     end
 end
 
+function finalize_plan(P::NFFT{D}) where {D}
+    return nfft_finalize_plan(P)
+end
+
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
     nfft_init(P)
@@ -247,6 +251,10 @@ function nfft_init(P::NFFT{D}) where {D}
     )
     Core.setfield!(P, :init_done, true)
     finalizer(nfft_finalize_plan, P)
+end
+
+function init(P::NFFT{D}) where {D}
+    return nfft_init(P)
 end
 
 # overwrite dot notation for plan struct in order to use C memory
@@ -410,6 +418,10 @@ function nfft_trafo_direct(P::NFFT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+function trafo_direct(P::NFFT{D}) where {D}
+    return nfft_trafo_direct(P)
+end
+
 # adjoint trafo direct [call with NFFT.adjoint_direct outside module]
 @doc raw"""
     nfft_adjoint_direct(P)
@@ -442,6 +454,10 @@ function nfft_adjoint_direct(P::NFFT{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+function adjoint_direct(P::NFFT{D}) where {D}
+    return nfft_adjoint_direct(P)
+end
+
 # nfft trafo [call with NFFT.trafo outside module]
 @doc raw"""
     nfft_trafo(P)
@@ -467,6 +483,10 @@ function nfft_trafo(P::NFFT{D}) where {D}
     end
     ptr = ccall(("jnfft_trafo", lib_path_nfft), Ptr{ComplexF64}, (Ref{nfft_plan},), P.plan)
     Core.setfield!(P, :f, ptr)
+end
+
+function trafo(P::NFFT{D}) where {D}
+    return nfft_trafo(P)
 end
 
 # adjoint trafo [call with NFFT.adjoint outside module]
@@ -495,4 +515,8 @@ function nfft_adjoint(P::NFFT{D}) where {D}
     ptr =
         ccall(("jnfft_adjoint", lib_path_nfft), Ptr{ComplexF64}, (Ref{nfft_plan},), P.plan)
     Core.setfield!(P, :fhat, ptr)
+end
+
+function adjoint(P::NFFT{D}) where {D}
+    return nfft_adjoint(P)
 end

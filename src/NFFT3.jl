@@ -52,7 +52,14 @@ export nfft_finalize_plan,
     fastsum_finalize_plan,
     fastsum_init,
     fastsum_trafo,
-    fastsum_trafo_exact
+    fastsum_trafo_exact,
+    finalize_plan,
+    init,
+    trafo,
+    adjoint,
+    trafo_direct,
+    adjoint_direct,
+    trafo_exact
 
 # flags 
 export PRE_PHI_HUT,

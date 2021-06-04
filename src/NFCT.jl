@@ -170,6 +170,10 @@ function nfct_finalize_plan(P::NFCT{D}) where {D}
     end
 end
 
+function finalize_plan(P::NFCT{D}) where {D}
+    return nfct_finalize_plan(P)
+end
+
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
     nfct_init(P)
@@ -209,6 +213,10 @@ function nfct_init(P::NFCT{D}) where {D}
     )
     Core.setfield!(P, :init_done, true)
     finalizer(nfct_finalize_plan, P)
+end
+
+function init(P::NFCT{D}) where {D}
+    return nfct_init(P)
 end
 
 # overwrite dot notation for plan struct in order to use C memory
@@ -375,6 +383,10 @@ function nfct_trafo_direct(P::NFCT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+function trafo_direct(P::NFCT{D}) where {D}
+    return nfct_trafo_direct(P)
+end
+
 # adjoint trafo direct [call with NFCT.adjoint_direct outside module]
 @doc raw"""
     nfct_adjoint_direct(P)
@@ -407,6 +419,10 @@ function nfct_adjoint_direct(P::NFCT{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+function adjoint_direct(P::NFCT{D}) where {D}
+    return nfct_adjoint_direct(P)
+end
+
 # nfct trafo [call with NFCT.trafo outside module]
 @doc raw"""
     nfct_trafo(P)
@@ -434,6 +450,10 @@ function nfct_trafo(P::NFCT{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+function trafo(P::NFCT{D}) where {D}
+    return nfct_trafo(P)
+end
+
 # adjoint trafo [call with NFCT.adjoint outside module]
 @doc raw"""
     nfct_adjoint(P)
@@ -459,4 +479,8 @@ function nfct_adjoint(P::NFCT{D}) where {D}
     end
     ptr = ccall(("jnfct_adjoint", lib_path_nfct), Ptr{Float64}, (Ref{nfct_plan},), P.plan)
     Core.setfield!(P, :fhat, ptr)
+end
+
+function adjoint(P::NFCT{D}) where {D}
+    return nfct_adjoint(P)
 end

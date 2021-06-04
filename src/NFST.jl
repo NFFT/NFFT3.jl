@@ -173,6 +173,10 @@ function nfst_finalize_plan(P::NFST{D}) where {D}
     end
 end
 
+function finalize_plan(P::NFST{D}) where {D}
+    return nfst_finalize_plan(P)
+end
+
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
     nfst_init(P)
@@ -212,6 +216,10 @@ function nfst_init(P::NFST{D}) where {D}
     )
     Core.setfield!(P, :init_done, true)
     finalizer(nfst_finalize_plan, P)
+end
+
+function init(P::NFST{D}) where {D}
+    return nfst_init(P)
 end
 
 # overwrite dot notation for plan struct in order to use C memory
@@ -378,6 +386,10 @@ function nfst_trafo_direct(P::NFST{D}) where {D}
     Core.setfield!(P, :f, ptr)
 end
 
+function trafo_direct(P::NFST{D}) where {D}
+    return nfst_trafo_direct(P)
+end
+
 # adjoint trafo direct [call with NFST.adjoint_direct outside module]
 @doc raw"""
     nfst_adjoint_direct(P)
@@ -410,6 +422,10 @@ function nfst_adjoint_direct(P::NFST{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+function adjoint_direct(P::NFST{D}) where {D}
+    return nfst_adjoint_direct(P)
+end
+
 # nfst trafo [call with NFST.trafo outside module]
 @doc raw"""
     nfst_trafo(P)
@@ -435,6 +451,10 @@ function nfst_trafo(P::NFST{D}) where {D}
     end
     ptr = ccall(("jnfst_trafo", lib_path_nfst), Ptr{Float64}, (Ref{nfst_plan},), P.plan)
     Core.setfield!(P, :f, ptr)
+end
+
+function trafo(P::NFST{D}) where {D}
+    return nfst_trafo(P)
 end
 
 # adjoint trafo [call with NFST.adjoint outside module]
@@ -463,3 +483,8 @@ function nfst_adjoint(P::NFST{D}) where {D}
     ptr = ccall(("jnfst_adjoint", lib_path_nfst), Ptr{Float64}, (Ref{nfst_plan},), P.plan)
     Core.setfield!(P, :fhat, ptr)
 end
+
+function adjoint(P::NFST{D}) where {D}
+    return nfst_adjoint(P)
+end
+

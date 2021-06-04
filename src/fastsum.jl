@@ -202,6 +202,10 @@ function fastsum_init(P::FASTSUM)
 
 end #fastsum_init
 
+function init(P::FASTSUM)
+    return fastsum_init(P)
+end #fastsum_init
+
 @doc raw"""
     fastsum_finalize_plan(P)
 
@@ -229,6 +233,10 @@ function fastsum_finalize_plan(P::FASTSUM)
         Core.setfield!(P, :finalized, true)
     end
 
+end #fastsum_finalize_plan
+
+function finalize_plan(P::FASTSUM)
+    return fastsum_finalize_plan(P)
 end #fastsum_finalize_plan
 
 function Base.setproperty!(P::FASTSUM, v::Symbol, val)
@@ -435,6 +443,10 @@ function fastsum_trafo(P::FASTSUM)
 
 end #trafo
 
+function trafo(P::FASTSUM)
+    return fastsum_trafo(P)
+end #trafo
+
 @doc raw"""
     fastsum_trafo_exact(P)
 
@@ -472,4 +484,8 @@ function fastsum_trafo_exact(P::FASTSUM)
     )
     Core.setfield!(P, :f, ptr)
 
+end #trafo
+
+function trafo_exact(P::FASTSUM)
+    return fastsum_trafo_exact(P)
 end #trafo
