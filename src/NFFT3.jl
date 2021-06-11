@@ -1,63 +1,97 @@
+"""
+`NFFT3.jl` – Nonequispaced Fast Fourier Transform
+"""
 module NFFT3
 
-export NFFT, NFCT, NFST, FASTSUM
 
 # file ending for OS
 ending = ".so"
 
 if Sys.iswindows()
-	ending = ".dll"
+    ending = ".dll"
 elseif Sys.isapple()
-	ending = ".dylib"
+    ending = ".dylib"
 end
 
-const lib_path_nfft = string( @__DIR__, "/libnfftjulia", ending )
-const lib_path_nfct = string( @__DIR__, "/libnfctjulia", ending )
-const lib_path_nfst = string( @__DIR__, "/libnfstjulia", ending )
-const lib_path_fastsum = string( @__DIR__, "/libfastsumjulia", ending )
+const lib_path_nfft = string(@__DIR__, "/libnfftjulia", ending)
+const lib_path_nfct = string(@__DIR__, "/libnfctjulia", ending)
+const lib_path_nfst = string(@__DIR__, "/libnfstjulia", ending)
+const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", ending)
 
-# flags
-PRE_PHI_HUT = UInt32(1)<<0
-FG_PSI = UInt32(1)<<1
-PRE_LIN_PSI = UInt32(1)<<2
-PRE_FG_PSI = UInt32(1)<<3
-PRE_PSI = UInt32(1)<<4
-PRE_FULL_PSI = UInt32(1)<<5
-MALLOC_X = UInt32(1)<<6
-MALLOC_F_HAT = UInt32(1)<<7
-MALLOC_F = UInt32(1)<<8
-FFT_OUT_OF_PLACE = UInt32(1)<<9
-FFTW_INIT = UInt32(1)<<10
-NFFT_SORT_NODES = UInt32(1)<<11
-NFFT_OMP_BLOCKWISE_ADJOINT = UInt32(1)<<12
-NFCT_SORT_NODES = UInt32(1)<<11
-NFCT_OMP_BLOCKWISE_ADJOINT = UInt32(1)<<12
-NFST_SORT_NODES = UInt32(1)<<11
-NFST_OMP_BLOCKWISE_ADJOINT = UInt32(1)<<12
-PRE_ONE_PSI = (PRE_LIN_PSI| PRE_FG_PSI| PRE_PSI| PRE_FULL_PSI)
 
-# FFTW flags
-FFTW_MEASURE = UInt32(0)
-FFTW_DESTROY_INPUT = UInt32(1)<<0
-FFTW_UNALIGNED = UInt32(1)<<1
-FFTW_CONSERVE_MEMORY = UInt32(1)<<2
-FFTW_EXHAUSTIVE = UInt32(1)<<3
-FFTW_PRESERVE_INPUT = UInt32(1)<<4
-FFTW_PATIENT = UInt32(1)<<5
-FFTW_ESTIMATE = UInt32(1)<<6
-FFTW_WISDOM_ONLY = UInt32(1)<<21
+include("NFFT.jl")
+include("NFCT.jl")
+include("NFST.jl")
+include("fastsum.jl")
+include("flags.jl")
 
-# default flag values
-f1_default_1d = UInt32(PRE_PHI_HUT | PRE_PSI | MALLOC_X | MALLOC_F_HAT | MALLOC_F | FFTW_INIT | FFT_OUT_OF_PLACE)
-f1_default = UInt32(PRE_PHI_HUT | PRE_PSI | MALLOC_X | MALLOC_F_HAT | MALLOC_F | FFTW_INIT | FFT_OUT_OF_PLACE | NFCT_SORT_NODES | NFCT_OMP_BLOCKWISE_ADJOINT)
-f2_default = UInt32(FFTW_ESTIMATE | FFTW_DESTROY_INPUT)
 
-# default window cut off
-default_window_cut_off = ccall(("nfft_get_default_window_cut_off", lib_path_nfft),Int64,())
 
-include( "NFFT.jl" )
-include( "NFCT.jl" )
-include( "NFST.jl" )
-include( "fastsum.jl" )
+# plan structures
+export NFFT, NFCT, NFST, FASTSUM
+
+# functions
+export nfft_finalize_plan,
+    nfft_init,
+    nfft_trafo,
+    nfft_adjoint,
+    nfft_trafo_direct,
+    nfft_adjoint_direct,
+    nfct_finalize_plan,
+    nfct_init,
+    nfct_trafo,
+    nfct_adjoint,
+    nfct_trafo_direct,
+    nfct_adjoint_direct,
+    nfst_finalize_plan,
+    nfst_init,
+    nfst_trafo,
+    nfst_adjoint,
+    nfst_trafo_direct,
+    nfst_adjoint_direct,
+    fastsum_finalize_plan,
+    fastsum_init,
+    fastsum_trafo,
+    fastsum_trafo_exact,
+    finalize_plan,
+    init,
+    trafo,
+    adjoint,
+    trafo_direct,
+    adjoint_direct,
+    trafo_exact
+
+# flags 
+export PRE_PHI_HUT,
+    FG_PSI,
+    PRE_LIN_PSI,
+    PRE_FG_PSI,
+    PRE_PSI,
+    PRE_FULL_PSI,
+    MALLOC_X,
+    MALLOC_F_HAT,
+    MALLOC_F,
+    FFT_OUT_OF_PLACE,
+    FFTW_INIT,
+    NFFT_SORT_NODES,
+    NFFT_OMP_BLOCKWISE_ADJOINT,
+    NFCT_SORT_NODES,
+    NFCT_OMP_BLOCKWISE_ADJOINT,
+    NFST_SORT_NODES,
+    NFST_OMP_BLOCKWISE_ADJOINT,
+    PRE_ONE_PSI,
+    FFTW_MEASURE,
+    FFTW_DESTROY_INPUT,
+    FFTW_UNALIGNED,
+    FFTW_CONSERVE_MEMORY,
+    FFTW_EXHAUSTIVE,
+    FFTW_PRESERVE_INPUT,
+    FFTW_PATIENT,
+    FFTW_ESTIMATE,
+    FFTW_WISDOM_ONLY,
+    f1_default_1d,
+    f1_default,
+    f2_default,
+    default_window_cut_off
 
 end # module
