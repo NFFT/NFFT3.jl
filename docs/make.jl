@@ -15,5 +15,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/mischmi96/NFFT3.jl.git",
+    repo = "github.com/NFFT/NFFT3.git",
 )
