@@ -13,3 +13,7 @@ makedocs(
         "Fast Summation Algorithm" => "fastsum.md",
     ],
 )
+
+deploydocs(
+    repo = "github.com/mischmi96/NFFT3.jl.git",
+)
