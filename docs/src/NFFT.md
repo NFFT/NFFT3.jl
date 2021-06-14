@@ -15,7 +15,7 @@ The nonequispaced fast Fourier transform [[Keiner, Kunis, Potts, 2006](#KeinerKu
 ```math
   f \colon \mathbb{T}^d \to \mathbb{C}, \; \pmb{x} \mapsto \sum_{\pmb{k} \in I_{N}} \hat{f}_{\pmb{k}} \mathrm{e}^{-2 \pi \mathrm{i} \ \pmb{k} \cdot \pmb{x}}
 ```
-
+ 
 with multibandlimit ``\pmb{N} \in 2 \mathbb{N}^d`` and index set
 
 ```math
