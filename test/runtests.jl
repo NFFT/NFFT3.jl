@@ -10,7 +10,7 @@ M = 10000
 X = rand(3, M) .- 0.5
 fhat = rand(prod(N)) + im * rand(prod(N))
 
-#create plan
+# create plan
 p = NFFT(N, M)
 p.x = X
 p.fhat = fhat
