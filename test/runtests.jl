@@ -5,7 +5,7 @@ using LinearAlgebra
 N = (16, 8, 4)
 M = 10000
 
-### NFFT Test ###
+###  NFFT Test ###
 
 X = rand(3, M) .- 0.5
 fhat = rand(prod(N)) + im * rand(prod(N))
