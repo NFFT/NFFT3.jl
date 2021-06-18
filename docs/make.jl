@@ -16,4 +16,5 @@ makedocs(
 
 deploydocs(
     repo = "github.com/NFFT/NFFT3.git",
+    devbranch = "main",
 )
