@@ -18,7 +18,7 @@ p.fhat = fhat
 NFFT3.nfft_trafo(p)
 f2 = p.f
 
-#generate correctly ordered index set
+# generate correctly ordered index set
 I = [[j; i; k] for k = -N[3]/2:N[3]/2-1, i = -N[2]/2:N[2]/2-1, j = -N[1]/2:N[1]/2-1]
 I = vec(I)
 
