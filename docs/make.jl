@@ -1,4 +1,4 @@
-using Documenter, NFFT3
+using Documenter, NFFT3, Literate
 
 makedocs(
     sitename = "NFFT3",
