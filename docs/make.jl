@@ -7,10 +7,10 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "About" => "about.md",
-        "Flags" => "Flags.md",
         "Transformations" =>
             ["NFFT" => "NFFT.md", "NFST" => "NFST.md", "NFCT" => "NFCT.md"],
         "Fast Summation Algorithm" => "fastsum.md",
+        "Flags" => "Flags.md",
     ],
 )
 
