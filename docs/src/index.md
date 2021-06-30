@@ -1,6 +1,6 @@
 # Welcome to NFFT3.jl
 
-The nonequispaced fast Fourier transform or NFFT [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)] overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a ``d``-dimensional trigonometric polynomial 
+The nonequispaced fast Fourier transform or NFFT, see [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)], overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a ``d``-dimensional trigonometric polynomial 
 
 ```math
   	f(\pmb{x}) \coloneqq \sum_{ \pmb{k} \in I_{\pmb{N}}} \hat{f}_{\pmb{k}} \mathrm{e}^{-2\pi\mathrm{i} \pmb{k}\pmb{x}}

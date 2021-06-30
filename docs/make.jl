@@ -1,7 +1,7 @@
 using Documenter, NFFT3
 
 makedocs(
-    sitename = "NFFT3",
+    sitename = "NFFT3.jl",
     format = Documenter.HTML(; prettyurls = false),
     modules = [NFFT3],
     pages = [
@@ -15,6 +15,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/NFFT/NFFT3.git",
+    repo = "github.com/NFFT/NFFT3.jl.git",
     devbranch = "main",
 )
