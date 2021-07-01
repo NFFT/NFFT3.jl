@@ -1,6 +1,6 @@
 # Welcome to NFFT3.jl
 
-The nonequispaced fast Fourier transform or NFFT, see [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)], overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a ``d``-dimensional trigonometric polynomial 
+The nonequispaced fast Fourier transform or NFFT, see [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)] and [[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)], overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering a ``d``-dimensional trigonometric polynomial 
 
 ```math
   	f(\pmb{x}) \coloneqq \sum_{ \pmb{k} \in I_{\pmb{N}}} \hat{f}_{\pmb{k}} \mathrm{e}^{-2\pi\mathrm{i} \pmb{k}\pmb{x}}
@@ -28,7 +28,7 @@ for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``\pmb{x}_k,\pmb{y}_j 
 
 The NFFT3 C library has been developed at the Mathematical Institute of the University of Luebeck, at the Mathematical Institute of the University Osnabrueck and at the Faculty of Mathematics of the Chemnitz University of Technology by Jens Keiner, Stefan Kunis and Daniel Potts. Further contributions, in particular applications, are due to Dr. Markus Fenn, Steffen Klatt, Tobias Knopp and Antje Vollrath. The support for OpenMP was developed by Toni Volkmer. Many contributions to the release 3.3.* and later have been done by Toni Volkmer, Michael Quellmalz, and Michael Schmischke.
 
-This package offers a Julia wrapper for the NFFT, NFCT, NFST, and fastsum algorithms.
+This package offers a Julia wrapper for the NFFT, NFCT, NFST, and fastsum algorithms, see [[Schmischke, 2018](#Schmischke2018)]
 
 ### Literature
 

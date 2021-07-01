@@ -7,14 +7,7 @@ mutable struct nfft_plan end
 
 A NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension. 
 
-The classic FFT (Fast Fourier transform) algorithm computes the discrete Fourier transform
-
-```math
-f_j \colon = \sum^{\frac{N}{2} - 1}_{k = - \frac{N}{2}} \hat{f}_k e^{-2 \pi \mathrm{i} \frac{k_j}{N}}
-```
-
-for ``j = - \frac{N}{2}, \dots, \frac{N}{2} - 1`` and given complex coefficients ``\hat{f}_{k} \in \mathbb{C}``. Using a divide and conquer approach, the number of floating point operations is reduced from ``\mathcal {O}(N^2)`` for a straightforward computation to only ``\mathcal {O}(N \log N)``. 
-However, two shortcomings of traditional schemes are the need for equispaced sampling and the restriction to the system of complex exponential functions. The NFFT overcomes the need for an equispaced sampling grid. Considering a D-dimensional trigonometric polynomial
+Considering a D-dimensional trigonometric polynomial
 
 ```math
 f \colon \mathbb{T}^D \to \mathbb{C}, \; f(x) \colon = \sum_{k \in I_{N}} \hat{f}_k e^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x}}
@@ -34,13 +27,6 @@ with given coefficients ``\hat{f}_k \in \mathbb{C}`` where we identify the smoot
 ```
 
 for given coefficients ``f_j \in \mathbb{C}``. In general, the adjoint NDFT is not the inverse transform of the NDFT.
-The available NFFT3 library [^KeinerKunisPotts] provides C routines for the NFFT (for computing the NDFT in one or more dimensions, of arbitrary input size, and of complex data), applications such as the fast evaluation of sums
-
-```math
-g(y_j) \colon = \sum^{N}_{k = 1} \alpha_k K(\lVert y_j - x_k \rVert_2), \; j = 1, \dots, M
-```
-
-for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb{R}^D`` and a radial kernel function ``K \colon [0, \infty) \to [0, \infty)``, and generalizations such as the NNFFT for nonequispaced nodes in time and frequency domain.
 
 # Fields
 * `N` - the multibandlimit.
@@ -62,22 +48,6 @@ for given coefficients ``\alpha_k \in \mathbb{C}``, nodes ``x_k, y_j \in \mathbb
 # Additional Constructor
     NFFT(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
     NFFT(N::NTuple{D,Int32},M::Int32) where {D}
-
-[^Schmischke2018]:
-    > Schmischke, Michael 
-    > Nonequispaced Fast Fourier Transform (NFFT) Interface for Julia.
-    > 2018
-    > url: https://arxiv.org/abs/1810.09891
-
-[^PlonkaPottsSteidelTasche2018]:
-    > Plonka, Gerlind and Potts, Daniel and Steidl, Gabriele and Tasche, Manfred 
-    > Numerical Fourier Analysis
-    > 2018
-
-[^KeinerKunisPotts]:
-    > J. Keiner, S. Kunis, and D. Potts
-    > NFFT 3.0, C subroutine library
-    > url: http://www.tu-chemnitz.de/~potts/nfft.
 """
 mutable struct NFFT{D}
     N::NTuple{D,Int32}      # bandwidth tuple
