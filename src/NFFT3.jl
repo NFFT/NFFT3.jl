@@ -9,8 +9,8 @@ ending = ".so"
 
 if Sys.iswindows()
     ending = ".dll"
-#elseif Sys.isapple()
-#    ending = ".dylib"
+elseif Sys.isapple()
+    ending = ".dylib"
 end
 
 const lib_path_nfft = string(@__DIR__, "/libnfftjulia", ending)
