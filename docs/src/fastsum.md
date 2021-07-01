@@ -4,11 +4,7 @@
     CurrentModule = NFFT3
 ```
 
-```@docs
-    FASTSUM
-```
-
-# Fast Summation at Nonequispaced Knots
+# Fast Summation algorithm
 
 The fast summation algorithm evaluates the function 
 
@@ -88,6 +84,12 @@ where the inner sum can be computed by a NFFT``^\mathrm{T}`` which is then follo
 **Output:** ``\tilde{f}(y_j), \, j = 1, \ldots, M_2``, approximate values of ``f(y_j)``.
 
 **Computational cost:** ``\mathcal{O}(m^d (M_1+M_2)+ n^d \log n) `` 
+
+# Plan structure
+
+```@docs
+    FASTSUM
+```
 
 # Functions
 

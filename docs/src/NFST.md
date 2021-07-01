@@ -4,11 +4,7 @@
     CurrentModule = NFFT3
 ```
 
-```@docs
-    NFST{D}
-```
-
-# NFST
+# NFST algorithm
 
 We modify the [NFFT](@ref NFFT_site) in order to derive a fast algorithm for the evaluation of the odd, ``2 \pi``-periodic trigonometric polynomial
 
@@ -50,7 +46,7 @@ and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \m
 
 **Computational cost:** ``\mathcal{O}(N \log{N} + m \ M)`` 
 
-## Transposed problem
+## Transposed algorithm
 
 The transposed problem reads as
 
@@ -66,6 +62,12 @@ The algorithm for the fast evaluation of
 ```
 
 with nonequispaced nodes ``{x}_j \in [ 0,\pi ], \, j=0,\ldots,M-1,`` can easily be derived from the duality of the two problems.
+
+# Plan structure
+
+```@docs
+    NFST{D}
+```
 
 # Functions
 
