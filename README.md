@@ -1,6 +1,6 @@
 # NFFT3.jl
 
-Julia Interface for the [NFFT](https://github.com/NFFT/nfft) C library
+Julia Interface for the [NFFT C library](https://github.com/NFFT/nfft) 
 
 [![docs](https://img.shields.io/badge/docs-stable-blue)](https://nfft.github.io/NFFT3.jl/stable/)
 [![ci](https://github.com/NFFT/NFFT3.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/NFFT/NFFT3.jl/actions?query=workflow%3ACI+branch%3Amain)
