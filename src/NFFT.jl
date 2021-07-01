@@ -43,11 +43,11 @@ for given coefficients ``f_j \in \mathbb{C}``. In general, the adjoint NDFT is n
 * `plan` - plan (C pointer).
 
 # Constructor
-    NFFT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where D
+    NFFT{D}( N::NTuple{D,Int32}, M::Int32, n::NTuple{D,Int32}, m::Int32, f1::UInt32, f2::UInt32 ) where D
 
 # Additional Constructor
-    NFFT(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
-    NFFT(N::NTuple{D,Int32},M::Int32) where {D}
+    NFFT( N::NTuple{D,Int32}, M::Int32, n::NTuple{D,Int32}, m::Int32, f1::UInt32, f2::UInt32 ) where {D}
+    NFFT( N::NTuple{D,Int32}, M::Int32 ) where {D}
 """
 mutable struct NFFT{D}
     N::NTuple{D,Int32}      # bandwidth tuple
