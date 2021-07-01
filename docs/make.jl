@@ -9,7 +9,7 @@ makedocs(
         "About" => "about.md",
         "Transformations" =>
             ["NFFT" => "NFFT.md", "NFST" => "NFST.md", "NFCT" => "NFCT.md"],
-        "Fast Summation Algorithm" => "fastsum.md",
+        "Fastsum" => "fastsum.md",
         "Flags" => "Flags.md",
     ],
 )

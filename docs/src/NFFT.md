@@ -4,7 +4,7 @@
     CurrentModule = NFFT3
 ```
 
-# NFFT algorithm
+## NFFT algorithm
 
 The nonequispaced fast Fourier transform [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)] (NFFT or NUFFT) overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering the evaluation of the ``d``-dimensional trigonometric polynomial
 
@@ -130,7 +130,7 @@ in order to ensure that ``\pmb{x}_j`` is within the support. This second approxi
 
 **Computational cost:** ``\mathcal{O}(N^d \log{N} + m^d \ M)`` 
 
-## Adjoint algorithm
+### Adjoint algorithm
 
 Using the transposed index set 
 
@@ -146,13 +146,13 @@ we obtain the adjoint NFFT algorithm for the fast evaluation the of
 
 for given coefficients ``f_j \in \mathbb{C}``.
 
-# Plan Structure
+## Plan Structure
 
 ```@docs
     NFFT{D}
 ```
 
-# Functions
+## Functions
 
 ```@docs
   	nfft_finalize_plan
@@ -163,7 +163,7 @@ for given coefficients ``f_j \in \mathbb{C}``.
     nfft_adjoint_direct
 ```
 
-### Literature
+## Literature
 
 ```@raw html
 <ul>

@@ -1,10 +1,10 @@
-# [Nonequispaced Fast Cosine Transform](@id NFCT_site)
+# [Nonequispaced Fast Cosine Transform (NFCT)](@id NFCT_site)
 
 ```@meta
     CurrentModule = NFFT3
 ```
 
-# NFCT algorithm
+## NFCT algorithm
 
 The NFCT (Nonequispaced fast cosine transform) ([[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)], Sec. 7.4) realizes a multivariate fast cosine transform for nonequispaced knots. The aim is to compute 
 
@@ -63,7 +63,7 @@ We arrive at ``f(x)\approx s_1(x) \approx s(x)``.
 **Computational cost:** ``\mathcal{O}(N \log{N} + m \ M)`` 
 
 
-## Transposed algorithm
+### Transposed algorithm
 
 The transposed problem reads as
 
@@ -80,13 +80,13 @@ The algorithm for the fast evaluation of
 
 with nonequispaced nodes ``{x}_j \in [ 0,\pi ], \, j=0,\ldots,M-1,`` can easily be derived from the duality of the two problems.
 
-# Plan structure
+## Plan structure
 
 ```@docs
     NFCT{D}
 ```
 
-# Functions
+## Functions
 
 ```@docs
   	nfct_finalize_plan
@@ -97,7 +97,7 @@ with nonequispaced nodes ``{x}_j \in [ 0,\pi ], \, j=0,\ldots,M-1,`` can easily 
     nfct_adjoint_direct
 ```
 
-### Literature
+## Literature
 
 ```@raw html
 <ul>

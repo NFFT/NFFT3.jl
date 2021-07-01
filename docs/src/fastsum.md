@@ -1,10 +1,10 @@
-# [Fast Summation Algorithm](@id fastsum)
+# [Fast Summation (fastsum)](@id fastsum)
 
 ```@meta
     CurrentModule = NFFT3
 ```
 
-# Fast Summation algorithm
+## fastsum algorithm
 
 The fast summation algorithm evaluates the function 
 
@@ -85,13 +85,13 @@ where the inner sum can be computed by a NFFT``^\mathrm{T}`` which is then follo
 
 **Computational cost:** ``\mathcal{O}(m^d (M_1+M_2)+ n^d \log n) `` 
 
-# Plan structure
+## Plan structure
 
 ```@docs
     FASTSUM
 ```
 
-# Functions
+## Functions
 
 ```@docs
   	fastsum_init

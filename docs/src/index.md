@@ -30,7 +30,7 @@ The NFFT3 C library has been developed at the Mathematical Institute of the Univ
 
 This package offers a Julia wrapper for the NFFT, NFCT, NFST, and fastsum algorithms, see [[Schmischke, 2018](#Schmischke2018)]
 
-### Literature
+## Literature
 
 ```@raw html
 <ul>

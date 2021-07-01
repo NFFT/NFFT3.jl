@@ -1,10 +1,10 @@
-# [Nonequispaced Fast Sine Transform](@id NFST_site)
+# [Nonequispaced Fast Sine Transform (NFST)](@id NFST_site)
 
 ```@meta
     CurrentModule = NFFT3
 ```
 
-# NFST algorithm
+## NFST algorithm
 
 We modify the [NFFT](@ref NFFT_site) in order to derive a fast algorithm for the evaluation of the odd, ``2 \pi``-periodic trigonometric polynomial
 
@@ -32,7 +32,7 @@ and particularly ``g_0 = g_{\sigma N} = 0``. Moreover, we observe that ``g_{2 \s
 
 and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \mathrm{i} \ s(x_j), \; j = 0, \ldot,M - 1``.
 
-## Pseudocode
+### Pseudocode
 
 **Input:** ``N, M \in \mathbb{N}, \, \sigma > 1, \, m \in \mathbb{N}, \, x_j \in (0, \pi) \text{ for } j = 0, \ldots, M - 1, \, f^{s}_k \in \mathbb{R} \text{ for } k = 0, \ldots, N - 1.``
 
@@ -46,7 +46,7 @@ and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \m
 
 **Computational cost:** ``\mathcal{O}(N \log{N} + m \ M)`` 
 
-## Transposed algorithm
+### Transposed algorithm
 
 The transposed problem reads as
 
@@ -63,13 +63,13 @@ The algorithm for the fast evaluation of
 
 with nonequispaced nodes ``{x}_j \in [ 0,\pi ], \, j=0,\ldots,M-1,`` can easily be derived from the duality of the two problems.
 
-# Plan structure
+## Plan structure
 
 ```@docs
     NFST{D}
 ```
 
-# Functions
+## Functions
 
 ```@docs
   	nfst_finalize_plan
