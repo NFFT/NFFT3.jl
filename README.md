@@ -2,7 +2,8 @@
 
 Julia Interface for the [NFFT C library](https://github.com/NFFT/nfft) 
 
-[![docs](https://img.shields.io/badge/docs-stable-blue)](https://nfft.github.io/NFFT3.jl/stable/)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://nfft.github.io/NFFT3.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://nfft.github.io/NFFT3.jl/dev)
 [![ci](https://github.com/NFFT/NFFT3.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/NFFT/NFFT3.jl/actions?query=workflow%3ACI+branch%3Amain)
 [![codecov](https://codecov.io/gh/NFFT/NFFT3.jl/branch/main/graph/badge.svg?token=YCTMXP64FK)](https://codecov.io/gh/NFFT/NFFT3.jl)
 
