@@ -10,7 +10,7 @@ A NFST (Nonequispaced fast sine transform) plan, where D is the dimension.
 The NFST realizes a direct and fast computation of the discrete nonequispaced sine transform. The aim is to compute
 
 ```math
-f^c (x) \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \sin (k \dot x), \quad x \in \mathbb{R}^D
+f^c (x) \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \sin (k \cdot x), \quad x \in \mathbb{R}^D
 ```
 
 at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, ``k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
