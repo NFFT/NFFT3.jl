@@ -5,42 +5,42 @@ mutable struct nfct_plan end
 @doc raw"""
     NFCT{D}
 
-A NFCT (Nonequispaced fast cosine transform) plan, where D is the dimension. 
+A NFCT (nonequispaced fast cosine transform) plan, where D is the dimension. 
 
 The NFCT realizes a direct and fast computation of the discrete nonequispaced cosine transform. The aim is to compute
 
 ```math
-f^c (x) \colon = \sum_{k \in I_N} \hat{f}^{c}_{k} \, \cos (k \cdot x), \quad x \in \mathbb{R}^D
+f^c(\pmb{x}_j) = \sum_{\pmb{k} \in I_{\pmb{N},\mathrm{c}}^D} \hat{f}_{\pmb{k}}^c \, \cos(2\pi \, \pmb{k} \odot \pmb{x}_j)
 ```
 
-at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}``, ``k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 0 \leq k_i \leq N_i, \, \forall i = 1, \cdots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
+at given arbitrary knots ``\pmb{x}_j \in [0,0.5]^D, j = 1, \cdots, M``, for coefficients ``\hat{f}^{c}_{\pmb{k}} \in \mathbb{R}``, ``\pmb{k} \in I_{\pmb{N},\mathrm{c}}^D \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^D: 1 \leq k_i \leq N_i - 1, \, i = 1,2,\ldots,D \right\}``, and a multibandlimit vector ``\pmb{N} \in \mathbb{N}^{D}``. Note that we define ``\cos(\pmb{k} \circ \pmb{x}) \coloneqq \prod_{i=1}^D \cos(k_i \cdot x_i)``. The transposed problem reads as
 
 ```math
-\hat{h}_k \colon = \sum_{j \in I_M} f_j \, \cos (k \cdot x_j), \quad k \in I^{D}_N
+\hat{h}^c_{\pmb{k}} = \sum_{j=1}^M f^c_j \, \cos(2\pi \, \pmb{k} \odot \pmb{x}_j)
 ```
 
-for given knots ``x_j \in [0, \pi ]^D, \, j = 0, \ldots, M-1``, and coefficients ``f_j \in \mathbb{R}, j = 0, \ldots, M-1``.
+for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{c}}^D`` with given coefficients ``f^c_j \in \mathbb{R}, j = 1,2,\ldots,M``.
 
 # Fields
-* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f^c``.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f^s``.
 * `M` - the number of nodes.
 * `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
 * `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
-* `f1` - the NFCT flags.
+* `f1` - the NFST flags.
 * `f2` - the FFTW flags.
 * `init_done` - indicates if the plan is initialized.
 * `finalized` - indicates if the plan is finalized.
-* `x` - the nodes ``x_j \in [0, \pi ]^D, \, j = 0, \ldots, M-1``.
-* `f` - the values ``f_j \in \mathbb{R}, \, j = 0, \ldots, M-1``.
-* `fhat` - the Fourier coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}, k \in I_N``.
+* `x` - the nodes ``x_j \in [0,0.5]^D, \, j = 1, \ldots, M``.
+* `f` - the values ``f^c(\pmb{x}_j)`` for the NFST or the coefficients ``f_j^c \in \mathbb{R}, j = 1, \ldots, M,`` for the transposed NFST.
+* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}`` for the NFST or the values ``\hat{h}_{\pmb{k}}^c, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` for the adjoint NFFT.
 * `plan` - plan (C pointer).
 
 # Constructor
-    NFCT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
+    NFCT{D}( N::NTuple{D,Int32}, M::Int32, n::NTuple{D,Int32}, m::Int32, f1::UInt32, f2::UInt32 ) where {D}
 
 # Additional Constructor
-    NFCT(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
-    NFCT(N::NTuple{D,Int32},M::Int32) where {D}
+    NFCT( N::NTuple{D,Int32}, M::Int32, n::NTuple{D,Int32}, m::Int32, f1::UInt32, f2::UInt32) where {D}
+    NFCT( N::NTuple{D,Int32}, M::Int32) where {D}
 
 # See also
 [`NFFT`](@ref)
@@ -178,7 +178,7 @@ end
 @doc raw"""
     nfct_init(P)
 
-intialises a transform plan.
+intialises the NFCT plan in C. This function does not have to be called by the user.
 
 # Input
 * `P` - a NFCT plan structure.
@@ -352,7 +352,7 @@ end
 @doc raw"""
     nfct_trafo_direct(P)
 
-computes a NFCT.
+computes the NDCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFCT plan structure.
@@ -391,7 +391,7 @@ end
 @doc raw"""
     nfct_adjoint_direct(P)
 
-computes an adjoint NFCT.
+computes the transposed NDCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^c \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFCT plan structure.
@@ -427,7 +427,7 @@ end
 @doc raw"""
     nfct_trafo(P)
 
-computes a NFCT.
+computes the NDCT via the fast NFCT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFCT plan structure.
@@ -458,7 +458,7 @@ end
 @doc raw"""
     nfct_adjoint(P)
 
-computes an adjoint NFCT.
+computes the transposed NDCT via the fast transposed NFCT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^c \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFCT plan structure.

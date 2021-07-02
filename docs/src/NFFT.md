@@ -155,12 +155,12 @@ for given coefficients ``f_j \in \mathbb{C}, j =1,\ldots,M``.
 ## Functions
 
 ```@docs
-  	nfft_finalize_plan
-    nfft_init
     nfft_trafo
     nfft_adjoint
     nfft_trafo_direct
     nfft_adjoint_direct
+  	nfft_finalize_plan
+    nfft_init
 ```
 
 ## Literature

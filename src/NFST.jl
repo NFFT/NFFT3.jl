@@ -13,13 +13,13 @@ The NFST realizes a direct and fast computation of the discrete nonequispaced si
 f^s(\pmb{x}_j) = \sum_{\pmb{k} \in I_{\pmb{N},\mathrm{s}}^D} \hat{f}_{\pmb{k}}^s \, \sin(2\pi \, \pmb{k} \odot \pmb{x}_j)
 ```
 
-at given arbitrary knots ``\pmb{x}_j \in [0,0.5]^D, j = 1, \cdots, M``, coefficients ``\hat{f}^{s}_{\pmb{k}} \in \mathbb{R}``, ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^d \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^d: 1 \leq k_i \leq N_i - 1, \, i = 1,2,\ldots,d \right\}.`` for some multibandlimit vector ``\pmb{N} \in \mathbb{N}^{D}``. The transposed problem reads as
+at given arbitrary knots ``\pmb{x}_j \in [0,0.5]^D, j = 1, \cdots, M``, for coefficients ``\hat{f}^{s}_{\pmb{k}} \in \mathbb{R}``, ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^D \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^D: 1 \leq k_i \leq N_i - 1, \, i = 1,2,\ldots,D \right\}``, and a multibandlimit vector ``\pmb{N} \in \mathbb{N}^{D}``. Note that we define ``\sin(\pmb{k} \circ \pmb{x}) \coloneqq \prod_{i=1}^D \sin(k_i \cdot x_i)``. The transposed problem reads as
 
 ```math
 \hat{h}^s_{\pmb{k}} = \sum_{j=1}^M f^s_j \, \sin(2\pi \, \pmb{k} \odot \pmb{x}_j)
 ```
 
-for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^d`` with given coefficients ``f^s_j \in \mathbb{R}, j = 1,2,\ldots,M``.
+for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^D`` with given coefficients ``f^s_j \in \mathbb{R}, j = 1,2,\ldots,M``.
 
 # Fields
 * `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f^s``.
@@ -459,7 +459,7 @@ end
 @doc raw"""
     nfst_adjoint(P)
 
-computes the transposed NDST via the fast transposed NFST algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^s \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
+computes the transposed NDST via the fast transposed NFST algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^s \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFST plan structure.

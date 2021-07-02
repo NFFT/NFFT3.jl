@@ -42,12 +42,12 @@ We modify the [NFFT](@ref NFFT_site) in order to derive a fast algorithm for the
 ## Functions
 
 ```@docs
-  	nfst_finalize_plan
-    nfst_init
     nfst_trafo
     nfst_adjoint
     nfst_trafo_direct
     nfst_adjoint_direct
+  	nfst_finalize_plan
+    nfst_init
 ```
 
 ## Literature
