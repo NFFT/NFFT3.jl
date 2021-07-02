@@ -10,37 +10,37 @@ A NFST (Nonequispaced fast sine transform) plan, where D is the dimension.
 The NFST realizes a direct and fast computation of the discrete nonequispaced sine transform. The aim is to compute
 
 ```math
-f^s (x_j) \colon = \sum_{k \in I_N} \hat{f}^{s}_{k} \, \sin (2\pi \, k \circ x_j)
+f^s(\pmb{x}_j) = \sum_{\pmb{k} \in I_{\pmb{N},\mathrm{s}}^D} \hat{f}_{\pmb{k}}^s \, \sin(2\pi \, \pmb{k} \odot \pmb{x}_j)
 ```
 
-at given (nonequidistant) knots ``x_j \in [0,0.5]^D, \; j = 0, \cdots, M-1``, coefficients ``\hat{f}^{s}_{k} \in \mathbb{R}``, ``k \in I_N \colon = \{ k \in \mathbb{Z}^{D} \colon 1 \leq k_i < N_i, \, \forall i = 1, \ldots, D\}`` for some multibandlimit vector ``N \in \mathbb{N}^{D}``. The transposed (adjoined) problem reads as
+at given arbitrary knots ``\pmb{x}_j \in [0,0.5]^D, j = 1, \cdots, M``, coefficients ``\hat{f}^{s}_{\pmb{k}} \in \mathbb{R}``, ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^d \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^d: 1 \leq k_i \leq N_i - 1, \, i = 1,2,\ldots,d \right\}.`` for some multibandlimit vector ``\pmb{N} \in \mathbb{N}^{D}``. The transposed problem reads as
 
 ```math
-\hat{h}_k \colon = \sum^{M-1}_{j = 0} f_j \, \sin (2\pi \, k \circ x_j), \; k \in I_N
+\hat{h}^s_{\pmb{k}} = \sum_{j=1}^M f^s_j \, \sin(2\pi \, \pmb{k} \odot \pmb{x}_j)
 ```
 
-for given coefficients ``f_j \in \mathbb{R}, \, j = 0, \ldots, M-1``. Note that ``\sin (k \circ x) \coloneqq \prod_{i=1}^d \sin(k_i \cdot x_i)``.
+for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^d`` with given coefficients ``f^s_j \in \mathbb{R}, j = 1,2,\ldots,M``.
 
 # Fields
 * `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f^s``.
 * `M` - the number of nodes.
 * `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
-* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
 * `f1` - the NFST flags.
 * `f2` - the FFTW flags.
 * `init_done` - indicates if the plan is initialized.
 * `finalized` - indicates if the plan is finalized.
-* `x` - the nodes ``x_j \in [0,0.5]^D, \, j = 0, \ldots, M-1``.
-* `f` - the values ``f^s (x_j)`` after the transformation or the coefficients ``f_j \in \mathbb{R}, \, j = 0, \ldots, M-1`` for the adjoint problem.
-* `fhat` - the Fourier coefficients ``\hat{f}^{s}_{k} \in \mathbb{R}, k \in I_N``.
+* `x` - the nodes ``x_j \in [0,0.5]^D, \, j = 1, \ldots, M``.
+* `f` - the values ``f^s(\pmb{x}_j)`` for the NFST or the coefficients ``f_j^s \in \mathbb{R}, j = 1, \ldots, M,`` for the transposed NFST.
+* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}}^s \in \mathbb{R}`` for the NFST or the values ``\hat{h}_{\pmb{k}}^s, \pmb{k} \in I_{\pmb{N},\mathrm{s}}^D,`` for the adjoint NFFT.
 * `plan` - plan (C pointer).
 
 # Constructor
-    NFST{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
+    NFST{D}( N::NTuple{D,Int32}, M::Int32, n::NTuple{D,Int32}, m::Int32, f1::UInt32, f2::UInt32 ) where {D}
 
 # Additional Constructor
-    NFST(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
-    NFST(N::NTuple{D,Int32},M::Int32) where {D}
+    NFST( N::NTuple{D,Int32}, M::Int32, n::NTuple{D,Int32}, m::Int32, f1::UInt32, f2::UInt32) where {D}
+    NFST( N::NTuple{D,Int32}, M::Int32) where {D}
 
 # See also
 [`NFFT`](@ref)
@@ -179,7 +179,7 @@ end
 @doc raw"""
     nfst_init(P)
 
-intialises a transform plan.
+intialises the NFST plan in C. This function does not have to be called by the user.
 
 # Input
 * `p` - a NFST plan structure.
@@ -353,7 +353,7 @@ end
 @doc raw"""
     nfst_trafo_direct(P)
 
-computes a NFST.
+computes the NDST via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^s \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},s}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFST plan structure.
@@ -392,7 +392,7 @@ end
 @doc raw"""
     nfst_adjoint_direct(P)
 
-computes an adjoint NFST.
+computes the transposed NDST via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^s \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFST plan structure.
@@ -428,7 +428,7 @@ end
 @doc raw"""
     nfst_trafo(P)
 
-computes a NFST.
+computes the NDST via the fast NFST algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^s \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},s}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFST plan structure.
@@ -459,7 +459,7 @@ end
 @doc raw"""
     nfst_adjoint(P)
 
-computes an adjoint NFST.
+computes the transposed NDST via the fast transposed NFST algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^s \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFST plan structure.
