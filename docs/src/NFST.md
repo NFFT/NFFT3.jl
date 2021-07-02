@@ -9,19 +9,19 @@
 We modify the [NFFT](@ref NFFT_site) in order to derive a fast algorithm for the evaluation of the odd, ``2 \pi``-periodic trigonometric polynomial
 
 ```math
-    f^s (x) \coloneqq \sum^{N-1}_{k=1} \hat{f}_{k}^s \sin( k \ x), \quad x \in \mathbb{R}
+    f^s (x) \coloneqq \sum^{N-1}_{k=1} \hat{f}_{k}^s \, \sin( k \ x), \quad x \in \mathbb{R}
 ```
 
 at nonequispaced nodes ``x_j \in (0,\pi)``. To this end, we rewrite ``f^s`` as a sum of exponentials and obtain
 
 ```math
-    \mathrm{i} \ f^s (x) = f(x) = \sum^{N-1}_{k=-N} \hat{f}_{k} \mathrm{e}^{\mathrm{i} \ k \ x} = \mathrm{i} \sum^{N-1}_{k=1} 2 \hat{f}_{k} \sin( k \ x), \quad x \in \mathbb{R}
+    \mathrm{i} \ f^s (x) = f(x) = \sum^{N-1}_{k=-N} \hat{f}_{k} \, \mathrm{e}^{\mathrm{i} \ k \ x} = \mathrm{i} \sum^{N-1}_{k=1} 2 \hat{f}_{k} \, \sin( k \ x), \quad x \in \mathbb{R}
 ```
 
 with ``\hat{f}_0 = \hat{f}_{-N} = 0`` and ``\hat{f}_k = -\hat{f}_{-k} = \frac{1}{2}\hat{f}^{s}_k`` for ``k = 1, \ldots, N - 1``. Similarly as before, we approximate ``f(x)`` by a function ``s_1(x)`` and obtain for the coefficients ``g_{\ell}`` for ``\ell = 1, \ldots, \sigma N - 1``
 
 ```math
-    - \mathrm{i} g_{\ell} = \frac{- \mathrm{i}}{2 \sigma N} \sum^{\sigma N - 1}_{k=-\sigma N} \hat{g}_{k} \mathrm{e}^{\pi \ \mathrm{i} \ k \ \ell / (\sigma N)} = \frac{1}{\sigma N} \sum^{\sigma N - 1}_{k=1} \hat{g}_{k} \sin( \frac{\pi \ k \ \ell}{\sigma N})
+    - \mathrm{i} g_{\ell} = \frac{- \mathrm{i}}{2 \sigma N} \sum^{\sigma N - 1}_{k=-\sigma N} \hat{g}_{k} \, \mathrm{e}^{\pi \ \mathrm{i} \ k \ \ell / (\sigma N)} = \frac{1}{\sigma N} \sum^{\sigma N - 1}_{k=1} \hat{g}_{k} \, \sin( \frac{\pi \ k \ \ell}{\sigma N})
 ```
 
 and particularly ``g_0 = g_{\sigma N} = 0``. Moreover, we observe that ``g_{2 \sigma N r - \ell} = -g_{\ell}`` for all ``r \in \mathbb{Z}``. Finally we compute the sum
@@ -30,7 +30,7 @@ and particularly ``g_0 = g_{\sigma N} = 0``. Moreover, we observe that ``g_{2 \s
   	\mathrm{i} \ s(x_j) \coloneqq \sum_{\ell = \lfloor 2 \sigma N x \rfloor - m }^{\lceil 2 \sigma N x \rceil + m} \mathrm{i} \ g_{\ell} \ \tilde{\psi}(x_j - \frac{\pi \ell}{\sigma N})
 ```
 
-and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \mathrm{i} \ s(x_j), \; j = 0, \ldot,M - 1``.
+and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \mathrm{i} \ s(x_j), \, j = 0, \ldot, M - 1``.
 
 ### Pseudocode
 
@@ -51,7 +51,7 @@ and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \m
 The transposed problem reads as
 
 ```math
-	h(k) \coloneqq \sum_{ j \in I_M^l} f_{j}\ \sin( k \ x_j}), \quad  k \in I_{ N}^d \coloneqq \{ k \in \mathbb{N}^d \colon 0 \leq k_i \leq N_i  \}
+	h(k) \coloneqq \sum_{ j \in I_M^l} f_{j}\ \sin( k \ x_j), \quad  k \in I_{ N}^d = \{ k \in \mathbb{N}^d \colon 0 \leq k_i \leq N_i  \}
 ```
 
 for given knots ``{x}_k \in [ 0,\pi ]^d, \, k=0,\ldots,M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.

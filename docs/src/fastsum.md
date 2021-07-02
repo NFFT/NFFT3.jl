@@ -42,19 +42,19 @@ We define
 Since ``\mathscr{K}_R`` is sufficiently smooth, we replace it by its partial sum  ``\mathscr{K}_{RF} (x) \coloneqq \sum_{\pmb{l} \in I_n^d} b_{\pmb{l}}\mathrm{e}^{\mathrm{i} \ \pmb{l} \cdot x}`` and obtain ``\mathscr{K} \approx \mathscr{K} - \mathscr{K}_R + \mathscr{K}_{RF}``. Using quadrature rules, we replace ``b_{\pmb{l}}`` by
 
 ```math
-    b_{\pmb{l}} \coloneqq \frac{1}{n^d} \sum_{j \in I_n^d} \mathscr{K}_R(\frac{2 \pi j}{n}) \mathrm{e}^{-2 \pi j * \pmb{l} / n}, \quad \pmb{l} \in I_n^d \coloneqq [- \frac{n}{2},\frac{n}{2} ]^d \cap \mathbb{Z}^d 
+    b_{\pmb{l}} \coloneqq \frac{1}{n^d} \sum_{j \in I_n^d} \mathscr{K}_R(\frac{2 \pi j}{n}) \, \mathrm{e}^{-2 \pi j \cdot \pmb{l} / n}, \quad \pmb{l} \in I_n^d \coloneqq [- \frac{n}{2},\frac{n}{2} ]^d \cap \mathbb{Z}^d 
 ```
 
 Hence, we have to compute the *nearfield sum*
 
 ```math
-    f_{NE} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathscr{K}_{NE} (x-x_k), \quad \mathscr{K}_{NE} \coloneqq \mathscr{K} - \mathscr{K}_R
+    f_{NE} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \, \mathscr{K}_{NE} (x-x_k), \quad \mathscr{K}_{NE} \coloneqq \mathscr{K} - \mathscr{K}_R
 ```
 
 and the *far field sum*
 
 ```math
-    f_{RF} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \mathscr{K}_{RF} (x-x_k)
+    f_{RF} (x) \coloneqq \sum_{k=1}^{M_1} \alpha_k \, \mathscr{K}_{RF} (x-x_k)
 ```
 
 and approximate ``f`` by ``\tilde{f} \coloneqq f_{NE} + f_{RF}``.
