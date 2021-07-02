@@ -30,7 +30,7 @@ and particularly ``g_0 = g_{\sigma N} = 0``. Moreover, we observe that ``g_{2 \s
   	\mathrm{i} \ s(x_j) \coloneqq \sum_{\ell = \lfloor 2 \sigma N x \rfloor - m }^{\lceil 2 \sigma N x \rceil + m} \mathrm{i} \ g_{\ell} \ \tilde{\psi}(x_j - \frac{\pi \ell}{\sigma N})
 ```
 
-and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \mathrm{i} \ s(x_j), \, j = 0, \ldot, M - 1``.
+and obtain the approximate values of ``f^s(x_j) = \mathrm{i} \ f(x_j) \approx \mathrm{i} \ s(x_j), \, j = 0, \ldots, M - 1``.
 
 ### Pseudocode
 
