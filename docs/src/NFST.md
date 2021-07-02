@@ -6,16 +6,16 @@
 
 ## NFST algorithm
 
-We modify the [NFFT](@ref NFFT_site) in order to derive a fast algorithm for the evaluation of the odd, ``2 \pi``-periodic trigonometric polynomial
+We modify the [NFFT](@ref NFFT_site) in order to derive a fast algorithm for the evaluation of the odd, 1-periodic trigonometric polynomial
 
 ```math
-    f^s (x) \coloneqq \sum^{N-1}_{k=1} \hat{f}_{k}^s \, \sin( k \ x), \quad x \in \mathbb{R}
+    f^s (x) \coloneqq \sum^{N-1}_{k=1} \hat{f}_{k}^s \, \sin(2\pi \, k \ x), \quad x \in \mathbb{R}
 ```
 
-at nonequispaced nodes ``x_j \in (0,\pi)``. To this end, we rewrite ``f^s`` as a sum of exponentials and obtain
+at nonequispaced nodes ``x_j \in [0,0.5]``. To this end, we rewrite ``f^s`` as a sum of exponentials and obtain
 
 ```math
-    \mathrm{i} \ f^s (x) = f(x) = \sum^{N-1}_{k=-N} \hat{f}_{k} \, \mathrm{e}^{\mathrm{i} \ k \ x} = \mathrm{i} \sum^{N-1}_{k=1} 2 \hat{f}_{k} \, \sin( k \ x), \quad x \in \mathbb{R}
+    \mathrm{i} \ f^s (x) = f(x) = \sum^{N-1}_{k=-N} \hat{f}_{k} \, \mathrm{e}^{2\pi\,\mathrm{i}\, k \cdot x} = \mathrm{i} \sum^{N-1}_{k=1} 2 \hat{f}_{k} \, \sin(2\pi\,k \cdot x)
 ```
 
 with ``\hat{f}_0 = \hat{f}_{-N} = 0`` and ``\hat{f}_k = -\hat{f}_{-k} = \frac{1}{2}\hat{f}^{s}_k`` for ``k = 1, \ldots, N - 1``. Similarly as before, we approximate ``f(x)`` by a function ``s_1(x)`` and obtain for the coefficients ``g_{\ell}`` for ``\ell = 1, \ldots, \sigma N - 1``

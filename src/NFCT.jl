@@ -19,21 +19,21 @@ at given (nonequidistant) knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, 
 \hat{h}_k \colon = \sum_{j \in I_M} f_j \, \cos (k \cdot x_j), \quad k \in I^{D}_N
 ```
 
-for given knots ``x_k \in [0, \pi ]^D, \; k = 0, \cdots, M-1``, and coefficients ``f_j \in \mathbb{C}, j \in I_M^l``.
+for given knots ``x_j \in [0, \pi ]^D, \, j = 0, \ldots, M-1``, and coefficients ``f_j \in \mathbb{R}, j = 0, \ldots, M-1``.
 
 # Fields
-* `N` - the multibandlimit of the trigonometric polynomial f.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f^c``.
 * `M` - the number of nodes.
-* `n` - the oversampling per dimension.
-* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
 * `f1` - the NFCT flags.
 * `f2` - the FFTW flags.
 * `init_done` - indicates if the plan is initialized.
 * `finalized` - indicates if the plan is finalized.
-* `x` - the nodes.
-* `f` - the function values.
-* `fhat` - the Fourier coefficients.
-* `plan`
+* `x` - the nodes ``x_j \in [0, \pi ]^D, \, j = 0, \ldots, M-1``.
+* `f` - the values ``f_j \in \mathbb{R}, \, j = 0, \ldots, M-1``.
+* `fhat` - the Fourier coefficients ``\hat{f}^{c}_{k} \in \mathbb{R}, k \in I_N``.
+* `plan` - plan (C pointer).
 
 # Constructor
     NFCT{D}(N::NTuple{D,Int32},M::Int32,n::NTuple{D,Int32},m::Int32,f1::UInt32,f2::UInt32) where {D}
