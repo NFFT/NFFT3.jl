@@ -5,7 +5,7 @@ mutable struct nfst_plan end
 @doc raw"""
     NFST{D}
 
-A NFST (Nonequispaced fast sine transform) plan, where D is the dimension. 
+A NFST (nonequispaced fast sine transform) plan, where D is the dimension. 
 
 The NFST realizes a direct and fast computation of the discrete nonequispaced sine transform. The aim is to compute
 
@@ -349,7 +349,6 @@ function Base.getproperty(P::NFST{D}, v::Symbol) where {D}
     end
 end
 
-# nfst trafo direct [call with NFST.trafo_direct outside module]
 @doc raw"""
     nfst_trafo_direct(P)
 
@@ -362,7 +361,6 @@ computes the NDST via naive matrix-vector multiplication for provided nodes ``\p
 [`NFST{D}`](@ref), [`nfst_trafo`](@ref)
 """
 function nfst_trafo_direct(P::NFST{D}) where {D}
-    # prevent bad stuff from happening
     if P.finalized
         error("NFST already finalized")
     end
@@ -388,9 +386,8 @@ function trafo_direct(P::NFST{D}) where {D}
     return nfst_trafo_direct(P)
 end
 
-# adjoint trafo direct [call with NFST.adjoint_direct outside module]
 @doc raw"""
-    nfst_adjoint_direct(P)
+    nfst_transposed_direct(P)
 
 computes the transposed NDST via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^s \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
@@ -398,10 +395,9 @@ computes the transposed NDST via naive matrix-vector multiplication for provided
 * `P` - a NFST plan structure.
 
 # See also
-[`NFST{D}`](@ref), [`nfst_adjoint`](@ref)
+[`NFST{D}`](@ref), [`nfst_transposed`](@ref)
 """
-function nfst_adjoint_direct(P::NFST{D}) where {D}
-    # prevent bad stuff from happening
+function nfst_transposed_direct(P::NFST{D}) where {D}
     if P.finalized
         error("NFST already finalized")
     end
@@ -420,11 +416,14 @@ function nfst_adjoint_direct(P::NFST{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+function nfst_adjoint_direct(P::NFST{D}) where {D}
+    return nfst_transposed_direct(P)
+end
+
 function adjoint_direct(P::NFST{D}) where {D}
     return nfst_adjoint_direct(P)
 end
 
-# nfst trafo [call with NFST.trafo outside module]
 @doc raw"""
     nfst_trafo(P)
 
@@ -437,7 +436,6 @@ computes the NDST via the fast NFST algorithm for provided nodes ``\pmb{x}_j, j 
 [`NFST{D}`](@ref), [`nfst_trafo_direct`](@ref)
 """
 function nfst_trafo(P::NFST{D}) where {D}
-    # prevent bad stuff from happening
     if P.finalized
         error("NFST already finalized")
     end
@@ -455,9 +453,8 @@ function trafo(P::NFST{D}) where {D}
     return nfst_trafo(P)
 end
 
-# adjoint trafo [call with NFST.adjoint outside module]
 @doc raw"""
-    nfst_adjoint(P)
+    nfst_transposed(P)
 
 computes the transposed NDST via the fast transposed NFST algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^s \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
@@ -465,10 +462,9 @@ computes the transposed NDST via the fast transposed NFST algorithm for provided
 * `P` - a NFST plan structure.
 
 # See also
-[`NFST{D}`](@ref), [`nfst_adjoint_direct`](@ref)
+[`NFST{D}`](@ref), [`nfst_transposed_direct`](@ref)
 """
-function nfst_adjoint(P::NFST{D}) where {D}
-    # prevent bad stuff from happening
+function nfst_transposed(P::NFST{D}) where {D}
     if P.finalized
         error("NFST already finalized")
     end
@@ -480,6 +476,10 @@ function nfst_adjoint(P::NFST{D}) where {D}
     end
     ptr = ccall(("jnfst_adjoint", lib_path_nfst), Ptr{Float64}, (Ref{nfst_plan},), P.plan)
     Core.setfield!(P, :fhat, ptr)
+end
+
+function nfst_adjoint(P::NFST{D}) where {D}
+    return nfst_transposed(P)
 end
 
 function adjoint(P::NFST{D}) where {D}

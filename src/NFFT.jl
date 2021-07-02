@@ -388,7 +388,7 @@ computes the NDFT via naive matrix-vector multiplication for provided nodes ``\p
 * `P` - a NFFT plan structure.
 
 # See also
-[`NFFT{D}`](@ref), [`trafo`](@ref)
+[`NFFT{D}`](@ref), [`nfft_trafo`](@ref)
 """
 function nfft_trafo_direct(P::NFFT{D}) where {D}
     # prevent bad stuff from happening
@@ -427,7 +427,7 @@ computes the adjoint NDFT via naive matrix-vector multiplication for provided no
 * `P` - a NFFT plan structure.
 
 # See also
-[`NFFT{D}`](@ref), [`adjoint`](@ref)
+[`NFFT{D}`](@ref), [`nfft_adjoint`](@ref)
 """
 function nfft_adjoint_direct(P::NFFT{D}) where {D}
     # prevent bad stuff from happening

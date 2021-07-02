@@ -9,7 +9,8 @@ makedocs(
         "About" => "about.md",
         "Transformations" =>
             ["NFFT" => "NFFT.md", "NFST" => "NFST.md", "NFCT" => "NFCT.md"],
-        "Fastsum" => "fastsum.md",
+        "Applications" =>
+            ["fastsum" => "fastsum.md",],
         "Flags" => "Flags.md",
     ],
 )

@@ -389,7 +389,7 @@ end
 
 # adjoint trafo direct [call with NFCT.adjoint_direct outside module]
 @doc raw"""
-    nfct_adjoint_direct(P)
+    nfct_transposed_direct(P)
 
 computes the transposed NDCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^c \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
@@ -397,9 +397,9 @@ computes the transposed NDCT via naive matrix-vector multiplication for provided
 * `P` - a NFCT plan structure.
 
 # See also
-[`NFCT{D}`](@ref), [`adjoint`](@ref)
+[`NFCT{D}`](@ref), [`nfct_transposed`](@ref)
 """
-function nfct_adjoint_direct(P::NFCT{D}) where {D}
+function nfct_transposed_direct(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFCT already finalized")
@@ -419,6 +419,10 @@ function nfct_adjoint_direct(P::NFCT{D}) where {D}
     Core.setfield!(P, :fhat, ptr)
 end
 
+function nfct_adjoint_direct(P::NFCT{D}) where {D}
+    return nfct_transposed_direct(P)
+end
+
 function adjoint_direct(P::NFCT{D}) where {D}
     return nfct_adjoint_direct(P)
 end
@@ -433,7 +437,7 @@ computes the NDCT via the fast NFCT algorithm for provided nodes ``\pmb{x}_j, j 
 * `P` - a NFCT plan structure.
 
 # See also
-[`NFCT{D}`](@ref), [`trafo_direct`](@ref)
+[`NFCT{D}`](@ref), [`nfct_trafo_direct`](@ref)
 """
 function nfct_trafo(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
@@ -456,7 +460,7 @@ end
 
 # adjoint trafo [call with NFCT.adjoint outside module]
 @doc raw"""
-    nfct_adjoint(P)
+    nfct_transposed(P)
 
 computes the transposed NDCT via the fast transposed NFCT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^c \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
@@ -464,9 +468,9 @@ computes the transposed NDCT via the fast transposed NFCT algorithm for provided
 * `P` - a NFCT plan structure.
 
 # See also
-[`NFCT{D}`](@ref), [`adjoint_direct`](@ref)
+[`NFCT{D}`](@ref), [`nfct_transposed_direct`](@ref)
 """
-function nfct_adjoint(P::NFCT{D}) where {D}
+function nfct_transposed(P::NFCT{D}) where {D}
     # prevent bad stuff from happening
     if P.finalized
         error("NFCT already finalized")
@@ -479,6 +483,10 @@ function nfct_adjoint(P::NFCT{D}) where {D}
     end
     ptr = ccall(("jnfct_adjoint", lib_path_nfct), Ptr{Float64}, (Ref{nfct_plan},), P.plan)
     Core.setfield!(P, :fhat, ptr)
+end
+
+function nfct_adjoint(P::NFCT{D}) where {D}
+    return nfct_transposed(P)
 end
 
 function adjoint(P::NFCT{D}) where {D}
