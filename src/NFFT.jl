@@ -291,35 +291,37 @@ function Base.setproperty!(P::NFFT{D}, v::Symbol, val) where {D}
         Core.setfield!(P, v, ptr)
         # setting values
     elseif v == :f
-        if typeof(val) != Array{ComplexF64,1}
-            error("f has to be a ComplexFloat64 vector.")
+        if !isa( val, Array{<:Number,1} )
+            error("f has to be a vector of numbers.")
         end
         if size(val)[1] != P.M
             error("f has to be a ComplexFloat64 vector of size M.")
         end
+        f_complex = convert(Vector{ComplexF64},val)
         ptr = ccall(
             ("jnfft_set_f", lib_path_nfft),
             Ptr{ComplexF64},
             (Ref{nfft_plan}, Ref{ComplexF64}),
             P.plan,
-            val,
+            f_complex,
         )
         Core.setfield!(P, v, ptr)
         # setting Fourier coefficients
     elseif v == :fhat
-        if typeof(val) != Array{ComplexF64,1}
-            error("fhat has to be a ComplexFloat64 vector.")
+        if !isa( val, Array{<:Number,1} )
+            error("f has to be a vector of numbers.")
         end
         l = prod(P.N)
         if size(val)[1] != l
             error("fhat has to be a ComplexFloat64 vector of size prod(N).")
         end
+        fhat_complex = convert(Vector{ComplexF64},val)
         ptr = ccall(
             ("jnfft_set_fhat", lib_path_nfft),
             Ptr{ComplexF64},
             (Ref{nfft_plan}, Ref{ComplexF64}),
             P.plan,
-            val,
+            fhat_complex,
         )
         Core.setfield!(P, v, ptr)
         # prevent modification of NFFT plan pointer

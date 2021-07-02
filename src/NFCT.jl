@@ -259,39 +259,40 @@ function Base.setproperty!(P::NFCT{D}, v::Symbol, val) where {D}
 
         # setting values
     elseif v == :f
-        if typeof(val) != Array{Float64,1}
-            error("f has to be a Float64 vector.")
+        if !isa( val, Array{<:Real,1} )
+            error("f has to be a vector of real numbers.")
         end
         if size(val)[1] != P.M
             error("f has to be a Float64 vector of size M.")
         end
+        f_real = convert(Vector{Float64},val)
         ptr = ccall(
             ("jnfct_set_f", lib_path_nfct),
             Ptr{Float64},
             (Ref{nfct_plan}, Ref{Float64}),
             P.plan,
-            val,
+            f_real,
         )
         Core.setfield!(P, v, ptr)
 
         # setting Fourier coefficients
     elseif v == :fhat
-        if typeof(val) != Array{Float64,1}
-            error("fhat has to be a Float64 vector.")
+        if !isa( val, Array{<:Real,1} )
+            error("fhat has to be a vector of real numbers.")
         end
         l = prod(P.N)
         if size(val)[1] != l
             error("fhat has to be a Float64 vector of size prod(N).")
         end
+        fhat_real = convert(Vector{Float64},val)
         ptr = ccall(
             ("jnfct_set_fhat", lib_path_nfct),
             Ptr{Float64},
             (Ref{nfct_plan}, Ref{Float64}),
             P.plan,
-            val,
+            fhat_real,
         )
         Core.setfield!(P, v, ptr)
-
         # prevent modification of NFCT plan pointer
     elseif v == :plan
         @warn "You can't modify the C pointer to the NFCT plan."
