@@ -43,9 +43,9 @@ We modify the [NFFT](@ref NFFT_site) in order to derive a fast algorithm for the
 
 ```@docs
     nfst_trafo
-    nfst_adjoint
     nfst_trafo_direct
-    nfst_adjoint_direct
+    nfst_transposed
+    nfst_transposed_direct
   	nfst_finalize_plan
     nfst_init
 ```
