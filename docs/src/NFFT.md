@@ -6,7 +6,7 @@
 
 ## NFFT algorithm
 
-The nonequispaced fast Fourier transform [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)] (NFFT or NUFFT) overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering the evaluation of the ``d``-dimensional trigonometric polynomial
+The nonequispaced fast Fourier transform (NFFT or NUFFT), see [[Keiner, Kunis, Potts, 2006](#KeinerKunisPotts2006)], overcomes one of the main shortcomings of the FFT - the need for an equispaced sampling grid. Considering the evaluation of the ``d``-dimensional trigonometric polynomial
 
 ```math
   f \colon \mathbb{T}^d \to \mathbb{C}, \; \pmb{x} \mapsto \sum_{\pmb{k} \in I_{\pmb{N}}^d} \hat{f}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \pmb{x}}
@@ -15,7 +15,7 @@ The nonequispaced fast Fourier transform [[Keiner, Kunis, Potts, 2006](#KeinerKu
 with multibandlimit ``\pmb{N} \in 2 \mathbb{N}^d`` and index set
 
 ```math
-  I_{\pmb{N}}^d \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^d: - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1 \; \forall i \in \{ 1,2,\ldots, d \} \right\}.
+  I_{\pmb{N}}^d \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^d: - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1, \, i = 1,2,\ldots,d \right\}.
 ```
 
 The first approximation is a linear combination of a shifted periodized window function ``\tilde{\varphi}``
@@ -58,7 +58,7 @@ Replacing ``\tilde{\varphi}`` by its Fourier series and splitting the sum in ``s
 
 ```math
 \begin{aligned}
-  s_1(\pmb{x}) & = \sum_{\pmb{\ell} \in I_{\pmb{n}}} g_{\pmb{\ell}} \sum_{\pmb{k} \in \mathbb{Z}^d} c_{\pmb{k}}(\tilde{\varphi}) \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \left( \pmb{x} - \frac{1}{\pmb{n}} \odot \pmb{\ell}\right) } \\ 
+  s_1(\pmb{x}) & = \sum_{\pmb{\ell} \in I_{\pmb{n}}^d} g_{\pmb{\ell}} \sum_{\pmb{k} \in \mathbb{Z}^d} c_{\pmb{k}}(\tilde{\varphi}) \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \left( \pmb{x} - \frac{1}{\pmb{n}} \odot \pmb{\ell}\right) } \\ 
 	& = \sum_{\pmb{k} \in \mathbb{Z}^d} c_{\pmb{k}} (\tilde{\varphi}) \underbrace{ \left(\sum_{\pmb{\ell} \in I_{\pmb{n}}^d } g_{\pmb{\ell}} \, \mathrm{e}^{2 \pi \mathrm{i} \, \frac{1}{\pmb{n}} \odot (\pmb{k} \cdot \pmb{\ell})} \right)}_{ \eqqcolon \hat{g}_{\pmb{k}} \,\mathrm{e}^{-2 \pi \mathrm{i} \ \pmb{k} \cdot \pmb{x}}} \\
 	& = \sum_{\pmb{k} \in I_{\pmb{n}}^d } c_{\pmb{k}}(\tilde{\varphi}) \hat{g}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \ \pmb{k} \cdot \pmb{x} } + \sum_{\pmb{r} \in \mathbb{Z}^d \setminus \{ \pmb{0} \}} \sum_{\pmb{k} \in I_{\pmb{n}}^d } c_{\pmb{k}}(\tilde{\varphi}) \hat{g}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \, (\pmb{k} + \pmb{n} \odot \pmb{r})\cdot \pmb{x} }.
 \end{aligned}
@@ -117,31 +117,31 @@ in order to ensure that ``\pmb{x}_j`` is within the support. This second approxi
 
 ### Pseudocode
 
-**Input:** ``M \in \mathbb{N}, \pmb{N} \in 2\mathbb{N}, \pmb{n} \in 2\mathbb{N}, m \in \mathbb{N}, x_j \in [-0.5,0.5)^d \text{ for } j =1,\ldots,M, \hat{f}_k \in \mathbb{C} \text{ for } k \in I^{d}_{\pmb{N}}.``
+**Input:** ``M \in \mathbb{N}, \pmb{N} \in (2\mathbb{N})^d, \pmb{n} \in (2\mathbb{N})^d, m \in \mathbb{N}, \pmb{x}_j \in [-0.5,0.5)^d \text{ for } j =1,\ldots,M, \hat{f}_{\pmb{k}} \in \mathbb{C} \text{ for } \pmb{k} \in I^{d}_{\pmb{N}}.``
 
 **Precomputation:** Compute the nonzero Fourier coefficients ``c_{\pmb{k}}(\tilde{\varphi}) \text{ for all } \pmb{k} \in I^{d}_{\pmb{N}}.``
- Compute the values ``\tilde{\psi} (x_j -\frac{1}{\pmb{n}}\odot\pmb{\ell}) \text{ for } j=1,\ldots,M \text{ and } \pmb{\ell} \in I_{\pmb{n}, m}^d(x_j).``
+ Compute the function values ``\tilde{\psi}_{j,\pmb{\ell}} \coloneqq \tilde{\psi} (\pmb{x}_j -\frac{1}{\pmb{n}}\odot\pmb{\ell}) \text{ for } j=1,\ldots,M \text{ and } \pmb{\ell} \in I_{\pmb{n}, m}^d(\pmb{x}_j).``
 
-1. Set ``\hat{g}_{\pmb{k}} \coloneqq |I^{d}_{\pmb{n}}|^{-1} \hat{f}_{\pmb{k}} / c_{\pmb{k}}(\tilde{\varphi}) \text{ for } \pmb{k} \in I^{d}_{\pmb{N}}.`` 
-2. Compute `` g_{\pmb{\ell}} = \sum_{k \in I^{d}_{\pmb{N}}} \hat{g}_{\pmb{k}} \, \mathrm{e}^{2 \pi \mathrm{i} \, \pmb{k} \cdot \left( \frac{1}{\pmb{n}} \odot \pmb{\ell}\right)}, \quad \pmb{\ell} \in I^{d}_{\pmb{n}}`` using a d-variate FFT. 
-3. Compute ``s(x_j) \coloneqq \sum_{\pmb{\ell} \in I_{\pmb{n}, m}^d(x_j)} g_{\pmb{\ell}} \, \tilde{\psi} (x_j -\frac{1}{\pmb{n}}\odot\pmb{\ell}), \quad j =1,\ldots,M``.
+1. Set ``\hat{g}_{\pmb{k}} = |I^{d}_{\pmb{n}}|^{-1} \, \hat{f}_{\pmb{k}} / c_{\pmb{k}}(\tilde{\varphi}) \text{ for } \pmb{k} \in I^{d}_{\pmb{N}}.`` 
+2. Compute `` g_{\pmb{\ell}} = \sum_{k \in I^{d}_{\pmb{N}}} \hat{g}_{\pmb{k}} \, \mathrm{e}^{2 \pi \mathrm{i} \, \pmb{k} \cdot \left( \frac{1}{\pmb{n}} \odot \pmb{\ell}\right)}`` for ``\pmb{\ell} \in I^{d}_{\pmb{n}}`` using a d-variate FFT. 
+3. Compute ``s(\pmb{x}_j) = \sum_{\pmb{\ell} \in I_{\pmb{n}, m}^d(\pmb{x}_j)} g_{\pmb{\ell}} \, \tilde{\psi}_{j,\pmb{\ell}}`` for ``j =1,\ldots,M``.
 
-**Output:** ``s(x_j), \, j =1,\ldots,M``, approximate values of ``f(x_j)``.
+**Output:** ``s(\pmb{x}_j), \, j =1,\ldots,M``, approximate values of ``f(\pmb{x}_j)``.
 
-**Computational cost:** ``\mathcal{O}(N^d \log{N} + m^d \ M)`` 
+**Computational cost:** ``\mathcal{O}(N_1 \cdot N_2 \cdots N_d \cdot \log{N} + m^d \ M)`` 
 
 ### Adjoint algorithm
 
 Using the transposed index set 
 
 ```math
-  I_{\pmb{n},m}^\top(\pmb{\ell}) = \{ j= 0, 1, \ldots, M-1 : \pmb{\ell} - m\pmb{1} \leq \pmb{n} \odot \pmb{x}_j \leq \pmb{\ell} + m \pmb{1} \},
+  I_{\pmb{n},m}^\top(\pmb{\ell}) = \{ j= 1,2, \ldots, M : \pmb{\ell} - m\pmb{1} \leq \pmb{n} \odot \pmb{x}_j \leq \pmb{\ell} + m \pmb{1} \},
 ```
 
 we obtain the adjoint NFFT algorithm for the fast evaluation the of
 
 ```math
-	\hat{h}_{\pmb{k}} = \sum_{j = 0}^{M-1} f_j \, \mathrm{e}^{2 \pi  \mathrm{i} \, \pmb{k} \cdot \pmb{x}_j}, \pmb{k} \in I_{\pmb{N}}^d
+	\hat{h}_{\pmb{k}} = \sum_{j = 1}^{M} f_j \, \mathrm{e}^{2 \pi  \mathrm{i} \, \pmb{k} \cdot \pmb{x}_j}, \pmb{k} \in I_{\pmb{N}}^d,
 ```
 
 for given coefficients ``f_j \in \mathbb{C}, j =1,\ldots,M``.

@@ -10,36 +10,36 @@ A NFFT (nonequispaced fast Fourier transform) plan, where D is the dimension.
 Considering a D-dimensional trigonometric polynomial
 
 ```math
-f \colon \mathbb{T}^D \to \mathbb{C}, \; f(x) \colon = \sum_{k \in I_{N}} \hat{f}_k \, \mathrm{e}^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x}}
+f \colon \mathbb{T}^D \to \mathbb{C}, \; f(\pmb{x}) \colon = \sum_{\pmb{k} \in I_{\pmb{N}}^D} \hat{f}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \pmb{x}}
 ```
 
-with an index set ``I_N \colon = \{ k \in \mathbb{Z}^{D} \colon - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1, \, i = 0, \cdots, D-1 \}`` where ``N \in 2 \mathbb{N}^{D}`` is the multibandlimit. 
-The NDFT (non uniform discrete fourier transform) is its evaluation at ``M \in 2 \mathbb{N}`` nonequispaced points ``x_j \in \mathbb{T}^D`` for ``j = 0, 1, \cdots, M``,
+with an index set ``I_{\pmb{N}}^D \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^D: - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1, \, i = 1,2,\ldots,D \right\}`` where ``\pmb{N} \in (2\mathbb{N})^{D}`` is the multibandlimit. 
+The NDFT (non uniform discrete fourier transform) is its evaluation at ``M \in \mathbb{N}`` arbitrary points ``\pmb{x}_j \in [-0.5,0.5)^D`` for ``j = 1, \ldots, M``,
 
 ```math
-f(x_j) \colon = \sum_{k \in I_{N}} \hat{f}_k \, \mathrm{e}^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}
+f(\pmb{x}_j) \colon = \sum_{\pmb{k} \in I^D_{\pmb{N}}} \hat{f}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \pmb{x}_j}
 ```
 
-with given coefficients ``\hat{f}_k \in \mathbb{C}`` where we identify the smooth manifold of the torus ``\mathbb{T}`` with ``[−1/2, 1/2)``. The NFFT is an algorithm for the fast evaluation of the NDFT and the adjoint problem, the fast evaluation of the adjoint NDFT
+with given coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}``. The NFFT is an algorithm for the fast evaluation of the NDFT and the adjoint problem, the fast evaluation of the adjoint NDFT
 
 ```math
-\hat{h}_k \colon = \sum^{M-1}_{j = 0} f_j \, \mathrm{e}^{-2 \pi \mathrm{i} \mathbf{k} \cdot \mathbf{x_j}}, \; k \in I_N
+\hat{h}_{\pmb{k}} \colon = \sum^{M}_{j = 1} f_j \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \pmb{x}_j}, \, \pmb{k} \in I_{\pmb{N}}^D
 ```
 
-for given coefficients ``f_j \in \mathbb{C}``. In general, the adjoint NDFT is not the inverse transform of the NDFT.
+for given coefficients ``f_j \in \mathbb{C}, j =1,2,\ldots,M``. Note that in general, the adjoint NDFT is not the inverse transform of the NDFT.
 
 # Fields
-* `N` - the multibandlimit.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
 * `M` - the number of nodes.
-* `n` - the oversampling per dimension.
-* `m` - the window size. Larger m means more accuracy but also more computational costs. 
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
 * `f1` - the NFFT flags.
 * `f2` - the FFTW flags.
 * `init_done` - indicates if the plan is initialized.
 * `finalized` - indicates if the plan is finalized.
-* `x` - the nodes.
-* `f` - the function values.
-* `fhat` - the Fourier coefficients.
+* `x` - the nodes ``x_j \in [-0.5,0.5)^D, \, j = 1, \ldots, M``.
+* `f` - the values ``f(\pmb{x}_j)`` after the transformation or the coefficients ``f_j \in \mathbb{C}, \, j = 1, \ldots, M`` for the adjoint problem.
+* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D``.
 * `plan` - plan (C pointer).
 
 # Constructor
