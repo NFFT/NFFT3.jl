@@ -18,5 +18,5 @@ deploydocs(
     repo   = "github.com/NFFT/NFFT3.jl.git",
     devbranch = "main",
     devurl = "dev",
-    versions = ["stable" => "v^", "v#.#", devurl => devurl],
+    versions = ["stable" => "v^", "v#.#", "dev" => "dev"],
 )
