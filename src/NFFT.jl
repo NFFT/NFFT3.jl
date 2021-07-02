@@ -309,7 +309,7 @@ function Base.setproperty!(P::NFFT{D}, v::Symbol, val) where {D}
         # setting Fourier coefficients
     elseif v == :fhat
         if !isa( val, Array{<:Number,1} )
-            error("f has to be a vector of numbers.")
+            error("fhat has to be a vector of numbers.")
         end
         l = prod(P.N)
         if size(val)[1] != l
