@@ -14,7 +14,7 @@ f \colon \mathbb{T}^D \to \mathbb{C}, \; f(\pmb{x}) \colon = \sum_{\pmb{k} \in I
 ```
 
 with an index set ``I_{\pmb{N}}^D \coloneqq \left\{ \pmb{k} \in \mathbb{Z}^D: - \frac{N_i}{2} \leq k_i \leq \frac{N_i}{2} - 1, \, i = 1,2,\ldots,D \right\}`` where ``\pmb{N} \in (2\mathbb{N})^{D}`` is the multibandlimit. 
-The NDFT (non uniform discrete fourier transform) is its evaluation at ``M \in \mathbb{N}`` arbitrary points ``\pmb{x}_j \in [-0.5,0.5)^D`` for ``j = 1, \ldots, M``,
+The NDFT (nonequispaced discrete Fourier transform) is its evaluation at ``M \in \mathbb{N}`` arbitrary points ``\pmb{x}_j \in [-0.5,0.5)^D`` for ``j = 1, \ldots, M``,
 
 ```math
 f(\pmb{x}_j) \colon = \sum_{\pmb{k} \in I^D_{\pmb{N}}} \hat{f}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \pmb{x}_j}
@@ -23,7 +23,7 @@ f(\pmb{x}_j) \colon = \sum_{\pmb{k} \in I^D_{\pmb{N}}} \hat{f}_{\pmb{k}} \, \mat
 with given coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}``. The NFFT is an algorithm for the fast evaluation of the NDFT and the adjoint problem, the fast evaluation of the adjoint NDFT
 
 ```math
-\hat{h}_{\pmb{k}} \colon = \sum^{M}_{j = 1} f_j \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \pmb{x}_j}, \, \pmb{k} \in I_{\pmb{N}}^D
+\hat{h}_{\pmb{k}} \coloneqq \sum^{M}_{j = 1} f_j \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \pmb{x}_j}, \, \pmb{k} \in I_{\pmb{N}}^D
 ```
 
 for given coefficients ``f_j \in \mathbb{C}, j =1,2,\ldots,M``. Note that in general, the adjoint NDFT is not the inverse transform of the NDFT.
@@ -37,9 +37,9 @@ for given coefficients ``f_j \in \mathbb{C}, j =1,2,\ldots,M``. Note that in gen
 * `f2` - the FFTW flags.
 * `init_done` - indicates if the plan is initialized.
 * `finalized` - indicates if the plan is finalized.
-* `x` - the nodes ``x_j \in [-0.5,0.5)^D, \, j = 1, \ldots, M``.
-* `f` - the values ``f(\pmb{x}_j)`` after the transformation or the coefficients ``f_j \in \mathbb{C}, \, j = 1, \ldots, M`` for the adjoint problem.
-* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D``.
+* `x` - the nodes ``\pmb{x}_j \in [-0.5,0.5)^D, j = 1, \ldots, M``.
+* `f` - the values ``f(\pmb{x}_j)`` for the NFFT or the coefficients ``f_j \in \mathbb{C}, j = 1, \ldots, M,`` for the adjoint NFFT.
+* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}`` for the NFFT or the values ``\hat{h}_{\pmb{k}}, \pmb{k} \in I_{\pmb{N}}^D,`` for the adjoint NFFT.
 * `plan` - plan (C pointer).
 
 # Constructor
@@ -211,7 +211,7 @@ end
 @doc raw"""
     nfft_init(P)
 
-intialises a transform plan.
+intialises the NFFT plan in C. This function does not have to be called by the user.
 
 # Input
 * `P` - a NFFT plan structure.
@@ -382,7 +382,7 @@ end
 @doc raw"""
     nfft_trafo_direct(P)
 
-computes a NFFT.
+computes the NDFT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFFT plan structure.
@@ -421,7 +421,7 @@ end
 @doc raw"""
     nfft_adjoint_direct(P)
 
-computes an adjoint NFFT.
+computes the adjoint NDFT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFFT plan structure.
@@ -457,7 +457,7 @@ end
 @doc raw"""
     nfft_trafo(P)
 
-computes a NFFT.
+computes the NDFT via the fast NFFT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFFT plan structure.
@@ -488,7 +488,7 @@ end
 @doc raw"""
     nfft_adjoint(P)
 
-computes an adjoint NFFT.
+    computes the adjoint NDFT via the fast adjoint NFFT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFFT plan structure.
