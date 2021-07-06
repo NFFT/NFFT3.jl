@@ -47,27 +47,27 @@ nonsingular kernel function. The evaluation is done at ``M`` different points ``
 [`NFFT`](@ref)
 """
 mutable struct FASTSUM
-    d::Integer# dimension
-    N::Integer# number of source nodes
-    M::Integer# number of target nodes
-    n::Integer# expansion degree
-    p::Integer# degree of smoothness
-    kernel::String# name of kernel
-    c::Vector{Float64}# kernel parameters
-    eps_I::Real# inner boundary
-    eps_B::Real# outer boundary
-    nn_x::Integer# oversampled nn in x
-    nn_y::Integer# oversampled nn in y
-    m_x::Integer# NFFT-cutoff in x
-    m_y::Integer# NFFT-cutoff in y
-    init_done::Bool# bool for plan init
-    finalized::Bool# bool for finalizer
-    flags::UInt32# flags
-    x::Ref{Float64}# source nodes
-    y::Ref{Float64}# target nodes
-    alpha::Ref{ComplexF64}# source coefficients
-    f::Ref{ComplexF64}# target evaluations
-    plan::Ref{fastsum_plan}# plan (C pointer)
+    d::Integer # dimension
+    N::Integer # number of source nodes
+    M::Integer # number of target nodes
+    n::Integer # expansion degree
+    p::Integer # degree of smoothness
+    kernel::String # name of kernel
+    c::Vector{Float64} # kernel parameters
+    eps_I::Real # inner boundary
+    eps_B::Real # outer boundary
+    nn_x::Integer # oversampled nn in x
+    nn_y::Integer # oversampled nn in y
+    m_x::Integer # NFFT-cutoff in x
+    m_y::Integer # NFFT-cutoff in y
+    init_done::Bool # bool for plan init
+    finalized::Bool # bool for finalizer
+    flags::UInt32 # flags
+    x::Ref{Float64} # source nodes
+    y::Ref{Float64} # target nodes
+    alpha::Ref{ComplexF64} # source coefficients
+    f::Ref{ComplexF64} # target evaluations
+    plan::Ref{fastsum_plan} # plan (C pointer)
 
     function FASTSUM(
         d::Integer,
@@ -85,6 +85,22 @@ mutable struct FASTSUM
         m_y::Integer,
         flags::UInt32,
     )
+        if N <= 0
+            error("N has to be a positive Integer.")
+        end
+
+        if M <= 0
+            error("M has to be a positive Integer.")
+        end
+
+        if n <= 0
+            error("n has to be a positive Integer. ")
+        end
+
+        if (m_x <= 0) || (m_y <= 0)
+            error("m has to be a positive Integer.")
+        end
+
         new(
             d,
             N,
@@ -110,37 +126,19 @@ function FASTSUM(
     d::Integer,
     N::Integer,
     M::Integer,
-    n::Integer,
-    p::Integer,
     kernel::String,
     c::Real,
-    eps_I::Real,
-    eps_B::Real,
-    nn::Integer,
-    m::Integer,
+    n::Integer = 256,
+    p::Integer = 8,
+    eps_I::Real = 256/8,
+    eps_B::Real = 1/16,
+    nn::Integer = 512,
+    m::Integer = 8,
 )
-
-    if N <= 0
-        error("N has to be a positive Integer.")
-    end
-
-    if M <= 0
-        error("M has to be a positive Integer.")
-    end
-
-    if n <= 0
-        error("n has to be a positive Integer. ")
-    end
-
-    if m <= 0
-        error("m has to be a positive Integer.")
-    end
-
     cv = Vector{Float64}(undef, 1)
     cv[1] = Float64(c)
 
     FASTSUM(d, N, M, n, p, kernel, cv, eps_I, eps_B, nn, nn, m, m, UInt32(0))
-
 end #constructor
 
 @doc raw"""

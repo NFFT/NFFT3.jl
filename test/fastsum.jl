@@ -3,16 +3,10 @@ N = 20000
 M = 20000
 kernel = "multiquadric"
 c = 1 / sqrt(N)
-p = 8
-flags = 0
-m = p
-n = 256
-eps_I = p / n
-eps_B = max(1 / 16, p / n)
-nn = 2 * n
+eps_B = 1/16
 
 # create a Plan-Object in Julia
-plan = FASTSUM(d, N, M, n, p, kernel, c, eps_I, eps_B, nn, m)
+plan = FASTSUM(d, N, M, kernel, c)
 
 # generate source nodes in circle of radius 0.25-eps_B/2
 r = sqrt.(rand(N)) .* (0.25 - eps_B / 2)

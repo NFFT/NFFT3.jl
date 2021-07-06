@@ -28,10 +28,10 @@ We replace ``\mathscr{K}`` in the definition above by a periodic function. Hence
 Next, we regularize the kernel near zero and ``\pm 0.5`` to obtain the function
 
 ```math
-    K_R(r) \coloneqq \begin{cases} T_I(r) & \lvert r \rvert < \varepsilon_I \\ K(r) & \varepsilon_I < \lvert r \rvert \leq 0.5 - \varepsilon_B \\ T_B(\lvert r \rvert) & 0.5 - \varepsilon_B < \lvert r \rvert \leq 0.5. \end{cases}
+    K_R(r) \coloneqq \begin{cases} T_I(r) & \lvert r \rvert < \varepsilon_I \\ K(r) & \varepsilon_I < \lvert r \rvert \leq 0.5 - \varepsilon_B \\ T_B(\lvert r \rvert) & 0.5 - \varepsilon_B < \lvert r \rvert \leq 0.5 \end{cases}
 ```
 
-Here, ``T_I,\, T_B \in \mathcal{P}_{2p-1}`` are chosen such that the 1-periodic extension of ``K_R`` is of class ``\mathcal{C}^{p-1}``. Further details about the computation of ``T_I, T_B`` are given in Chapter 7.5 of [[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)]. 
+with ``0 < \varepsilon_I < 0.5 - \varepsilon_B``. Here, ``T_I,\, T_B \in \mathcal{P}_{2p-1}`` are chosen such that the 1-periodic extension of ``K_R`` is of class ``\mathcal{C}^{p-1}``. Further details about the computation of ``T_I, T_B`` are given in Chapter 7.5 of [[Plonka, Potts, Steidl, Tasche, 2018](#PlonkaPottsSteidlTasche2018)]. 
 \
 We define 
 

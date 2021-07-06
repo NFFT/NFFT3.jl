@@ -66,7 +66,29 @@ mutable struct NFST{D}
         f1::UInt32,
         f2::UInt32,
     ) where {D}
-        # create plan object
+        if any(x -> x <= 0, N)
+            error("Every entry of N has to be an even, positive integer.")
+        end
+
+        if M <= 0
+            error("M has to be a positive integer.")
+        end
+
+        if any(x -> x <= 0, n)
+            error("Every entry of n has to be an even integer.")
+        end
+
+        if n <= N
+            error("Every entry of n has to be larger than the corresponding entry in N.")
+        end
+
+        if sum(n .% 2) != 0
+            error("Every entry of n has to be an even integer.")
+        end
+
+        if m <= 0
+            error("m has to be a positive integer.")
+        end
         new(N, M, n, m, f1, f2, false, false)
     end
 end
@@ -75,14 +97,6 @@ end
 function NFST(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
         error("Every entry of N has to be an even, positive integer.")
-    end
-
-    if sum(N .% 2) != 0
-        error("Every entry of N has to be an even, positive integer.")
-    end
-
-    if M <= 0
-        error("M has to be a positive integer.")
     end
 
     # convert N to vector for passing it over to C
@@ -112,32 +126,6 @@ function NFST(
     f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
     f2::UInt32 = f2_default,
 ) where {D}
-
-    # safety checks
-    if any(x -> x <= 0, N)
-        error("Every entry of N has to be an even, positive integer.")
-    end
-
-    if M <= 0
-        error("M has to be a positive integer.")
-    end
-
-    if any(x -> x <= 0, n)
-        error("Every entry of n has to be an even integer.")
-    end
-
-    if n <= N
-        error("Every entry of n has to be larger than the corresponding entry in N.")
-    end
-
-    if sum(n .% 2) != 0
-        error("Every entry of n has to be an even integer.")
-    end
-
-    if m <= 0
-        error("m has to be a positive integer.")
-    end
-
     NFST{D}(
         NTuple{D,Int32}(N),
         Int32(M),

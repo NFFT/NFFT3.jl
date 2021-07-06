@@ -107,14 +107,6 @@ function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
         throw(DomainError(N, "argument must be a positive integer")) 
     end
 
-    if sum(N .% 2) != 0
-        throw(DomainError(N, "argument must be an even integer")) 
-    end
-
-    if M <= 0
-        throw(DomainError(M, "argument must be a positive integer")) 
-    end
-
     # convert N to vector for passing it over to C
     Nv = collect(N)
 
@@ -142,34 +134,6 @@ function NFFT(
     f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
     f2::UInt32 = f2_default,
 ) where {D}
-    if any(x -> x <= 0, N)
-        throw(DomainError(N, "argument must be a positive integer")) 
-    end
-
-    if sum(N .% 2) != 0
-        throw(DomainError(N, "argument must be an even integer")) 
-    end
-
-    if M <= 0
-        throw(DomainError(M, "argument must be a positive integer")) 
-    end
-
-    if any(x -> x <= 0, n)
-        throw(DomainError(n, "argument must be a positive integer")) 
-    end
-
-    if n <= N
-        throw(DomainError(n, "argument must fulfil n_i > N_i")) 
-    end
-
-    if sum(n .% 2) != 0
-        throw(DomainError(n, "argument must be an even integer")) 
-    end
-
-    if m <= 0
-        throw(DomainError(m, "argument must be a positive integer")) 
-    end
-
     NFFT{D}(
         NTuple{D,Int32}(N),
         Int32(M),
