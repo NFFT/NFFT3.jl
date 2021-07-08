@@ -67,31 +67,31 @@ mutable struct NFCT{D}
         f2::UInt32,
     ) where {D}
         if any(x -> x <= 0, N)
-            error("Every entry of N has to be an even, positive integer.")
+            throw(DomainError(N, "argument must be a positive integer")) 
         end
 
         if sum(N .% 2) != 0
-            error("Every entry of N has to be an even, positive integer.")
+            throw(DomainError(N, "argument must be an even integer")) 
         end
 
         if M <= 0
-            error("M has to be a positive integer.")
+            throw(DomainError(M, "argument must be a positive integer"))
         end
 
         if any(x -> x <= 0, n)
-            error("Every entry of n has to be an even integer.")
+            throw(DomainError(n, "argument must be a positive integer")) 
         end
 
         if n <= N
-            error("Every entry of n has to be larger than the corresponding entry in N.")
+            throw(DomainError(n, "argument must fulfil n_i > N_i")) 
         end
 
         if sum(n .% 2) != 0
-            error("Every entry of n has to be an even integer.")
+            throw(DomainError(n, "argument must be an even integer")) 
         end
 
         if m <= 0
-            error("m has to be a positive integer.")
+            throw(DomainError(m, "argument must be a positive integer")) 
         end
 
         new(N, M, n, m, f1, f2, false, false)
