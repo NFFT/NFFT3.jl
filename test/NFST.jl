@@ -36,3 +36,20 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
+
+
+# Error tests
+@test_throws DomainError NFST((-1, 2), M)
+
+@test_throws DomainError NFST(N, -1)
+
+@test_throws DomainError NFST(N, M, (-1, 2, 3), Int32(8), f1_default, f2_default)
+
+# Question: What if just one integer n_i in the tuple is smaler than N_i
+@test_throws DomainError NFST(N, M, (16, 8, 4), Int32(8), f1_default, f2_default)
+
+@test_throws DomainError NFST(N, M, (18, 9, 6), Int32(8), f1_default, f2_default)
+
+@test_throws DomainError NFST(N, M, (18, 10, 6), Int32(-8), f1_default, f2_default)
+
+@test_throws DomainError NFST((-16, 8, 4), M, (18, 10, 6), Int32(8), f1_default, f2_default)

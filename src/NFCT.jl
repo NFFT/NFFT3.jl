@@ -101,7 +101,7 @@ end
 # additional constructor for easy use [NFCT((N,N),M) instead of NFCT{2}((N,N),M)]
 function NFCT(N::NTuple{D,Integer}, M::Integer) where {D}
     if any(x -> x <= 0, N)
-        error("Every entry of N has to be a positive integer.")
+            throw(DomainError(N, "argument must be a positive integer")) 
     end
 
     # convert N to vector for passing it over to C
