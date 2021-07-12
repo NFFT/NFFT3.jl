@@ -59,7 +59,7 @@ Replacing ``\tilde{\varphi}`` by its Fourier series and splitting the sum in ``s
 ```math
 \begin{aligned}
   s_1(\pmb{x}) & = \sum_{\pmb{\ell} \in I_{\pmb{n}}^d} g_{\pmb{\ell}} \sum_{\pmb{k} \in \mathbb{Z}^d} c_{\pmb{k}}(\tilde{\varphi}) \, \mathrm{e}^{-2 \pi \mathrm{i} \, \pmb{k} \cdot \left( \pmb{x} - \frac{1}{\pmb{n}} \odot \pmb{\ell}\right) } \\ 
-	& = \sum_{\pmb{k} \in \mathbb{Z}^d} c_{\pmb{k}} (\tilde{\varphi}) \underbrace{ \left(\sum_{\pmb{\ell} \in I_{\pmb{n}}^d } g_{\pmb{\ell}} \, \mathrm{e}^{2 \pi \mathrm{i} \, \frac{1}{\pmb{n}} \odot (\pmb{k} \cdot \pmb{\ell})} \right)}_{ \eqqcolon \hat{g}_{\pmb{k}} \,\mathrm{e}^{-2 \pi \mathrm{i} \ \pmb{k} \cdot \pmb{x}}} \\
+	& = \sum_{\pmb{k} \in \mathbb{Z}^d} c_{\pmb{k}} (\tilde{\varphi}) \underbrace{ \left(\sum_{\pmb{\ell} \in I_{\pmb{n}}^d } g_{\pmb{\ell}} \, \mathrm{e}^{2 \pi \mathrm{i} \, \frac{1}{\pmb{n}} \odot (\pmb{k} \cdot \pmb{\ell})} \right)}_{ \eqqcolon \hat{g}_{\pmb{k}}} \mathrm{e}^{-2 \pi \mathrm{i} \ \pmb{k} \cdot \pmb{x}}\\
 	& = \sum_{\pmb{k} \in I_{\pmb{n}}^d } c_{\pmb{k}}(\tilde{\varphi}) \hat{g}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \ \pmb{k} \cdot \pmb{x} } + \sum_{\pmb{r} \in \mathbb{Z}^d \setminus \{ \pmb{0} \}} \sum_{\pmb{k} \in I_{\pmb{n}}^d } c_{\pmb{k}}(\tilde{\varphi}) \hat{g}_{\pmb{k}} \, \mathrm{e}^{-2 \pi \mathrm{i} \, (\pmb{k} + \pmb{n} \odot \pmb{r})\cdot \pmb{x} }.
 \end{aligned}
 ```
