@@ -37,3 +37,19 @@ E_infty = norm(error_vector, Inf) / norm(plan.alpha, 1)
 
 @test E_2 < 10^(-5)
 @test E_infty < 10^(-5)
+
+# Error tests
+@test_throws DomainError FASTSUM(d, -1, M, kernel, c)
+
+@test_throws DomainError FASTSUM(d, N, -1, kernel, c)
+
+@test_throws DomainError FASTSUM(d, N, M, kernel, c, -1)
+
+@test_throws DomainError FASTSUM(d, N, M, kernel, c, 256, 8, 256/8, 1/16, 512, -1)
+
+cv = Vector{Float64}(undef, 1)
+cv[1] = Float64(c)
+
+@test_throws DomainError FASTSUM(d, N, M, 1, 1, kernel, cv, 256/8, 1/16, 512, 512, -1, 1, UInt32(0))
+
+@test_throws DomainError FASTSUM(d, N, M, 1, 1, kernel, cv, 256/8, 1/16, 512, 512, 1, -1, UInt32(0))

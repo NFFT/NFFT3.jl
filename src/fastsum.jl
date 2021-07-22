@@ -86,19 +86,23 @@ mutable struct FASTSUM
         flags::UInt32,
     )
         if N <= 0
-            error("N has to be a positive Integer.")
+            throw(DomainError(M, "argument must be a positive integer"))
         end
 
         if M <= 0
-            error("M has to be a positive Integer.")
+            throw(DomainError(M, "argument must be a positive integer"))
         end
 
         if n <= 0
-            error("n has to be a positive Integer. ")
+            throw(DomainError(n, "argument must be a positive integer"))
         end
 
-        if (m_x <= 0) || (m_y <= 0)
-            error("m has to be a positive Integer.")
+        if m_x <= 0 
+            throw(DomainError(m_x, "argument must be a positive integer"))
+        end
+
+        if m_y <= 0 
+            throw(DomainError(m_y, "argument must be a positive integer"))
         end
 
         new(
