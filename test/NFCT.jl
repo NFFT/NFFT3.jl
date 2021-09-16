@@ -66,4 +66,4 @@ p = NFCT(N, M)
 
 p.init_done = false
 
-@test_throws error nfct_finalize_plan(p)
+# @test_throws error nfct_finalize_plan(p)
