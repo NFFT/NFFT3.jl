@@ -3,6 +3,7 @@
 """
 module NFFT3
 
+using Aqua
 
 # file ending for OS
 ending = ".so"
@@ -41,8 +42,10 @@ export nfft_finalize_plan,
     nfct_init,
     nfct_trafo,
     nfct_adjoint,
+    nfct_transposed,
     nfct_trafo_direct,
     nfct_adjoint_direct,
+    nfct_transposed_direct,
     nfst_finalize_plan,
     nfst_init,
     nfst_trafo,
