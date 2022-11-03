@@ -30,7 +30,7 @@ include("flags.jl")
 
 
 # plan structures
-export NFFT, NFCT, NFST, FASTSUM
+export NFFT, NFCT, NFST, FASTSUM, NFFCT
 
 # functions
 export nfft_finalize_plan,
@@ -58,6 +58,10 @@ export nfft_finalize_plan,
     fastsum_trafo,
     fastsum_trafo_exact,
     finalize_plan,
+    nffct_finalize_plan,
+    nffct_init,
+    nffct_trafo,
+    nffct_adjoint,
     init,
     trafo,
     adjoint,
