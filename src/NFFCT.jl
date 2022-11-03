@@ -35,6 +35,12 @@ function NFFCT(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, M::Integer) where {D}
     # convert N to vector for passing it over to C
     Nv = collect(N)
 
+    for i = 1:D
+        if dcos[i]
+            Nv[i] *= 2
+        end
+    end
+
     # default oversampling
     n = Array{Int32}(2 .^ (ceil.(log.(Nv) / log(2)) .+ 1))
     n = NTuple{D,Int32}(n)
@@ -47,7 +53,7 @@ function NFFCT(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, M::Integer) where {D}
     else
         f1 = NFFT3.f1_default_1d
     end
-    NFFCT{D}(dcos, NFFT{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(12), f1, NFFT3.f2_default))
+    NFFCT{D}(dcos, NFFT{D}(NTuple{D,Int32}(N), Int32(M), NTuple{D,Int32}(32,), Int32(8), f1, NFFT3.f2_default))
 end
 
 @doc raw"""
@@ -129,7 +135,19 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
                 fhatexp[i] = sqrt(2)^e * val[idx]
             end
         end
-        P.NFFT_struct.fhat = fhatexp
+        #P.NFFT_struct.fhat = fhatexp
+        P.NFFT_struct.fhat = [       1.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im
+        0.0 + 0.0im]
     elseif v == :f
         P.NFFT_struct.f = val
     elseif v == :NFFT_struct

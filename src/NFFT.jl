@@ -253,6 +253,7 @@ function Base.setproperty!(P::NFFT{D}, v::Symbol, val) where {D}
             val,
         )
         Core.setfield!(P, v, ptr)
+        println(val)
         # setting values
     elseif v == :f
         if !isa( val, Array{<:Number,1} )
@@ -270,6 +271,7 @@ function Base.setproperty!(P::NFFT{D}, v::Symbol, val) where {D}
             f_complex,
         )
         Core.setfield!(P, v, ptr)
+        println(val)
         # setting Fourier coefficients
     elseif v == :fhat
         if !isa( val, Array{<:Number,1} )
@@ -288,6 +290,7 @@ function Base.setproperty!(P::NFFT{D}, v::Symbol, val) where {D}
             fhat_complex,
         )
         Core.setfield!(P, v, ptr)
+        println(val)
         # prevent modification of NFFT plan pointer
     elseif v == :plan
         @warn "You can't modify the C pointer to the NFFT plan."

@@ -46,7 +46,7 @@ function getk(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, i::Int64) where {D}
     return k
 end
 
-N    = (6,   8,     6,     4,    8)
+N    = (26,   8,     6,     4,    8)
 dcos = (true, false, false, true, true)
 M = 10000
 
