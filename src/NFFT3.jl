@@ -23,6 +23,7 @@ const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", ending)
 include("NFFT.jl")
 include("NFCT.jl")
 include("NFST.jl")
+include("NFFCT.jl")
 include("fastsum.jl")
 include("flags.jl")
 
