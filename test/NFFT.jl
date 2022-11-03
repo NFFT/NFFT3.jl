@@ -8,6 +8,7 @@ p = NFFT(N, M)
 p.x = X
 p.fhat = fhat
 
+
 NFFT3.nfft_trafo(p)
 f2 = p.f
 
