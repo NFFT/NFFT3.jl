@@ -35,12 +35,6 @@ function NFFCT(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, M::Integer) where {D}
     # convert N to vector for passing it over to C
     Nv = collect(N)
 
-    for i = 1:D
-        if dcos[i]
-            Nv[i] *= 2
-        end
-    end
-
     # default oversampling
     n = Array{Int32}(2 .^ (ceil.(log.(Nv) / log(2)) .+ 1))
     n = NTuple{D,Int32}(n)
@@ -53,7 +47,7 @@ function NFFCT(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, M::Integer) where {D}
     else
         f1 = NFFT3.f1_default_1d
     end
-    NFFCT{D}(dcos, NFFT{D}(NTuple{D,Int32}(N), Int32(M), NTuple{D,Int32}(32,), Int32(8), f1, NFFT3.f2_default))
+    NFFCT{D}(dcos, NFFT{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(8), f1, NFFT3.f2_default))
 end
 
 @doc raw"""
@@ -78,18 +72,19 @@ end
 # overwrite dot notation for struct to set values and do the transformations at once
 function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
     if v == :x
-        P.NFFT_struct.x = val
+        xh = (val)
         if D==1
             if (P.dcos[1])
-                P.NFFT_struct.x ./= 2
+                xh ./= 2
             end
         else
             for i in range(1, D)
                 if (P.dcos[i])
-                    P.NFFT_struct.x[i,:] ./= 2
+                    xh[i,:] ./= 2
                 end
             end
         end
+        P.NFFT_struct.x = xh
     elseif v == :fhat
         a = length(findall(P.dcos))
         p = prod(P.NFFT_struct.N)
@@ -135,19 +130,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
                 fhatexp[i] = sqrt(2)^e * val[idx]
             end
         end
-        #P.NFFT_struct.fhat = fhatexp
-        P.NFFT_struct.fhat = [       1.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im
-        0.0 + 0.0im]
+        P.NFFT_struct.fhat = fhatexp
     elseif v == :f
         P.NFFT_struct.f = val
     elseif v == :NFFT_struct
@@ -256,4 +239,44 @@ end
 
 function adjoint(P::NFFCT{D}) where {D}
     return nffct_adjoint(P)
+end
+
+# nffct trafo direct [call with NFFCT.trafo_direct outside module]
+@doc raw"""
+    nffct_trafo_direct(P)
+
+computes the NDFCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
+
+# Input
+* `P` - a NFFCT plan structure.
+
+# See also
+[`NFFCT{D}`](@ref), [`nffct_trafo`](@ref)
+"""
+function nffct_trafo_direct(P::NFFCT{D}) where {D}
+    return nfft_trafo_direct(P.NFFT_struct)
+end
+
+function trafo_direct(P::NFFCT{D}) where {D}
+    return nffct_trafo_direct(P)
+end
+
+# adjoint trafo direct [call with NFFCT.adjoint_direct outside module]
+@doc raw"""
+    nffct_adjoint_direct(P)
+
+computes the adjoint NDFCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
+
+# Input
+* `P` - a NFFCT plan structure.
+
+# See also
+[`NFFCT{D}`](@ref), [`nffct_adjoint`](@ref)
+"""
+function nffct_adjoint_direct(P::NFFCT{D}) where {D}
+    return nfft_adjoint_direct(P.NFFT_struct)
+end
+
+function adjoint_direct(P::NFFCT{D}) where {D}
+    return nffct_adjoint_direct(P)
 end

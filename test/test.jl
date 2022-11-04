@@ -1,3 +1,5 @@
+include("/home/arch/git/NFFT3.jl/src/NFFCT.jl")
+
 function getphi(x::Vector{Float64}, k::Vector{Int64}, P::NFFCT{D}) where {D}
     p = 1
     for i = 1:D
@@ -52,8 +54,8 @@ function test()
     #C = NFCT((6,6), 20)
     x = [0.1,0.8]
     #x=rand(5)
-    fhat = [1.0+1.0im,1.0+1.0im,1.0+1.0im,1.0+1.0im,1.0+1.0im,1.0+1.0im]
-    #fhat=rand(8)
+    fhat = [1.0+0.0im,1.0+0.0im,1.0+0.0im,1.0+0.0im,1.0+0.0im,1.0+0.0im]
+    #fhat=rand(6)+im*rand(6)
     #s = sqrt(2)
     #xh = 0.5 .* x
     #wu =[1,s,s,s,s,s,s,2,2,2,2,2,s,2,2,2,2,2,s,2,2,2,2,2,s,2,2,2,2,2,s,2,2,2,2,2]
@@ -63,43 +65,41 @@ function test()
     FC.fhat = fhat
     #C.fhat = fhhat
 
-    F = FC.NFFT_struct
-    println(F)
-    println(F.x)
+    #F = FC.NFFT_struct
+    #println(F)
+    #println(F.x)
     #println(unsafe_wrap(Vector{Float64}, Core.getfield(F, :x), F.M))
-    println(F.fhat)
+    #println(F.fhat)
     #println(unsafe_wrap(Vector{ComplexF64}, Core.getfield(F, :fhat), prod(F.N)))
-    println(F.N)
-    println(F.M)
-    println(F.n)
-    println(F.m)
-    println(F.f1)
-    println(F.f2)
-    println(F.init_done)
-    println(F.finalized)
-    F2 = NFFT{1}(F.N, F.M, F.n, F.m, F.f1, F.f2)
-    F2.x = F.x
-    F2.fhat = F.fhat
-    nfft_trafo(F2)
-    f1  = copy(F2.f)
+    #println(F.N)
+    #println(F.M)
+    #println(F.n)
+    #println(F.m)
+    #println(F.f1)
+    #println(F.f2)
+    #println(F.init_done)
+    #println(F.finalized)
+    #F2 = NFFT{1}(F.N, F.M, F.n, F.m, F.f1, F.f2)
+    #F2.x = F.x
+    #F2.fhat = F.fhat
+    #nfft_trafo_direct(F)
+    #f1  = copy(F.f)
 
-    println(f1)
+    #println(f1)
 
     #println(F.fhat)
 
-    nfft_trafo(F)
-    f2 = copy(F.f)
+    #nfft_trafo(F)
+    #f2 = copy(F.f)
 
+    #println(f2)
 
-    
-    println(f2)
-
-    error_vector = f1 - f2
+    #error_vector = f1 - f2
 
     #println(error_vector)
 
-    E_2 = norm(error_vector) / norm(f1)
-    E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+    #E_2 = norm(error_vector) / norm(f1)
+    #E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
     #println(E_2)
     #println(E_infty)
@@ -109,7 +109,9 @@ function test()
     #println(FC.f)
     #println(sum(abs.(C.f-FC.f)))
     
-    #println(sum(abs.(getMat(FC)*fhat-FC.f)))
+    nffct_trafo(FC)
+
+    println(sum(abs.(getMat(FC)*fhat-FC.f)))
 end
 
 function test2()
@@ -121,3 +123,5 @@ function test2()
     nffct_adjoint(FC)
     println(sum(abs.(Base.adjoint(getMat(FC)) * f - FC.fhat)))
 end
+
+test()

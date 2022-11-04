@@ -1,6 +1,6 @@
 using NFFT3
 
-x = [0.05,0.4]
+x = [0.1,0.8]
 fhat = [       0.0 + 0.0im
 0.7071067811865475 + 0.0im
 0.7071067811865475 + 0.0im
@@ -22,38 +22,28 @@ F1.x = x
 F2.x = x
 F3.x = x
 
+#F1.x[1] -= 0.3
+#F2.x[1] -= 0.3
+#F3.x[1] -= 0.3
+
 F1.fhat = fhat
 F2.fhat = fhat
 F3.fhat = fhat
 
-println(F1)
-#println(F1.x)
-println(unsafe_wrap(Vector{Float64}, Core.getfield(F1, :x), F1.M))
-#println(F1.fhat)
-println(unsafe_wrap(Vector{ComplexF64}, Core.getfield(F1, :fhat), prod(F1.N)))
-println(F1.N)
-println(F1.M)
-println(F1.n)
-println(F1.m)
-println(F1.f1)
-println(F1.f2)
-println(F1.init_done)
-println(F1.finalized)
+F1.fhat[4] += 10.0
+#F2.fhat[4] += 10.0
+F3.fhat[4] += 10.0
+
 nfft_trafo(F1)
-println(F1.f)
+nfft_trafo(F2)
+nfft_trafo_direct(F3)
 
+f1 = F1.f
+f2 = F2.f
+f3 = F3.f
 
-#nfft_trafo(F2)
-#nfft_trafo_direct(F3)
-
-#f1 = F1.f
-#f2 = F2.f
-#f3 = F3.f
-
-#e = [1.9733023985986597,0.7283598003728021]
-
-
-#println(f2)
-#println(f3)
+println(f1)
+println(f2)
+println(f3)
 
 #println(F1)
