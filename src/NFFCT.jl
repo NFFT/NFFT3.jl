@@ -72,7 +72,7 @@ end
 # overwrite dot notation for struct to set values and do the transformations at once
 function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
     if v == :x
-        xh = (val)
+        xh = copy(val)
         if D==1
             if (P.dcos[1])
                 xh ./= 2
