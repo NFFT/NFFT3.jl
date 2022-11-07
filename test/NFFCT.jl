@@ -1,6 +1,6 @@
 using LinearAlgebra
 using Test
-include("/home/arch/git/NFFT3.jl/src/NFFCT.jl")
+using NFFT3
 
 function getphi(dcos::NTuple{D,Bool},x::Vector{Float64}, k::Vector{Int64}) where {D}
     p = 1
@@ -46,11 +46,11 @@ function getk(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, i::Int64) where {D}
     return k
 end
 
-N    = (26,   8,     6,     4,    8)
-dcos = (true, false, false, true, true)
-M = 10000
+N    = (20,    8,    12,   4)
+dcos = (false, true, true, false)
+M = 100
 
-X = rand(5, M)
+X = rand(4, M)
 a = length(findall(dcos))
 p = prod(N)
 l = p÷(2^a)
