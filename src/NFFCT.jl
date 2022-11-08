@@ -73,6 +73,7 @@ end
 function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
     if v == :x
         xh = copy(val)
+        println(xh)
         if D==1
             if (P.dcos[1])
                 xh ./= 2
@@ -84,6 +85,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
                 end
             end
         end
+        println(xh)
         P.NFFT_struct.x = xh
     elseif v == :fhat
         a = length(findall(P.dcos))
