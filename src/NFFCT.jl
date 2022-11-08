@@ -73,7 +73,6 @@ end
 function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
     if v == :x
         xh = copy(val)
-        println(xh)
         if D==1
             if (P.dcos[1])
                 xh ./= 2
@@ -85,7 +84,6 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
                 end
             end
         end
-        println(xh)
         P.NFFT_struct.x = xh
     elseif v == :fhat
         a = length(findall(P.dcos))
@@ -149,13 +147,19 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
     if v == :f || v == :plan || v == :num_threads || v == :init_done || v == :N || v == :M || v == :n || v == :m || v == :f1 || v == :f2
         return Base.getproperty(P.NFFT_struct, v)
     elseif v == :x
-        x = copy(P.NFFT_struct.x)
-        for i in range(1, D)
-            if (P.dcos[i])
-                x[i,:] .*= 2
+        xd = copy(P.NFFT_struct.x)
+        if D==1
+            if (P.dcos[1])
+                xd .*= 2
+            end
+        else
+            for i in range(1, D)
+                if (P.dcos[i])
+                    xd[i,:] .*= 2
+                end
             end
         end
-        return x
+        return xd
     elseif v == :fhat
         a = length(findall(P.dcos))
         p = prod(P.NFFT_struct.N)
