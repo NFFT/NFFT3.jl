@@ -144,7 +144,9 @@ end
 
 # overwrite dot notation to get values from the struct and do the transformations at once
 function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
-    if v == :f || v == :plan || v == :num_threads || v == :init_done || v == :N || v == :M || v == :n || v == :m || v == :f1 || v == :f2
+    if v == :NFFT
+        return P.NFFT_struct
+    elseif v == :f || v == :plan || v == :num_threads || v == :init_done || v == :N || v == :M || v == :n || v == :m || v == :f1 || v == :f2
         return Base.getproperty(P.NFFT_struct, v)
     elseif v == :x
         xd = copy(P.NFFT_struct.x)
