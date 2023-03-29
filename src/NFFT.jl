@@ -475,6 +475,7 @@ function nfft_adjoint(P::NFFT{D}) where {D}
     end
     ptr =
         ccall(("jnfft_adjoint", lib_path_nfft), Ptr{ComplexF64}, (Ref{nfft_plan},), P.plan)
+        println("test")
     Core.setfield!(P, :fhat, ptr)
 end
 
