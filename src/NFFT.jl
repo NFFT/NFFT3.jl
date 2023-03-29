@@ -134,7 +134,6 @@ function NFFT(
     f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
     f2::UInt32 = f2_default,
 ) where {D}
-    println("test2")
     NFFT{D}(
         NTuple{D,Int32}(N),
         Int32(M),
@@ -189,7 +188,6 @@ function nfft_init(P::NFFT{D}) where {D}
     Nv = collect(P.N)
     n = collect(P.n)
 
-    println("test2")
     # call init for memory allocation
     ptr = ccall(("jnfft_alloc", lib_path_nfft), Ptr{nfft_plan}, ())
 
@@ -475,10 +473,9 @@ function nfft_adjoint(P::NFFT{D}) where {D}
     if !isdefined(P, :x)
         error("x has not been set.")
     end
-    ptr =
-        ccall(("jnfft_adjoint", lib_path_nfft), Ptr{ComplexF64}, (Ref{nfft_plan},), P.plan)
-        println("test")
-    Core.setfield!(P, :fhat, ptr)
+    t = @timed ccall(("jnfft_adjoint", lib_path_nfft), Ptr{ComplexF64}, (Ref{nfft_plan},), P.plan)
+    println(t.time)
+    Core.setfield!(P, :fhat, t.value)
 end
 
 function adjoint(P::NFFT{D}) where {D}
