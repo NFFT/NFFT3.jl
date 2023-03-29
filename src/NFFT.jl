@@ -189,6 +189,7 @@ function nfft_init(P::NFFT{D}) where {D}
     Nv = collect(P.N)
     n = collect(P.n)
 
+    println("test2")
     # call init for memory allocation
     ptr = ccall(("jnfft_alloc", lib_path_nfft), Ptr{nfft_plan}, ())
 
