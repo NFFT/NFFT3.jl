@@ -97,7 +97,6 @@ mutable struct NFFT{D}
         if m <= 0
             throw(DomainError(m, "argument must be a positive integer")) 
         end
-        println("test2")
         new(N, M, n, m, f1, f2, false, false)
     end
 end
@@ -135,6 +134,7 @@ function NFFT(
     f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
     f2::UInt32 = f2_default,
 ) where {D}
+    println("test2")
     NFFT{D}(
         NTuple{D,Int32}(N),
         Int32(M),
