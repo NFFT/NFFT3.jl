@@ -97,6 +97,7 @@ mutable struct NFFT{D}
         if m <= 0
             throw(DomainError(m, "argument must be a positive integer")) 
         end
+        println("test2")
         new(N, M, n, m, f1, f2, false, false)
     end
 end
