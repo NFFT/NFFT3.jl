@@ -473,9 +473,9 @@ function nfft_adjoint(P::NFFT{D}) where {D}
     if !isdefined(P, :x)
         error("x has not been set.")
     end
-    t = @timed ccall(("jnfft_adjoint", lib_path_nfft), Ptr{ComplexF64}, (Ref{nfft_plan},), P.plan)
-    println(t.time)
-    Core.setfield!(P, :fhat, t.value)
+    ptr =
+        ccall(("jnfft_adjoint", lib_path_nfft), Ptr{ComplexF64}, (Ref{nfft_plan},), P.plan)
+    Core.setfield!(P, :fhat, ptr)
 end
 
 function adjoint(P::NFFT{D}) where {D}
