@@ -1,10 +1,10 @@
 using NFFT3
 
 mutable struct NFFCT{D}
-    dcos::NTuple{D,Bool}             # dimensions with cos
+    dcos::NTuple{D,String}             # dimensions with cos
     NFFT_struct::NFFT{D}             # structure for the NFFT
     function NFFCT{D}(
-        dcos::NTuple{D,Bool},
+        dcos::NTuple{D,String},
         P::NFFT{D}
     ) where {D}
         new(dcos, P)
@@ -12,7 +12,7 @@ mutable struct NFFCT{D}
 end
 
 function NFFCT(
-    dcos::NTuple{D,Bool},
+    dcos::NTuple{D,String},
     N::NTuple{D,Integer},
     M::Integer,
     n::NTuple{D,Integer},
@@ -31,7 +31,7 @@ function NFFCT(
 end
 
 # additional constructor for easy use [NFFCT(dcos,N,M) instead of NFFCT{2}(dcos,N,M)]
-function NFFCT(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, M::Integer) where {D}
+function NFFCT(dcos::NTuple{D,String},N::NTuple{D,Integer}, M::Integer) where {D}
     # convert N to vector for passing it over to C
     Nv = collect(N)
 
@@ -74,19 +74,23 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
     if v == :x
         xh = copy(val)
         if D==1
-            if (P.dcos[1])
+            if (BASES[P.dcos[1]]=1)
                 xh ./= 2
+            elseif (BASES[P.dcos[1]]=2)
+                xh = acos(2*xh-1)/(2*pi)
             end
         else
             for i in range(1, D)
-                if (P.dcos[i])
+                if (BASES[P.dcos[i]]=1)
                     xh[i,:] ./= 2
+                elseif (BASES[P.dcos[i]]=2)
+                    xh[i,:] = acos(2*xh[i,:]-1)/(2*pi)
                 end
             end
         end
         P.NFFT_struct.x = xh
     elseif v == :fhat
-        a = length(findall(P.dcos))
+        a = sum(getindex.([BASES],P.dcos).>0)
         p = prod(P.NFFT_struct.N)
         l = p÷(2^a)
         if size(val)[1] != l
@@ -101,7 +105,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
         pv[D] = 1
         for i = D-1:-1:1
             pv[i] = pv[i+1] * P.NFFT_struct.N[i+1]
-            if (P.dcos[i+1])
+            if (BASES[P.dcos[i+1]]>0)
                 pv[i] ÷= 2;
             end
         end
@@ -110,7 +114,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
             idx = 1
             e = 0;
             for j = 1:D
-                if (P.dcos[j])
+                if (BASES[P.dcos[j]]>0)
                     k = abs(((i - 1) ÷ pvExp[j]) % P.NFFT_struct.N[j]-P.NFFT_struct.N[j] ÷ 2)
                     if k == P.NFFT_struct.N[j] ÷ 2
                         idx = -1
@@ -151,19 +155,23 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
     elseif v == :x
         xd = copy(P.NFFT_struct.x)
         if D==1
-            if (P.dcos[1])
+            if (BASES[P.dcos[1]]=1)
                 xd .*= 2
+            elseif (BASES[P.dcos[1]]=2)
+                xd = (cos(2*pi*xd)+1)/2
             end
         else
             for i in range(1, D)
-                if (P.dcos[i])
+                if (BASES[P.dcos[i]]=1)
                     xd[i,:] .*= 2
+                elseif (BASES[P.dcos[i]]=2)
+                    xd[i,:] = (cos(2*pi*xd[i,:])+1)/2
                 end
             end
         end
         return xd
     elseif v == :fhat
-        a = length(findall(P.dcos))
+        a = sum(getindex.([BASES],P.dcos).>0)
         p = prod(P.NFFT_struct.N)
         l = p÷(2^a)
         pvExp = zeros(Int64, D)
@@ -175,7 +183,7 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
         pv[D] = 1
         for i = D-1:-1:1
             pv[i] = pv[i+1] * P.NFFT_struct.N[i+1]
-            if (P.dcos[i+1])
+            if (BASES[P.dcos[i+1]]>0)
                 pv[i] ÷= 2;
             end
         end
@@ -185,7 +193,7 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
             idx = 1
             e = 0;
             for j = 1:D
-                if (P.dcos[j])
+                if (BASES[P.dcos[j]]>0)
                     k = abs(((i - 1) ÷ pvExp[j]) % P.NFFT_struct.N[j]-P.NFFT_struct.N[j] ÷ 2)
                     if k == P.NFFT_struct.N[j] ÷ 2
                         idx = -1
