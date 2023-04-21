@@ -84,7 +84,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
                 if (BASES[P.dcos[i]]==1)
                     xh[i,:] ./= 2
                 elseif (BASES[P.dcos[i]]==2)
-                    xh[i,:] = acos(2*xh[i,:]-1)/(2*pi)
+                    xh[i,:] = acos.(2 .*xh[i,:].-1)./(2*pi)
                 end
             end
         end
