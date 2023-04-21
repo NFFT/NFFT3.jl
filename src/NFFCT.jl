@@ -74,16 +74,16 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
     if v == :x
         xh = copy(val)
         if D==1
-            if (BASES[P.dcos[1]]=1)
+            if (BASES[P.dcos[1]]==1)
                 xh ./= 2
-            elseif (BASES[P.dcos[1]]=2)
+            elseif (BASES[P.dcos[1]]==2)
                 xh = acos(2*xh-1)/(2*pi)
             end
         else
             for i in range(1, D)
-                if (BASES[P.dcos[i]]=1)
+                if (BASES[P.dcos[i]]==1)
                     xh[i,:] ./= 2
-                elseif (BASES[P.dcos[i]]=2)
+                elseif (BASES[P.dcos[i]]==2)
                     xh[i,:] = acos(2*xh[i,:]-1)/(2*pi)
                 end
             end
@@ -155,16 +155,16 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
     elseif v == :x
         xd = copy(P.NFFT_struct.x)
         if D==1
-            if (BASES[P.dcos[1]]=1)
+            if (BASES[P.dcos[1]]==1)
                 xd .*= 2
-            elseif (BASES[P.dcos[1]]=2)
+            elseif (BASES[P.dcos[1]]==2)
                 xd = (cos(2*pi*xd)+1)/2
             end
         else
             for i in range(1, D)
-                if (BASES[P.dcos[i]]=1)
+                if (BASES[P.dcos[i]]==1)
                     xd[i,:] .*= 2
-                elseif (BASES[P.dcos[i]]=2)
+                elseif (BASES[P.dcos[i]]==2)
                     xd[i,:] = (cos(2*pi*xd[i,:])+1)/2
                 end
             end

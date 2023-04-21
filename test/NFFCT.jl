@@ -2,22 +2,27 @@ using LinearAlgebra
 using Test
 using NFFT3
 
-function getphi(dcos::NTuple{D,Bool},x::Vector{Float64}, k::Vector{Int64}) where {D}
+function get_phi(x::Vector{Float64}, k::Vector{Int64}, dcos::Vector{String})::ComplexF64
     p = 1
-    for i = 1:D
-        if (dcos[i])
-            if k[i] ≠ 0
-                p *= sqrt(2.0)*cos(pi*k[i]*x[i])
+    for (idx, s) in enumerate(dcos)
+        if (NFFT3.BASES[s]=1)
+            if k[idx] ≠ 0
+                p *= sqrt(2.0)*cos(pi*k[idx]*x[idx])
+            end
+        elseif (NFFT3.BASES[s]=2)
+            if k[idx] ≠ 0
+                p *= sqrt(2.0)*cos(k[idx]*acos(2*x[idx]-1))
             end
         else
-            p *= exp(-2.0*pi*im*k[i]*x[i])
+            p *= exp(-2.0*pi*im*k[idx]*x[idx])
         end
     end
     return p
 end
 
-function getMat(N::NTuple{D,Integer},M::Integer, x::Array{Float64},dcos::NTuple{D,Bool}) where {D}
-    a = length(findall(dcos))
+function getMat(N::NTuple{D,Integer},M::Integer, x
+    ::Array{Float64},dcos::NTuple{D,String}) where {D}
+    a = sum(getindex.([NFFT3.BASES],P.dcos).>0)
     p = prod(N)
     n = p÷(2^a)
     X = copy(x)
@@ -47,11 +52,11 @@ function getk(dcos::NTuple{D,Bool},N::NTuple{D,Integer}, i::Int64) where {D}
 end
 
 N    = (20,    8,    12,   4)
-dcos = (false, true, true, false)
+dcos = ("exp", "alg", "cos", "alg")
 M = 100
 
 X = rand(4, M)
-a = length(findall(dcos))
+a = sum(getindex.([NFFT3.BASES],dcos).>0)
 p = prod(N)
 l = p÷(2^a)
 fhat = rand(prod(l)) + im * rand(prod(l))
