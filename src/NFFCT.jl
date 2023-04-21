@@ -165,7 +165,7 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
                 if (BASES[P.dcos[i]]==1)
                     xd[i,:] .*= 2
                 elseif (BASES[P.dcos[i]]==2)
-                    xd[i,:] = (cos(2*pi*xd[i,:])+1)/2
+                    xd[i,:] = (cos.(2 .*pi .*xd[i,:]).+1)./2
                 end
             end
         end
