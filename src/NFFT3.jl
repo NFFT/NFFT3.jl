@@ -4,6 +4,11 @@
 module NFFT3
 
 using Aqua
+using CpuId
+
+if !cpufeature(:AVX2)
+    error("NFFT needs a CPU that supports the AVX2 instruction set expansion.")
+end
 
 # file ending for OS
 ending = ".so"

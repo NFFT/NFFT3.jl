@@ -61,12 +61,12 @@ p = prod(N)
 l = p÷(2^a)
 fhat = rand(prod(l)) + im * rand(prod(l))
 
-p = NFFCT(basis_vect, N, M)
+p = NFMT(basis_vect, N, M)
 p.x = X
 p.fhat = fhat
 
-#NFFT3.nffct_trafo(p)
-nffct_trafo(p)
+#NFFT3.nfmt_trafo(p)
+nfmt_trafo(p)
 f2 = p.f
 
 F = getMat(N, M, X,basis_vect)
@@ -80,8 +80,8 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
-#NFFT3.nffct_adjoint(p)
-nffct_adjoint(p)
+#NFFT3.nfmt_adjoint(p)
+nfmt_adjoint(p)
 f2 = p.fhat
 
 f1 = F' * p.f
