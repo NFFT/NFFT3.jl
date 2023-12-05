@@ -1,18 +1,18 @@
 using NFFT3
 
-mutable struct NFFCT{D}
-    dcos::NTuple{D,String}             # dimensions with cos
+mutable struct NFMT{D}
+    basis_vect::NTuple{D,String}             # dimensions with cos
     NFFT_struct::NFFT{D}             # structure for the NFFT
-    function NFFCT{D}(
-        dcos::NTuple{D,String},
+    function NFMT{D}(
+        basis_vect::NTuple{D,String},
         P::NFFT{D}
     ) where {D}
-        new(dcos, P)
+        new(basis_vect, P)
     end
 end
 
-function NFFCT(
-    dcos::NTuple{D,String},
+function NFMT(
+    basis_vect::NTuple{D,String},
     N::NTuple{D,Integer},
     M::Integer,
     n::NTuple{D,Integer},
@@ -20,7 +20,7 @@ function NFFCT(
     f1::UInt32 = (D > 1 ? NFFT3.f1_default : NFFT3.f1_default_1d),
     f2::UInt32 = NFFT3.f2_default,
 ) where {D}
-    NFFCT{D}(dcos, NFFT{D}(
+    NFMT{D}(basis_vect, NFFT{D}(
         NTuple{D,Int32}(N),
         Int32(M),
         NTuple{D,Int32}(n),
@@ -30,8 +30,8 @@ function NFFCT(
     ))
 end
 
-# additional constructor for easy use [NFFCT(dcos,N,M) instead of NFFCT{2}(dcos,N,M)]
-function NFFCT(dcos::NTuple{D,String},N::NTuple{D,Integer}, M::Integer) where {D}
+# additional constructor for easy use [NFMT(basis_vect,N,M) instead of NFMT{2}(basis_vect,N,M)]
+function NFMT(basis_vect::NTuple{D,String},N::NTuple{D,Integer}, M::Integer) where {D}
     # convert N to vector for passing it over to C
     Nv = collect(N)
 
@@ -47,50 +47,50 @@ function NFFCT(dcos::NTuple{D,String},N::NTuple{D,Integer}, M::Integer) where {D
     else
         f1 = NFFT3.f1_default_1d
     end
-    NFFCT{D}(dcos, NFFT{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(8), f1, NFFT3.f2_default))
+    NFMT{D}(basis_vect, NFFT{D}(NTuple{D,Int32}(N), Int32(M), n, Int32(8), f1, NFFT3.f2_default))
 end
 
 @doc raw"""
-    nffct_finalize_plan(P::NFFCT{D})
+    nfmt_finalize_plan(P::NFMT{D})
 
 destroys a NFFT plan structure.
 
 # Input
-* `P` - a NFFCT structure.
+* `P` - a NFMT structure.
 
 # See also
 [`NFFT{D}`](@ref), [`nfft_init`](@ref)
 """
-function nffct_finalize_plan(P::NFFCT{D}) where {D}
+function nfmt_finalize_plan(P::NFMT{D}) where {D}
     nfft_finalize_plan(P.NFFT_struct)
 end
 
-function finalize_plan(P::NFFCT{D}) where {D}
-    return nffct_finalize_plan(P)
+function finalize_plan(P::NFMT{D}) where {D}
+    return nfmt_finalize_plan(P)
 end
 
 # overwrite dot notation for struct to set values and do the transformations at once
-function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
+function Base.setproperty!(P::NFMT{D}, v::Symbol, val) where {D}
     if v == :x
         xh = copy(val)
         if D==1
-            if (BASES[P.dcos[1]]==1)
+            if (BASES[P.basis_vect[1]]==1)
                 xh ./= 2
-            elseif (BASES[P.dcos[1]]==2)
+            elseif (BASES[P.basis_vect[1]]==2)
                 xh = acos.(2 .*xh.-1)./(2*pi)
             end
         else
             for i in range(1, D)
-                if (BASES[P.dcos[i]]==1)
+                if (BASES[P.basis_vect[i]]==1)
                     xh[i,:] ./= 2
-                elseif (BASES[P.dcos[i]]==2)
+                elseif (BASES[P.basis_vect[i]]==2)
                     xh[i,:] = acos.(2 .*xh[i,:].-1)./(2*pi)
                 end
             end
         end
         P.NFFT_struct.x = xh
     elseif v == :fhat
-        a = sum(getindex.([BASES],P.dcos).>0)
+        a = sum(getindex.([BASES],P.basis_vect).>0)
         p = prod(P.NFFT_struct.N)
         l = p÷(2^a)
         if size(val)[1] != l
@@ -105,7 +105,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
         pv[D] = 1
         for i = D-1:-1:1
             pv[i] = pv[i+1] * P.NFFT_struct.N[i+1]
-            if (BASES[P.dcos[i+1]]>0)
+            if (BASES[P.basis_vect[i+1]]>0)
                 pv[i] ÷= 2;
             end
         end
@@ -114,7 +114,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
             idx = 1
             e = 0;
             for j = 1:D
-                if (BASES[P.dcos[j]]>0)
+                if (BASES[P.basis_vect[j]]>0)
                     k = abs(((i - 1) ÷ pvExp[j]) % P.NFFT_struct.N[j]-P.NFFT_struct.N[j] ÷ 2)
                     if k == P.NFFT_struct.N[j] ÷ 2
                         idx = -1
@@ -139,7 +139,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
         P.NFFT_struct.f = val
     elseif v == :NFFT_struct
         @warn "You can't modify the pointer to the NFFT plan."
-    elseif v == :dcos
+    elseif v == :basis_vect
         @warn "You can't modify the cosinus dimensions, please create an additional plan."
     else
         Base.setproperty!(P.NFFT_struct, v, val)
@@ -147,7 +147,7 @@ function Base.setproperty!(P::NFFCT{D}, v::Symbol, val) where {D}
 end
 
 # overwrite dot notation to get values from the struct and do the transformations at once
-function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
+function Base.getproperty(P::NFMT{D}, v::Symbol) where {D}
     if v == :NFFT
         return P.NFFT_struct
     elseif v == :f || v == :plan || v == :num_threads || v == :init_done || v == :N || v == :M || v == :n || v == :m || v == :f1 || v == :f2
@@ -155,23 +155,23 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
     elseif v == :x
         xd = copy(P.NFFT_struct.x)
         if D==1
-            if (BASES[P.dcos[1]]==1)
+            if (BASES[P.basis_vect[1]]==1)
                 xd .*= 2
-            elseif (BASES[P.dcos[1]]==2)
+            elseif (BASES[P.basis_vect[1]]==2)
                 xd = (cos.(2 .*pi .*xd).+1)./2
             end
         else
             for i in range(1, D)
-                if (BASES[P.dcos[i]]==1)
+                if (BASES[P.basis_vect[i]]==1)
                     xd[i,:] .*= 2
-                elseif (BASES[P.dcos[i]]==2)
+                elseif (BASES[P.basis_vect[i]]==2)
                     xd[i,:] = (cos.(2 .*pi .*xd[i,:]).+1)./2
                 end
             end
         end
         return xd
     elseif v == :fhat
-        a = sum(getindex.([BASES],P.dcos).>0)
+        a = sum(getindex.([BASES],P.basis_vect).>0)
         p = prod(P.NFFT_struct.N)
         l = p÷(2^a)
         pvExp = zeros(Int64, D)
@@ -183,7 +183,7 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
         pv[D] = 1
         for i = D-1:-1:1
             pv[i] = pv[i+1] * P.NFFT_struct.N[i+1]
-            if (BASES[P.dcos[i+1]]>0)
+            if (BASES[P.basis_vect[i+1]]>0)
                 pv[i] ÷= 2;
             end
         end
@@ -193,7 +193,7 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
             idx = 1
             e = 0;
             for j = 1:D
-                if (BASES[P.dcos[j]]>0)
+                if (BASES[P.basis_vect[j]]>0)
                     k = abs(((i - 1) ÷ pvExp[j]) % P.NFFT_struct.N[j]-P.NFFT_struct.N[j] ÷ 2)
                     if k == P.NFFT_struct.N[j] ÷ 2
                         idx = -1
@@ -217,82 +217,82 @@ function Base.getproperty(P::NFFCT{D}, v::Symbol) where {D}
     end
 end
 
-# nffct trafo [call with NFFT.trafo outside module]
+# NFMT trafo [call with NFFT.trafo outside module]
 @doc raw"""
-    nffct_trafo(P)
+    nfmt_trafo(P)
 
-computes the NDFCT via the fast NFFCT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` in `P.fhat`.
+computes the NDFCT via the fast NFMT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` in `P.fhat`.
 
 # Input
-* `P` - a NFFCT plan structure.
+* `P` - a NFMT plan structure.
 
 # See also
-[`NFFCT{D}`](@ref), [`nffct_trafo_direct`](@ref)
+[`NFMT{D}`](@ref), [`nfmt_trafo_direct`](@ref)
 """
-function nffct_trafo(P::NFFCT{D}) where {D}
+function nfmt_trafo(P::NFMT{D}) where {D}
     return nfft_trafo(P.NFFT_struct)
 end
 
-function trafo(P::NFFCT{D}) where {D}
-    return nffct_trafo(P)
+function trafo(P::NFMT{D}) where {D}
+    return nfmt_trafo(P)
 end
 
 # adjoint trafo [call with NFFT.adjoint outside module]
 @doc raw"""
-    nffct_transposed(P)
+    nfmt_transposed(P)
 
-computes the transposed NDFCT via the fast transposed NFFCT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^c \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
+computes the transposed NDFCT via the fast transposed NFMT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^c \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
-* `P` - a NFFCT plan structure.
+* `P` - a NFMT plan structure.
 
 # See also
-[`NFFCT{D}`](@ref), [`nffct_transposed_direct`](@ref)
+[`NFMT{D}`](@ref), [`nfmt_transposed_direct`](@ref)
 """
-function nffct_adjoint(P::NFFCT{D}) where {D}
+function nfmt_adjoint(P::NFMT{D}) where {D}
     return nfft_adjoint(P.NFFT_struct)
 end
 
-function adjoint(P::NFFCT{D}) where {D}
-    return nffct_adjoint(P)
+function adjoint(P::NFMT{D}) where {D}
+    return nfmt_adjoint(P)
 end
 
-# nffct trafo direct [call with NFFCT.trafo_direct outside module]
+# NFMT trafo direct [call with NFMT.trafo_direct outside module]
 @doc raw"""
-    nffct_trafo_direct(P)
+    nfmt_trafo_direct(P)
 
 computes the NDFCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
 
 # Input
-* `P` - a NFFCT plan structure.
+* `P` - a NFMT plan structure.
 
 # See also
-[`NFFCT{D}`](@ref), [`nffct_trafo`](@ref)
+[`NFMT{D}`](@ref), [`nfmt_trafo`](@ref)
 """
-function nffct_trafo_direct(P::NFFCT{D}) where {D}
+function nfmt_trafo_direct(P::NFMT{D}) where {D}
     return nfft_trafo_direct(P.NFFT_struct)
 end
 
-function trafo_direct(P::NFFCT{D}) where {D}
-    return nffct_trafo_direct(P)
+function trafo_direct(P::NFMT{D}) where {D}
+    return nfmt_trafo_direct(P)
 end
 
-# adjoint trafo direct [call with NFFCT.adjoint_direct outside module]
+# adjoint trafo direct [call with NFMT.adjoint_direct outside module]
 @doc raw"""
-    nffct_adjoint_direct(P)
+    nfmt_adjoint_direct(P)
 
-computes the adjoint NDFCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
+computes the adjoint NDMT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
-* `P` - a NFFCT plan structure.
+* `P` - a NFMT plan structure.
 
 # See also
-[`NFFCT{D}`](@ref), [`nffct_adjoint`](@ref)
+[`NFMT{D}`](@ref), [`nfmt_adjoint`](@ref)
 """
-function nffct_adjoint_direct(P::NFFCT{D}) where {D}
+function nfmt_adjoint_direct(P::NFMT{D}) where {D}
     return nfft_adjoint_direct(P.NFFT_struct)
 end
 
-function adjoint_direct(P::NFFCT{D}) where {D}
-    return nffct_adjoint_direct(P)
+function adjoint_direct(P::NFMT{D}) where {D}
+    return nfmt_adjoint_direct(P)
 end

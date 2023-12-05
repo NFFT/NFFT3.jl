@@ -23,14 +23,14 @@ const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", ending)
 include("NFFT.jl")
 include("NFCT.jl")
 include("NFST.jl")
-include("NFFCT.jl")
+include("NFMT.jl")
 include("fastsum.jl")
 include("flags.jl")
 
 
 
 # plan structures
-export NFFT, NFCT, NFST, FASTSUM, NFFCT
+export NFFT, NFCT, NFST, FASTSUM, NFMT
 
 # functions
 export nfft_finalize_plan,
@@ -58,10 +58,10 @@ export nfft_finalize_plan,
     fastsum_trafo,
     fastsum_trafo_exact,
     finalize_plan,
-    nffct_finalize_plan,
-    nffct_init,
-    nffct_trafo,
-    nffct_adjoint,
+    nfmt_finalize_plan,
+    nfmt_init,
+    nfmt_trafo,
+    nfmt_adjoint,
     init,
     trafo,
     adjoint,
