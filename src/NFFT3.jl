@@ -6,23 +6,37 @@ module NFFT3
 using Aqua
 using CpuId
 
-if !cpufeature(:AVX2)
-    error("NFFT needs a CPU that supports the AVX2 instruction set expansion.")
+if cpufeature(:AVX2)
+    ending = ".so"
+
+    if Sys.iswindows()
+        ending = ".dll"
+    elseif Sys.isapple()
+        ending = ".dylib"
+    end
+
+    const lib_path_nfft = string(@__DIR__, "/libnfftjuliaavx2", ending)
+    const lib_path_nfct = string(@__DIR__, "/libnfctjuliaavx2", ending)
+    const lib_path_nfst = string(@__DIR__, "/libnfstjuliaavx2", ending)
+    const lib_path_fastsum = string(@__DIR__, "/libfastsumjuliaavx2", ending)
+else
+    ending = ".so"
+
+    if Sys.iswindows()
+        error("NFFT needs a CPU that supports the AVX2 instruction set expansion.")
+    elseif Sys.isapple()
+        error("NFFT needs a CPU that supports the AVX2 instruction set expansion.")
+    end
+    
+    const lib_path_nfft = string(@__DIR__, "/libnfftjulia", ending)
+    const lib_path_nfct = string(@__DIR__, "/libnfctjulia", ending)
+    const lib_path_nfst = string(@__DIR__, "/libnfstjulia", ending)
+    const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", ending)
+
 end
 
 # file ending for OS
-ending = ".so"
 
-if Sys.iswindows()
-    ending = ".dll"
-elseif Sys.isapple()
-    ending = ".dylib"
-end
-
-const lib_path_nfft = string(@__DIR__, "/libnfftjulia", ending)
-const lib_path_nfct = string(@__DIR__, "/libnfctjulia", ending)
-const lib_path_nfst = string(@__DIR__, "/libnfstjulia", ending)
-const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", ending)
 
 
 include("NFFT.jl")
