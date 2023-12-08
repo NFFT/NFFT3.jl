@@ -15,10 +15,10 @@ if cpufeature(:AVX2)
         ending = ".dylib"
     end
 
-    const lib_path_nfft = string(@__DIR__, "/libnfftjuliaavx2", ending)
-    const lib_path_nfct = string(@__DIR__, "/libnfctjuliaavx2", ending)
-    const lib_path_nfst = string(@__DIR__, "/libnfstjuliaavx2", ending)
-    const lib_path_fastsum = string(@__DIR__, "/libfastsumjuliaavx2", ending)
+    lib_path_nfft_str = string(@__DIR__, "/libnfftjuliaavx2", ending)
+    lib_path_nfct_str = string(@__DIR__, "/libnfctjuliaavx2", ending)
+    lib_path_nfst_str = string(@__DIR__, "/libnfstjuliaavx2", ending)
+    lib_path_fastsum_str = string(@__DIR__, "/libfastsumjuliaavx2", ending)
 else
     ending = ".so"
 
@@ -28,14 +28,17 @@ else
         error("NFFT needs a CPU that supports the AVX2 instruction set expansion.")
     end
     
-    const lib_path_nfft = string(@__DIR__, "/libnfftjulia", ending)
-    const lib_path_nfct = string(@__DIR__, "/libnfctjulia", ending)
-    const lib_path_nfst = string(@__DIR__, "/libnfstjulia", ending)
-    const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", ending)
-
+    lib_path_nfft_str = string(@__DIR__, "/libnfftjulia", ending)
+    lib_path_nfct_str = string(@__DIR__, "/libnfctjulia", ending)
+    lib_path_nfst_str = string(@__DIR__, "/libnfstjulia", ending)
+    lib_path_fastsum_str = string(@__DIR__, "/libfastsumjulia", ending)
 end
 
-# file ending for OS
+
+const lib_path_nfft = lib_path_nfft_str
+const lib_path_nfct = lib_path_nfct_str
+const lib_path_nfst = lib_path_nfst_str
+const lib_path_fastsum = lib_path_fastsum_str
 
 
 
