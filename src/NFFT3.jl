@@ -40,6 +40,7 @@ const lib_path_nfct = lib_path_nfct_str
 const lib_path_nfst = lib_path_nfst_str
 const lib_path_fastsum = lib_path_fastsum_str
 
+println(lib_path_nfft)
 
 
 include("NFFT.jl")
