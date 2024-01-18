@@ -17,21 +17,15 @@ end
 if cpufeature(:AVX2)
     flag = "avx2"
 elseif cpufeature(:AVX)
-    if ending != ".so"
-        error("No NFFT library found for a windows or apple system without AVX2")
-    end
     flag = "avx"
 else
-    if ending != ".so"
-        error("No NFFT library found for a windows or apple system without AVX2")
-    end
     flag = ""
 end
 
-const lib_path_nfft = string(@__DIR__, "/libnfftjulia", flag, ending)
-const lib_path_nfct = string(@__DIR__, "/libnfctjulia", flag, ending)
-const lib_path_nfst = string(@__DIR__, "/libnfstjulia", flag, ending)
-const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", flag, ending)
+const lib_path_nfft = string(@__DIR__, "/lib/libnfftjulia", flag, ending)
+const lib_path_nfct = string(@__DIR__, "/lib/libnfctjulia", flag, ending)
+const lib_path_nfst = string(@__DIR__, "/lib/libnfstjulia", flag, ending)
+const lib_path_fastsum = string(@__DIR__, "/lib/libfastsumjulia", flag, ending)
 
 include("NFFT.jl")
 include("NFCT.jl")
