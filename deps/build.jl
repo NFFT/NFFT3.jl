@@ -7,10 +7,18 @@ elseif Sys.isapple()
     ending = ".dylib"
 end
 
-lib_path_nfft = string(@__DIR__, "/../src", "/libnfftjulia", ending)
-lib_path_nfct = string(@__DIR__, "/../src", "/libnfctjulia", ending)
-lib_path_nfst = string(@__DIR__, "/../src", "/libnfstjulia", ending)
-lib_path_fastsum = string(@__DIR__, "/../src", "/libfastsumjulia", ending)
+if cpufeature(:AVX2)
+    flag = "avx2"
+elseif cpufeature(:AVX)
+    flag = "avx"
+else
+    flag = ""
+end
+
+lib_path_nfft = string(@__DIR__, "/../src", "/libnfftjulia", flag, ending)
+lib_path_nfct = string(@__DIR__, "/../src", "/libnfctjulia", flag, ending)
+lib_path_nfst = string(@__DIR__, "/../src", "/libnfstjulia", flag, ending)
+lib_path_fastsum = string(@__DIR__, "/../src", "/libfastsumjulia", flag, ending)
 
 println( lib_path_nfft )
 
