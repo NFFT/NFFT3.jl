@@ -1,3 +1,5 @@
+using CpuId
+
 # file ending for OS
 ending = ".so"
 
