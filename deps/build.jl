@@ -2,9 +2,11 @@ using CpuId
 
 # file ending for OS
 ending = ".so"
+path = "/../src/lib/"
 
 if Sys.iswindows()
     ending = ".dll"
+    path = "\\..\\src\\lib\\"
 elseif Sys.isapple()
     ending = ".dylib"
 end
@@ -17,10 +19,10 @@ else
     flag = ""
 end
 
-lib_path_nfft = joinpath(string(@__DIR__, "/../src/lib", "/libnfftjulia", flag, ending))
-lib_path_nfct = joinpath(string(@__DIR__, "/../src/lib", "/libnfctjulia", flag, ending))
-lib_path_nfst = joinpath(string(@__DIR__, "/../src/lib", "/libnfstjulia", flag, ending))
-lib_path_fastsum = joinpath(string(@__DIR__, "/../src/lib", "/libfastsumjulia", flag, ending))
+lib_path_nfft = string(@__DIR__, path, "libnfftjulia", flag, ending)
+lib_path_nfct = string(@__DIR__, path, "libnfctjulia", flag, ending)
+lib_path_nfst = string(@__DIR__, path, "libnfstjulia", flag, ending)
+lib_path_fastsum = string(@__DIR__, path, "libfastsumjulia", flag, ending)
 
 println( lib_path_nfft )
 

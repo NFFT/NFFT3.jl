@@ -7,9 +7,11 @@ using Aqua
 using CpuId
 
 ending = ".so"
+path = "/lib/"
 
 if Sys.iswindows()
     ending = ".dll"
+    path = "\\lib\\"
 elseif Sys.isapple()
     ending = ".dylib"
 end
@@ -22,10 +24,10 @@ else
     flag = ""
 end
 
-const lib_path_nfft = joinpath(string(@__DIR__, "/lib/libnfftjulia", flag, ending))
-const lib_path_nfct = joinpath(string(@__DIR__, "/lib/libnfctjulia", flag, ending))
-const lib_path_nfst = joinpath(string(@__DIR__, "/lib/libnfstjulia", flag, ending))
-const lib_path_fastsum = joinpath(string(@__DIR__, "/lib/libfastsumjulia", flag, ending))
+const lib_path_nfft = string(@__DIR__, path, "libnfftjulia", flag, ending)
+const lib_path_nfct = string(@__DIR__, path, "libnfctjulia", flag, ending)
+const lib_path_nfst = string(@__DIR__, path, "libnfstjulia", flag, ending)
+const lib_path_fastsum = string(@__DIR__, path, "libfastsumjulia", flag, ending)
 
 include("NFFT.jl")
 include("NFCT.jl")
