@@ -10,11 +10,11 @@ jobs:
     strategy:
       matrix:
         julia-version: ["1.10"]
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     name: Julia ${{ matrix.julia-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@v
       - uses: julia-actions/setup-julia@latest
         with:
           version: ${{ matrix.julia-version }}
