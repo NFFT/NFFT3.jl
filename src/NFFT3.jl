@@ -7,11 +7,11 @@ using Aqua
 using CpuId
 
 ending = ".so"
-path = "/lib/"
+path = "/"
 
 if Sys.iswindows()
     ending = ".dll"
-    path = "\\lib\\"
+    path = "\\"
 elseif Sys.isapple()
     ending = ".dylib"
 end
