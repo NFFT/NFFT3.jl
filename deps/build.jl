@@ -17,10 +17,10 @@ else
     flag = ""
 end
 
-lib_path_nfft = string(@__DIR__, "/../src/lib", "/libnfftjulia", flag, ending)
-lib_path_nfct = string(@__DIR__, "/../src/lib", "/libnfctjulia", flag, ending)
-lib_path_nfst = string(@__DIR__, "/../src/lib", "/libnfstjulia", flag, ending)
-lib_path_fastsum = string(@__DIR__, "/../src/lib", "/libfastsumjulia", flag, ending)
+lib_path_nfft = joinpath(string(@__DIR__, "/../src/lib", "/libnfftjulia", flag, ending))
+lib_path_nfct = joinpath(string(@__DIR__, "/../src/lib", "/libnfctjulia", flag, ending))
+lib_path_nfst = joinpath(string(@__DIR__, "/../src/lib", "/libnfstjulia", flag, ending))
+lib_path_fastsum = joinpath(string(@__DIR__, "/../src/lib", "/libfastsumjulia", flag, ending))
 
 println( lib_path_nfft )
 
