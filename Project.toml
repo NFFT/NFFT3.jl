@@ -1,7 +1,7 @@
 name = "NFFT3"
 uuid = "53104703-03e8-40a5-ab01-812303a44cae"
 authors = ["Michael Schmischke <michael.schmischke@math.tu-chemnitz.de> for the julia package and other contributors for the NFFT (see nfft.org)"]
-version = "1.1.0"
+version = "1.2.0"
 
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
