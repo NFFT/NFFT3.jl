@@ -196,3 +196,5 @@ f2_default = UInt32(FFTW_ESTIMATE | FFTW_DESTROY_INPUT)
 # default window cut off
 default_window_cut_off =
     ccall(("nfft_get_default_window_cut_off", lib_path_nfft), Int64, ())
+
+BASES = Dict("exp"=>0,"cos"=>1,"alg"=>2)

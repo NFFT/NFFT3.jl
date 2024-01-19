@@ -4,8 +4,8 @@
 module NFFT3
 
 using Aqua
+using CpuId
 
-# file ending for OS
 ending = ".so"
 
 if Sys.iswindows()
@@ -14,22 +14,30 @@ elseif Sys.isapple()
     ending = ".dylib"
 end
 
-const lib_path_nfft = string(@__DIR__, "/libnfftjulia", ending)
-const lib_path_nfct = string(@__DIR__, "/libnfctjulia", ending)
-const lib_path_nfst = string(@__DIR__, "/libnfstjulia", ending)
-const lib_path_fastsum = string(@__DIR__, "/libfastsumjulia", ending)
+if cpufeature(:AVX2)
+    flag = "avx2"
+elseif cpufeature(:AVX)
+    flag = "avx"
+else
+    flag = ""
+end
 
+const lib_path_nfft = string(@__DIR__, "/lib/libnfftjulia", flag, ending)
+const lib_path_nfct = string(@__DIR__, "/lib/libnfctjulia", flag, ending)
+const lib_path_nfst = string(@__DIR__, "/lib/libnfstjulia", flag, ending)
+const lib_path_fastsum = string(@__DIR__, "/lib/libfastsumjulia", flag, ending)
 
 include("NFFT.jl")
 include("NFCT.jl")
 include("NFST.jl")
+include("NFMT.jl")
 include("fastsum.jl")
 include("flags.jl")
 
 
 
 # plan structures
-export NFFT, NFCT, NFST, FASTSUM
+export NFFT, NFCT, NFST, FASTSUM, NFMT
 
 # functions
 export nfft_finalize_plan,
@@ -57,6 +65,10 @@ export nfft_finalize_plan,
     fastsum_trafo,
     fastsum_trafo_exact,
     finalize_plan,
+    nfmt_finalize_plan,
+#    nfmt_init,
+    nfmt_trafo,
+    nfmt_adjoint,
     init,
     trafo,
     adjoint,
