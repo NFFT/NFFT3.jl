@@ -2,11 +2,11 @@ using CpuId
 
 # file ending for OS
 ending = ".so"
-path = "/../src/"
+path = "/../src/lib/"
 
 if Sys.iswindows()
     ending = ".dll"
-    path = "\\..\\src\\"
+    path = "\\..\\src\\lib\\"
 elseif Sys.isapple()
     ending = ".dylib"
 end
