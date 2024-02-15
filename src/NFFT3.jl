@@ -9,11 +9,11 @@ using Aqua
 using CpuId
 
 ending = ".so"
-path = "/lib/"
+path = "/"
 
 if Sys.iswindows()
     ending = ".dll"
-    path = "\\lib\\"
+    path = "\\"
 elseif Sys.isapple()
     ending = ".dylib"
 end
@@ -30,7 +30,6 @@ const lib_path_nfft = string(@__DIR__, path, "libnfftjulia", flag, ending)
 const lib_path_nfct = string(@__DIR__, path, "libnfctjulia", flag, ending)
 const lib_path_nfst = string(@__DIR__, path, "libnfstjulia", flag, ending)
 const lib_path_fastsum = string(@__DIR__, path, "libfastsumjulia", flag, ending)
-push!(LOAD_PATH, string(@__DIR__, path))
 
 include("NFFT.jl")
 include("NFCT.jl")
