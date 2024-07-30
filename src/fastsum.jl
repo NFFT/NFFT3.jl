@@ -134,8 +134,8 @@ function FASTSUM(
     c::Vector{<:Real},
     n::Integer = 256,
     p::Integer = 8,
-    eps_I::Real = 8/256,
-    eps_B::Real = 1/16,
+    eps_I::Real = 8 / 256,
+    eps_B::Real = 1 / 16,
     nn::Integer = 512,
     m::Integer = 8,
 )
@@ -155,8 +155,8 @@ function FASTSUM(
     c::Union{Real,UndefInitializer} = undef,
     n::Integer = 256,
     p::Integer = 8,
-    eps_I::Real = 8/256,
-    eps_B::Real = 1/16,
+    eps_I::Real = 8 / 256,
+    eps_B::Real = 1 / 16,
     nn::Integer = 512,
     m::Integer = 8,
 )
