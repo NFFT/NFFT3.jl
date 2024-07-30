@@ -152,7 +152,7 @@ function FASTSUM(
     N::Integer,
     M::Integer,
     kernel::String,
-    c::Real = undef,
+    c::Union{Real,UndefInitializer} = undef,
     n::Integer = 256,
     p::Integer = 8,
     eps_I::Real = 8/256,
