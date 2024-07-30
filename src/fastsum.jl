@@ -161,12 +161,15 @@ function FASTSUM(
     m::Integer = 8,
 )
     
-
     if kernels[kernel] == 0 || c == undef
         cv = Vector{Float64}()  #Only compatibility will be removed in the next major upgrade
     else
         cv = Vector{Float64}(undef, 1)
         cv[1] = Float64(c)
+    end
+
+    if length(c) != kernels[kernel]
+        error("Kernel parameter vector has wrong length.")
     end
 
     FASTSUM(d, N, M, n, p, kernel, cv, eps_I, eps_B, nn, nn, m, m, UInt32(0))
