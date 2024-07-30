@@ -131,16 +131,45 @@ function FASTSUM(
     N::Integer,
     M::Integer,
     kernel::String,
-    c::Real,
+    c::Vector{<:Real},
     n::Integer = 256,
     p::Integer = 8,
-    eps_I::Real = 8/256,
-    eps_B::Real = 1/16,
+    eps_I::Real = 8 / 256,
+    eps_B::Real = 1 / 16,
     nn::Integer = 512,
     m::Integer = 8,
 )
-    cv = Vector{Float64}(undef, 1)
-    cv[1] = Float64(c)
+
+    if length(c) != kernels[kernel]
+        error("Kernel parameter vector has wrong length.")
+    end
+
+    FASTSUM(d, N, M, n, p, kernel, c, eps_I, eps_B, nn, nn, m, m, UInt32(0))
+end #constructor
+
+function FASTSUM(
+    d::Integer,
+    N::Integer,
+    M::Integer,
+    kernel::String,
+    c::Union{Real,UndefInitializer} = undef,
+    n::Integer = 256,
+    p::Integer = 8,
+    eps_I::Real = 8 / 256,
+    eps_B::Real = 1 / 16,
+    nn::Integer = 512,
+    m::Integer = 8,
+)
+    if kernels[kernel] == 0 || c == undef
+        cv = Vector{Float64}()  #Only compatibility will be removed in the next major upgrade
+    else
+        cv = Vector{Float64}(undef, 1)
+        cv[1] = Float64(c)
+    end
+
+    if length(cv) != kernels[kernel]
+        error("Kernel parameter vector has wrong length.")
+    end
 
     FASTSUM(d, N, M, n, p, kernel, cv, eps_I, eps_B, nn, nn, m, m, UInt32(0))
 end #constructor

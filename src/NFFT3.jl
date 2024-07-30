@@ -38,7 +38,26 @@ include("NFMT.jl")
 include("fastsum.jl")
 include("flags.jl")
 
-
+kernels = Dict(
+    "gaussian" => 1,
+    "multiquadric" => 1,
+    "inverse_multiquadric" => 1,
+    "logarithm" => 0,
+    "thinplate_spline" => 0,
+    "one_over_square" => 0,
+    "one_over_modulus" => 0,
+    "one_over_x" => 0,
+    "inverse_multiquadric3" => 1,
+    "sinc_kernel" => 1,
+    "cosc" => 1,
+    "kcot" => 1,
+    "one_over_cube" => 0,
+    "log_sin" => 1,
+    "laplacian_rbf" => 1,
+    "der_laplacian_rbf" => 1,
+    "xx_gaussian" => 1,
+    "absx" => 0,
+)
 
 # plan structures
 export NFFT, NFCT, NFST, FASTSUM, NFMT
