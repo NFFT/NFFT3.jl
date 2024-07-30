@@ -160,11 +160,13 @@ function FASTSUM(
     nn::Integer = 512,
     m::Integer = 8,
 )
-    cv = Vector{Float64}(undef, 1)
-    cv[1] = Float64(c)
+    
 
     if kernels[kernel] == 0 || c == undef
         cv = Vector{Float64}()  #Only compatibility will be removed in the next major upgrade
+    else
+        cv = Vector{Float64}(undef, 1)
+        cv[1] = Float64(c)
     end
 
     FASTSUM(d, N, M, n, p, kernel, cv, eps_I, eps_B, nn, nn, m, m, UInt32(0))
