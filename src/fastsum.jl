@@ -152,7 +152,7 @@ function FASTSUM(
     N::Integer,
     M::Integer,
     kernel::String,
-    c::Real,
+    c::Real = undef,
     n::Integer = 256,
     p::Integer = 8,
     eps_I::Real = 8/256,
@@ -166,23 +166,6 @@ function FASTSUM(
     if kernels[kernel] == 0
         cv = Vector{Float64}()  #Only compatibility will be removed in the next major upgrade
     end
-
-    FASTSUM(d, N, M, n, p, kernel, cv, eps_I, eps_B, nn, nn, m, m, UInt32(0))
-end #constructor
-
-function FASTSUM(
-    d::Integer,
-    N::Integer,
-    M::Integer,
-    kernel::String,
-    n::Integer = 256,
-    p::Integer = 8,
-    eps_I::Real = 8/256,
-    eps_B::Real = 1/16,
-    nn::Integer = 512,
-    m::Integer = 8,
-)
-    cv = Vector{Float64}()
 
     FASTSUM(d, N, M, n, p, kernel, cv, eps_I, eps_B, nn, nn, m, m, UInt32(0))
 end #constructor
