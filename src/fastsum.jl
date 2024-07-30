@@ -163,6 +163,10 @@ function FASTSUM(
     cv = Vector{Float64}(undef, 1)
     cv[1] = Float64(c)
 
+    if kernels[kernel] == 0
+        cv = Vector{Float64}()  #Only compatibility will be removed in the next major upgrade
+    end
+
     FASTSUM(d, N, M, n, p, kernel, cv, eps_I, eps_B, nn, nn, m, m, UInt32(0))
 end #constructor
 
