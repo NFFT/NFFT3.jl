@@ -168,7 +168,7 @@ function FASTSUM(
         cv[1] = Float64(c)
     end
 
-    if length(c) != kernels[kernel]
+    if length(cv) != kernels[kernel]
         error("Kernel parameter vector has wrong length.")
     end
 
