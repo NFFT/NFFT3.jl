@@ -547,7 +547,7 @@ function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::
 end
 
 function Base.:*(plan::NFFT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
-    if isdefined(plan,:x)
+    if !isdefined(plan,:x)
         error("x is not set.")
     end
     plan.fhat = nfft_get_coefficient_vector(fhat)
@@ -567,7 +567,7 @@ function Base.adjoint(plan::NFFT{D})::Adjoint_NFFT{D} where {D}
 end
 
 function Base.:*(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
-    if isdefined(plan,:x)
+    if !isdefined(plan,:x)
         error("x is not set.")
     end
     plan.f = f
