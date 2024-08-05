@@ -488,7 +488,7 @@ function adjoint(P::NFFT{D}) where {D}
     return nfft_adjoint(P)
 end
 
-function get_LinearMap(
+function nfft_get_LinearMap(
     bandwidths::Vector{Int},
     X::Array{Float64};
     n::NTuple{D,Integer} = undef,
@@ -532,14 +532,14 @@ function get_LinearMap(
     return LinearMap{ComplexF64}(trafo, adjoint, M, N)
 end
 
-function get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+function nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
     return vec(fhat)
 end
 
-function get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64}
+function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64}
     return reshape(fhat,reverse(P.N))
 end
 
-function get_coefficient_array(fhat::Vector{ComplexF64},N::NTuple{D,Int32})::Array{ComplexF64}
+function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::NTuple{D,Int32})::Array{ComplexF64}
     return reshape(fhat,reverse(N))
 end
