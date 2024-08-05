@@ -536,10 +536,10 @@ function nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64
     return vec(fhat)
 end
 
-function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64}
+function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64} where {D}
     return reshape(fhat,reverse(P.N))
 end
 
-function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::NTuple{D,Int32})::Array{ComplexF64}
+function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N)::Array{ComplexF64}
     return reshape(fhat,reverse(N))
 end
