@@ -557,10 +557,9 @@ end
 
 struct Adjoint_NFFT{D}
     plan::NFFT{D}
-    function Adjoint_NFFT{D}(plan::NFFT{D}) where {D}
-        new(plan)
-    end
 end
+
+Adjoint_NFFT{D}(plan::NFFT{D}) where {D} = plan
 
 function Base.adjoint(plan::NFFT{D})::Adjoint_NFFT{D} where {D}
     return Adjoint_NFFT(plan)
