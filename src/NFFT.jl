@@ -566,7 +566,7 @@ function Base.adjoint(plan::NFFT{D})::Adjoint_NFFT{D} where {D}
     return Adjoint_NFFT(plan)
 end
 
-function Base.:*(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64}
+function Base.:*(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
     if isdefined(plan,:x)
         error("x is not set.")
     end
