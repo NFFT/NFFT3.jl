@@ -3,10 +3,9 @@
 """
 module NFFT3
 
-
-
 using Aqua
 using CpuId
+using LinearAlgebra
 
 ending = ".so"
 path = "/lib/"
