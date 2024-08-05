@@ -493,7 +493,7 @@ function get_LinearMap(
     X::Array{Float64};
     n::NTuple{D,Integer} = undef,
     m::Integer = 5,
-    f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
+    f1::UInt32 = (size(X, 1) > 1 ? f1_default : f1_default_1d),
     f2::UInt32 = f2_default,
 )::LinearMap
     if size(X, 1) == 1
