@@ -31,8 +31,8 @@ nonsingular kernel function. The evaluation is done at ``M`` different points ``
 * `init_done` - bool for plan init.
 * `finalized` - bool for finalizer.
 * `flags` - flags.
-* `x` - source nodes.
-* `y` - target nodes.
+* `x` - source nodes with $\lVert \pmb{x}_k \rVert_2 \leq \frac{1}{2} \ (\frac{1}{2} - \varepsilon_B)$.
+* `y` - target nodes with $\lVert \pmb{y}_k \rVert_2 \leq \frac{1}{2} \ (\frac{1}{2} - \varepsilon_B)$.
 * `alpha` - source coefficients.
 * `f` - target evaluations.
 * `plan` - plan (C pointer).
