@@ -538,7 +538,7 @@ function nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64
 end
 
 function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64} where {D}
-    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+    return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
 end
 
 function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
