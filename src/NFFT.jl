@@ -508,11 +508,11 @@ function nfft_get_LinearMap(
         return LinearMap{ComplexF64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
     end
 
+    N = Tuple(bandwidths)
     if n == undef
         n = Tuple(2 * collect(N))
     end
 
-    N = Tuple(bandwidths)
     plan = NFFT(N, M, n, m, f1, f2)
     plan.x = X
 
