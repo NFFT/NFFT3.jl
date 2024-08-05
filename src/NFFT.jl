@@ -533,7 +533,8 @@ function nfft_get_LinearMap(
 end
 
 function nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
-    return vec(fhat)
+    N = size(fhat)
+    return vec(permutedims(fhat,length(N):-1:1))
 end
 
 function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64} where {D}
