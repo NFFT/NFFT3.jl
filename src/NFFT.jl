@@ -541,7 +541,36 @@ function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
 
-function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64} where {D}
+function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
     N = Tuple(N)
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+end
+
+function Base.:*(plan::NFFT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64}
+    if isdefined(plan,:x)
+        error("x is not set.")
+    end
+    plan.fhat = nfft_get_coefficient_vector(fhat)
+    nfft_trafo(plan)
+    return plan.f
+end
+
+struct Adjoint_NFFT{D}
+    plan::NFFT{D}
+    function Adjoint_NFFT{D}(plan::NFFT{D}) where {D}
+        new(plan)
+    end
+end
+
+function Base.adjoint(plan::NFFT{D})::Adjoint_NFFT{D}
+    return Adjoint_NFFT(plan)
+end
+
+function Base.:*(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64}
+    if isdefined(plan,:x)
+        error("x is not set.")
+    end
+    plan.f = f
+    nfft_adjoint(plan)
+    return nfft_get_coefficient_array(plan.fhat)
 end
