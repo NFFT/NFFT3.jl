@@ -546,7 +546,7 @@ function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
 
-function Base.:*(plan::NFFT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64}
+function Base.:*(plan::NFFT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
     if isdefined(plan,:x)
         error("x is not set.")
     end
@@ -562,7 +562,7 @@ struct Adjoint_NFFT{D}
     end
 end
 
-function Base.adjoint(plan::NFFT{D})::Adjoint_NFFT{D}
+function Base.adjoint(plan::NFFT{D})::Adjoint_NFFT{D} where {D}
     return Adjoint_NFFT(plan)
 end
 
@@ -572,5 +572,5 @@ function Base.:*(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64
     end
     plan.f = f
     nfft_adjoint(plan)
-    return nfft_get_coefficient_array(plan.fhat)
+    return nfft_get_coefficient_array(plan.fhat, plan)
 end
