@@ -102,7 +102,13 @@ mutable struct NFFT{D}
 end
 
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
-function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
+function NFFT(
+    N::NTuple{D,Integer}, 
+    M::Integer;
+    m::Integer = Int32(default_window_cut_off),
+    f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+) where {D}
     if any(x -> x <= 0, N)
         throw(DomainError(N, "argument must be a positive integer")) 
     end
@@ -480,4 +486,60 @@ end
 
 function adjoint(P::NFFT{D}) where {D}
     return nfft_adjoint(P)
+end
+
+function get_LinearMap(
+    bandwidths::Vector{Int},
+    X::Array{Float64};
+    n::NTuple{D,Integer} = undef,
+    m::Integer = 5,
+    f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+)::LinearMap
+    if size(X, 1) == 1
+        X = vec(X)
+        d = 1
+        M = length(X)
+    else
+        (d, M) = size(X)
+    end
+
+    if bandwidths == []
+        return LinearMap{ComplexF64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
+    end
+
+    if n == undef
+        n = Tuple(2 * collect(N))
+    end
+
+    N = Tuple(bandwidths)
+    plan = NFFT(N, M, n, m, f1, f2)
+    plan.x = X
+
+    function trafo(fhat::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.fhat = fhat
+        nfft_trafo(plan)
+        return plan.f
+    end
+
+    function adjoint(f::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.f = f
+        nfft_adjoint(plan)
+        return plan.fhat
+    end
+
+    N = prod(bandwidths)
+    return LinearMap{ComplexF64}(trafo, adjoint, M, N)
+end
+
+function get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+    return vec(fhat)
+end
+
+function get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64}
+    return reshape(fhat,reverse(P.N))
+end
+
+function get_coefficient_array(fhat::Vector{ComplexF64},N::NTuple{D,Int32})::Array{ComplexF64}
+    return reshape(fhat,reverse(N))
 end

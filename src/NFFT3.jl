@@ -6,6 +6,7 @@ module NFFT3
 using Aqua
 using CpuId
 using LinearAlgebra
+using LinearMaps
 
 ending = ".so"
 path = "/lib/"
