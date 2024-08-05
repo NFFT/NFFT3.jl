@@ -540,6 +540,7 @@ function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
 
-function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Tuple{Int32})::Array{ComplexF64}
+function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Integer})::Array{ComplexF64} where {D}
+    N = Tuple(N)
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
