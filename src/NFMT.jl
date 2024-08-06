@@ -428,13 +428,7 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
 function nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
-    b = size(fhat)
-    for (idx, s) in enumerate(basis_vect)
-        if (BASES[s] > 0)
-            b[idx] ÷= 2
-        end
-    end
-    N = Tuple(b)
+    N = size(fhat)
     return vec(permutedims(fhat,length(N):-1:1))
 end
 
