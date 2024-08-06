@@ -491,7 +491,7 @@ end
 This function defines the multiplication of an NFMT plan with an coefficient array.
 """
 function Base.:*(plan::NFMT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
-    if !isdefined(plan,:x)
+    if !isdefined(plan.NFFT_struct,:x)
         error("x is not set.")
     end
     plan.fhat = nfmt_get_coefficient_vector(fhat)
@@ -520,7 +520,7 @@ end
 This function defines the multiplication of an adjoint NFMT plan with an vector of function values.
 """
 function Base.:*(plan::Adjoint_NFMT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
-    if !isdefined(plan.plan,:x)
+    if !isdefined(plan.plan.NFFT_struct,:x)
         error("x is not set.")
     end
     plan.plan.f = f
