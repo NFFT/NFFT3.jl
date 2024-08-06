@@ -564,7 +564,7 @@ reshapes an coefficient vector returned from a linear map of the NFST to an arra
 """
 function nfst_get_coefficient_array(fhat::Vector{Float64},P::NFST{D})::Array{Float64} where {D}
     N = P.N .- 1
-    return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
+    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
 
 @doc raw"""
