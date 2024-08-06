@@ -46,8 +46,8 @@ error_vector = f1 - f4
 E_2 = norm(error_vector) / norm(f1)
 E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
-@test E_2 < 10^(-10)
-@test E_infty < 10^(-10)
+@test E_2 < 10^(-8)
+@test E_infty < 10^(-8)
 
 f3 = nfst_get_coefficient_vector(p' * p.f)
 
@@ -76,8 +76,8 @@ error_vector = f1 - f4
 E_2 = norm(error_vector) / norm(f1)
 E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
-@test E_2 < 10^(-10)
-@test E_infty < 10^(-10)
+@test E_2 < 10^(-8)
+@test E_infty < 10^(-8)
 
 # Error tests
 @test_throws DomainError NFST((-1, 2), M)

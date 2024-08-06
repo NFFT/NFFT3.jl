@@ -27,7 +27,7 @@ $$\hat{h}^{\pmb{d}}_{\pmb{k}} = \sum_{j=1}^M f^{\pmb{d}}_j \, \phi_{\pmb{k}}^{\p
 for the frequencies ``\pmb{k} \in I_{\pmb{N},\pmb{d}}^D`` with given coefficients ``f^{\pmb{d}}_j \in \mathbb{R}, j = 1,2,\ldots,M``.
 
 # Fields
-* `basis_vect` - vector with the bases (`exp`, `cos`, `alg`) for each dimension
+* `basis_vect` - tuple with the bases (`exp`, `cos`, `alg`) for each dimension
 * `NFFT_struct` - underlying [NFFT plan](@ref NFFT_site# Plan structure).
 
 # Constructor
@@ -428,7 +428,13 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
 function nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
-    N = size(fhat)
+    b = copy(Tuple(N))
+    for (idx, s) in enumerate(basis_vect)
+        if (BASES[s] > 0)
+            b[idx] ÷= 2
+        end
+    end
+    N = Tuple(b)
     return vec(permutedims(fhat,length(N):-1:1))
 end
 
@@ -445,7 +451,14 @@ reshapes an coefficient vector returned from a linear map of the NFMT to an arra
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
 function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{ComplexF64} where {D}
-    return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
+    b = copy(Tuple(P.N))
+    for (idx, s) in enumerate(basis_vect)
+        if (BASES[s] > 0)
+            b[idx] ÷= 2
+        end
+    end
+    N = Tuple(b)
+    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
 
 @doc raw"""
@@ -456,12 +469,19 @@ reshapes an coefficient vector returned from a linear map of the NFMT to an arra
 # Input
 * `fhat` - the Fourier coefficients.
 * `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+* `basis_vect` - tuple with the bases (`exp`, `cos`, `alg`) for each dimension
 
 # See also
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
-function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
-    N = Tuple(N)
+function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64},basis_vect::NTuple{D,String})::Array{ComplexF64} where {D}
+    b = copy(Tuple(N))
+    for (idx, s) in enumerate(basis_vect)
+        if (BASES[s] > 0)
+            b[idx] ÷= 2
+        end
+    end
+    N = Tuple(b)
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
 
