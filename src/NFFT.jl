@@ -489,7 +489,7 @@ function adjoint(P::NFFT{D}) where {D}
 end
 
 @doc raw"""
-    nfft_get_LinearMap(N::Vector{Int}, X::Array{Float64}; n, m::Integer, f1::UInt32, f2::UInt32)::LinearMa
+    nfft_get_LinearMap(N::Vector{Int}, X::Array{Float64}; n, m::Integer, f1::UInt32, f2::UInt32)::LinearMap
 
 gives an linear map which computes the NFFT.
 
@@ -548,17 +548,6 @@ function nfft_get_LinearMap(
     return LinearMap{ComplexF64}(trafo, adjoint, M, N)
 end
 
-function get_LinearMap(
-    N::Vector{Int},
-    X::Array{Float64};
-    n = undef,
-    m::Integer = 5,
-    f1::UInt32 = (size(X, 1) > 1 ? f1_default : f1_default_1d),
-    f2::UInt32 = f2_default,
-)::LinearMap
-    return nfft_get_LinearMap(N, X; n = n, m = m, f1 = f1, f2 = f2)
-end
-
 @doc raw"""
     nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
 
@@ -573,10 +562,6 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 function nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
     N = size(fhat)
     return vec(permutedims(fhat,length(N):-1:1))
-end
-
-function get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
-    return nfft_get_coefficient_vector(fhat)
 end
 
 @doc raw"""
@@ -595,10 +580,6 @@ function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{
     return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
 end
 
-function get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64} where {D}
-    return nfft_get_coefficient_array(fhat, P)
-end
-
 @doc raw"""
     nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
 
@@ -614,11 +595,6 @@ reshapes an coefficient vector returned from a linear map of the NFFT to an arra
 function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
     N = Tuple(N)
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
-end
-
-function get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
-    N = Tuple(N)
-    return nfft_get_coefficient_array(fhat, N)
 end
 
 @doc raw"""

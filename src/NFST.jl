@@ -32,7 +32,7 @@ for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^D`` with given coeffici
 * `finalized` - indicates if the plan is finalized.
 * `x` - the nodes ``x_j \in [0,0.5]^D, \, j = 1, \ldots, M``.
 * `f` - the values ``f^s(\pmb{x}_j)`` for the NFST or the coefficients ``f_j^s \in \mathbb{R}, j = 1, \ldots, M,`` for the transposed NFST.
-* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}}^s \in \mathbb{R}`` for the NFST or the values ``\hat{h}_{\pmb{k}}^s, \pmb{k} \in I_{\pmb{N},\mathrm{s}}^D,`` for the adjoint NFFT.
+* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}}^s \in \mathbb{R}`` for the NFST or the values ``\hat{h}_{\pmb{k}}^s, \pmb{k} \in I_{\pmb{N},\mathrm{s}}^D,`` for the adjoint NFST.
 * `plan` - plan (C pointer).
 
 # Constructor
@@ -43,7 +43,7 @@ for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{s}}^D`` with given coeffici
     NFST( N::NTuple{D,Int32}, M::Int32) where {D}
 
 # See also
-[`NFFT`](@ref)
+[`NFST`](@ref)
 """
 mutable struct NFST{D}
     N::NTuple{D,Int32}      # bandwidth tuple
@@ -474,3 +474,154 @@ function adjoint(P::NFST{D}) where {D}
     return nfst_adjoint(P)
 end
 
+@doc raw"""
+    nfst_get_LinearMap(N::Vector{Int}, X::Array{Float64}; n, m::Integer, f1::UInt32, f2::UInt32)::LinearMap
+
+gives an linear map which computes the NFST.
+
+# Input
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+* `X` - the nodes X.
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
+* `f1` - the NFST flags.
+* `f2` - the FFTW flags.
+
+# See also
+[`NFST{D}`](@ref)
+"""
+function nfst_get_LinearMap(
+    N::Vector{Int},
+    X::Array{Float64};
+    n = undef,
+    m::Integer = 5,
+    f1::UInt32 = (size(X, 1) > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+)::LinearMap
+    if size(X, 1) == 1
+        X = vec(X)
+        d = 1
+        M = length(X)
+    else
+        (d, M) = size(X)
+    end
+
+    if N == []
+        return LinearMap{Float64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
+    end
+
+    N = Tuple(N)
+    if n == undef
+        n = Tuple(2 * collect(N))
+    end
+
+    plan = NFST(N, M, n, m, f1, f2)
+    plan.x = X
+
+    function trafo(fhat::Vector{Float64})::Vector{Float64}
+        plan.fhat = fhat
+        nfst_trafo(plan)
+        return plan.f
+    end
+
+    function adjoint(f::Vector{Float64})::Vector{Float64}
+        plan.f = f
+        nfst_adjoint(plan)
+        return plan.fhat
+    end
+
+    N = prod(N)
+    return LinearMap{Float64}(trafo, adjoint, M, N)
+end
+
+@doc raw"""
+    nfst_get_coefficient_vector(fhat::Array{Float64})::Vector{Float64}
+
+reshapes an coefficient array to an vector for multiplication with the linear map of the NFST.
+
+# Input
+* `fhat` - the Fourier coefficients.
+
+# See also
+[`NFST{D}`](@ref), [`nfst_get_LinearMap`](@ref)
+"""
+function nfst_get_coefficient_vector(fhat::Array{Float64})::Vector{Float64}
+    N = size(fhat)
+    return vec(permutedims(fhat,length(N):-1:1))
+end
+
+@doc raw"""
+    nfst_get_coefficient_array(fhat::Vector{Float64},P::NFST{D})::Array{Float64} where {D}
+
+reshapes an coefficient vector returned from a linear map of the NFST to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `P` - a NFST plan structure.
+
+# See also
+[`NFST{D}`](@ref), [`nfst_get_LinearMap`](@ref)
+"""
+function nfst_get_coefficient_array(fhat::Vector{Float64},P::NFST{D})::Array{Float64} where {D}
+    return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
+end
+
+@doc raw"""
+    nfst_get_coefficient_array(fhat::Vector{Float64},N::Vector{Int64})::Array{Float64}
+
+reshapes an coefficient vector returned from a linear map of the NFST to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+
+# See also
+[`NFST{D}`](@ref), [`nfst_get_LinearMap`](@ref)
+"""
+function nfst_get_coefficient_array(fhat::Vector{Float64},N::Vector{Int64})::Array{Float64}
+    N = Tuple(N)
+    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+end
+
+@doc raw"""
+    *(plan::NFST{D}, fhat::Array{Float64})::Vector{Float64}
+
+This function defines the multiplication of an NFST plan with an coefficient array.
+"""
+function Base.:*(plan::NFST{D}, fhat::Array{Float64})::Vector{Float64} where {D}
+    if !isdefined(plan,:x)
+        error("x is not set.")
+    end
+    plan.fhat = nfst_get_coefficient_vector(fhat)
+    nfst_trafo(plan)
+    return plan.f
+end
+
+struct Adjoint_NFST{D}
+    plan::NFST{D}
+end
+
+Adjoint_NFST{D}(plan::NFST{D}) where {D} = plan
+
+@doc raw"""
+    adjoint(plan::NFST{D})::Adjoint_NFST{D}
+
+This function defines the adjoint operator for an NFST.
+"""
+function Base.adjoint(plan::NFST{D})::Adjoint_NFST{D} where {D}
+    return Adjoint_NFST(plan)
+end
+
+@doc raw"""
+    *(plan::Adjoint_NFST{D}, f::Vector{Float64})::Array{Float64}
+
+This function defines the multiplication of an adjoint NFST plan with an vector of function values.
+"""
+function Base.:*(plan::Adjoint_NFST{D}, f::Vector{Float64})::Array{Float64} where {D}
+    if !isdefined(plan.plan,:x)
+        error("x is not set.")
+    end
+    plan.plan.f = f
+    nfst_adjoint(plan.plan)
+    return nfst_get_coefficient_array(plan.plan.fhat, plan.plan)
+end

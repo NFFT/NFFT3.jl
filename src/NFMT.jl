@@ -49,7 +49,7 @@ with
 * `f2` - the FFTW flags.
 
 # See also
-[`NFFT`](@ref)
+[NFMT`](@ref)
 """
 mutable struct NFMT{D}
     basis_vect::NTuple{D,String}             # dimensions with cos
@@ -346,4 +346,164 @@ end
 
 function adjoint_direct(P::NFMT{D}) where {D}
     return nfmt_adjoint_direct(P)
+end
+
+@doc raw"""
+    nfmt_get_LinearMap(N::Vector{Int}, X::Array{Float64}; n, m::Integer, f1::UInt32, f2::UInt32)::LinearMap
+
+gives an linear map which computes the NFMT.
+
+# Input
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+* `X` - the nodes X.
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
+* `f1` - the NFFT flags.
+* `f2` - the FFTW flags.
+
+# See also
+[`NFMT{D}`](@ref)
+"""
+function nfmt_get_LinearMap(
+    basis_vect::NTuple{D,String},
+    N::Vector{Int},
+    X::Array{Float64};
+    n = undef,
+    m::Integer = 5,
+    f1::UInt32 = (size(X, 1) > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+)::LinearMap
+    if size(X, 1) == 1
+        X = vec(X)
+        d = 1
+        M = length(X)
+    else
+        (d, M) = size(X)
+    end
+
+    if N == []
+        return LinearMap{ComplexF64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
+    end
+
+    b = copy(Tuple(N))
+    for (idx, s) in enumerate(basis_vect)
+        if (BASES[s] > 0)
+            b[idx] *= 2
+        end
+    end
+    N2 = Tuple(b)
+
+    if n == undef
+        n = Tuple(2 * collect(N2))
+    end
+
+    plan = NFMT(basis_vect, N2, M, n, m, f1, f2)
+    plan.x = X
+
+    function trafo(fhat::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.fhat = fhat
+        nfmt_trafo(plan)
+        return plan.f
+    end
+
+    function adjoint(f::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.f = f
+        nfmt_adjoint(plan)
+        return plan.fhat
+    end
+
+    N = prod(N)
+    return LinearMap{ComplexF64}(trafo, adjoint, M, N)
+end
+
+@doc raw"""
+    nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+
+reshapes an coefficient array to an vector for multiplication with the linear map of the NFMT.
+
+# Input
+* `fhat` - the Fourier coefficients.
+
+# See also
+[`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
+"""
+function nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+    N = size(fhat)
+    return vec(permutedims(fhat,length(N):-1:1))
+end
+
+@doc raw"""
+    nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{ComplexF64} where {D}
+
+reshapes an coefficient vector returned from a linear map of the NFMT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `P` - a NFMT plan structure.
+
+# See also
+[`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
+"""
+function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{ComplexF64} where {D}
+    return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
+end
+
+@doc raw"""
+    nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
+
+reshapes an coefficient vector returned from a linear map of the NFMT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+
+# See also
+[`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
+"""
+function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
+    N = Tuple(N)
+    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+end
+
+@doc raw"""
+    *(plan::NFMT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64}
+
+This function defines the multiplication of an NFMT plan with an coefficient array.
+"""
+function Base.:*(plan::NFMT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
+    if !isdefined(plan,:x)
+        error("x is not set.")
+    end
+    plan.fhat = nfmt_get_coefficient_vector(fhat)
+    nfmt_trafo(plan)
+    return plan.f
+end
+
+struct Adjoint_NFMT{D}
+    plan::NFMT{D}
+end
+
+Adjoint_NFMT{D}(plan::NFMT{D}) where {D} = plan
+
+@doc raw"""
+    adjoint(plan::NFMT{D})::Adjoint_NFMT{D}
+
+This function defines the adjoint operator for an NFMT.
+"""
+function Base.adjoint(plan::NFMT{D})::Adjoint_NFMT{D} where {D}
+    return Adjoint_NFMT(plan)
+end
+
+@doc raw"""
+    *(plan::Adjoint_NFMT{D}, f::Vector{ComplexF64})::Array{ComplexF64}
+
+This function defines the multiplication of an adjoint NFMT plan with an vector of function values.
+"""
+function Base.:*(plan::Adjoint_NFMT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
+    if !isdefined(plan.plan,:x)
+        error("x is not set.")
+    end
+    plan.plan.f = f
+    nfmt_adjoint(plan.plan)
+    return nfmt_get_coefficient_array(plan.plan.fhat, plan.plan)
 end
