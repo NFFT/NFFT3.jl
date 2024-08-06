@@ -238,7 +238,7 @@ function Base.getproperty(P::NFMT{D}, v::Symbol) where {D}
                 pv[i] ÷= 2;
             end
         end
-        fhat = zeros(Complex, l)
+        fhat = zeros(ComplexF64, l)
         fhat_old = P.NFFT_struct.fhat
         for i = 1:p
             idx = 1
