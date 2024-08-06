@@ -385,7 +385,7 @@ function nfmt_get_LinearMap(
         return LinearMap{ComplexF64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
     end
 
-    b = copy(Tuple(N))
+    b = copy(N)
     for (idx, s) in enumerate(basis_vect)
         if (BASES[s] > 0)
             b[idx] *= 2
