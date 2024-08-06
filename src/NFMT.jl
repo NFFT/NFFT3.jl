@@ -388,7 +388,7 @@ function nfmt_get_LinearMap(
     b = copy(N)
     for (idx, s) in enumerate(basis_vect)
         if (BASES[s] > 0)
-            b[idx] *= 2
+            b[idx] ÷= 2
         end
     end
     N2 = Tuple(b)
