@@ -530,7 +530,7 @@ function nfst_get_LinearMap(
         return plan.fhat
     end
 
-    N = prod(N)
+    N = prod(N .- 1)
     return LinearMap{Float64}(trafo, adjoint, M, N)
 end
 
