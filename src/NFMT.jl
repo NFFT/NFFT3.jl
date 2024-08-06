@@ -394,10 +394,10 @@ function nfmt_get_LinearMap(
     N2 = Tuple(b)
 
     if n == undef
-        n = Tuple(2 * collect(N2))
+        n = Tuple(2 * collect(N))
     end
 
-    plan = NFMT(basis_vect, N2, M, n, m, f1, f2)
+    plan = NFMT(basis_vect, N, M, n, m, f1, f2)
     plan.x = X
 
     function trafo(fhat::Vector{ComplexF64})::Vector{ComplexF64}
@@ -412,7 +412,7 @@ function nfmt_get_LinearMap(
         return plan.fhat
     end
 
-    N = prod(N)
+    N = prod(N2)
     return LinearMap{ComplexF64}(trafo, adjoint, M, N)
 end
 
