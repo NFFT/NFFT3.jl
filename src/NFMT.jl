@@ -451,8 +451,8 @@ reshapes an coefficient vector returned from a linear map of the NFMT to an arra
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
 function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{ComplexF64} where {D}
-    b = enumerate(P.N)
-    for (idx, s) in enumerate(basis_vect)
+    b = copy([P.N...])
+    for (idx, s) in enumerate(P.basis_vect)
         if (BASES[s] > 0)
             b[idx] ÷= 2
         end
