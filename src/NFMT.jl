@@ -428,7 +428,7 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
 function nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
-    b = copy(Tuple(N))
+    b = size(fhat)
     for (idx, s) in enumerate(basis_vect)
         if (BASES[s] > 0)
             b[idx] ÷= 2
@@ -451,7 +451,7 @@ reshapes an coefficient vector returned from a linear map of the NFMT to an arra
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
 function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{ComplexF64} where {D}
-    b = copy(P.N)
+    b = copy(enumerate(P.N))
     for (idx, s) in enumerate(basis_vect)
         if (BASES[s] > 0)
             b[idx] ÷= 2
@@ -475,7 +475,7 @@ reshapes an coefficient vector returned from a linear map of the NFMT to an arra
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
 function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64},basis_vect::NTuple{D,String})::Array{ComplexF64} where {D}
-    b = copy(Tuple(N))
+    b = copy(N)
     for (idx, s) in enumerate(basis_vect)
         if (BASES[s] > 0)
             b[idx] ÷= 2
