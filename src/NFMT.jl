@@ -391,7 +391,7 @@ function nfmt_get_LinearMap(
             b[idx] ÷= 2
         end
     end
-    N2 = Tuple(b)
+    N = Tuple(N)
 
     if n == undef
         n = Tuple(2 * collect(N))
@@ -412,7 +412,7 @@ function nfmt_get_LinearMap(
         return plan.fhat
     end
 
-    N = prod(N2)
+    N = prod(b)
     return LinearMap{ComplexF64}(trafo, adjoint, M, N)
 end
 
