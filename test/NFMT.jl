@@ -65,6 +65,12 @@ p = NFMT(basis_vect, N, M)
 p.x = X
 p.fhat = fhat
 
+f3 = p * nfmt_get_coefficient_array(fhat,p)
+
+L = nfmt_get_LinearMap(basis_vect,collect(N),X)
+
+f4 = L * fhat
+
 #NFFT3.nfmt_trafo(p)
 nfmt_trafo(p)
 f2 = p.f
@@ -80,6 +86,24 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
+error_vector = f1 - f3
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
+
+error_vector = f1 - f4
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
+
+f3 = nfmt_get_coefficient_vector(p' * p.f)
+
+f4 = L' * p.f
+
 #NFFT3.nfmt_adjoint(p)
 nfmt_adjoint(p)
 f2 = p.fhat
@@ -93,4 +117,16 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
+error_vector = f1 - f3
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
+
+error_vector = f1 - f4
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
