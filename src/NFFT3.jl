@@ -3,19 +3,29 @@
 """
 module NFFT3
 
-
-
 using Aqua
 using CpuId
+using LinearAlgebra
+using LinearMaps
 
 ending = ".so"
 path = "/lib/"
+glibcversion = ""
 
 if Sys.iswindows()
     ending = ".dll"
     path = "\\lib\\"
 elseif Sys.isapple()
     ending = ".dylib"
+else
+    glibcversion = "glibc2.40/"
+    if VersionNumber(
+        unsafe_string(
+            @ccall string(@__DIR__, path, "glibc-version.so").glibc_version()::Cstring
+        ),
+    ) < v"2.35"
+        glibcversion = "glibc2.22/"
+    end
 end
 
 if cpufeature(:AVX2)
@@ -26,10 +36,10 @@ else
     flag = "SSE2/"
 end
 
-lib_path_nfft = string(@__DIR__, path, flag, "libnfftjulia", ending)
-lib_path_nfct = string(@__DIR__, path, flag, "libnfctjulia", ending)
-lib_path_nfst = string(@__DIR__, path, flag, "libnfstjulia", ending)
-lib_path_fastsum = string(@__DIR__, path, flag, "libfastsumjulia", ending)
+lib_path_nfft = string(@__DIR__, path, flag, glibcversion, "libnfftjulia", ending)
+lib_path_nfct = string(@__DIR__, path, flag, glibcversion, "libnfctjulia", ending)
+lib_path_nfst = string(@__DIR__, path, flag, glibcversion, "libnfstjulia", ending)
+lib_path_fastsum = string(@__DIR__, path, flag, glibcversion, "libfastsumjulia", ending)
 
 include("NFFT.jl")
 include("NFCT.jl")
@@ -69,6 +79,9 @@ export nfft_finalize_plan,
     nfft_adjoint,
     nfft_trafo_direct,
     nfft_adjoint_direct,
+    nfft_get_LinearMap,
+    nfft_get_coefficient_vector,
+    nfft_get_coefficient_array,
     nfct_finalize_plan,
     nfct_init,
     nfct_trafo,
@@ -77,21 +90,29 @@ export nfft_finalize_plan,
     nfct_trafo_direct,
     nfct_adjoint_direct,
     nfct_transposed_direct,
+    nfct_get_LinearMap,
+    nfct_get_coefficient_vector,
+    nfct_get_coefficient_array,
     nfst_finalize_plan,
     nfst_init,
     nfst_trafo,
     nfst_adjoint,
     nfst_trafo_direct,
     nfst_adjoint_direct,
+    nfst_get_LinearMap,
+    nfst_get_coefficient_vector,
+    nfst_get_coefficient_array,
+    nfmt_finalize_plan,
+    nfmt_trafo,
+    nfmt_adjoint,
+    nfmt_get_LinearMap,
+    nfmt_get_coefficient_vector,
+    nfmt_get_coefficient_array,
     fastsum_finalize_plan,
     fastsum_init,
     fastsum_trafo,
     fastsum_trafo_exact,
     finalize_plan,
-    nfmt_finalize_plan,
-#    nfmt_init,
-    nfmt_trafo,
-    nfmt_adjoint,
     init,
     trafo,
     adjoint,

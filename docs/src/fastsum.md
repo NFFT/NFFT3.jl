@@ -100,6 +100,46 @@ where the inner sum can be computed by an adjoint NFFT which is then followed by
     fastsum_trafo_exact
 ```
 
+## Supported kernel functions
+
+- `gaussian`
+$${K}(x)=\exp\Big(-\frac{x^2}{c^2}\Big)$$
+- `multiquadratic`
+$${K}(x)=\sqrt{x^2+c^2}$$
+- `inverse_multiquadratic`
+$${K}(x)=\sqrt{\frac{1}{x^2+c^2}}$$
+- `logarithm`
+$${K}(x)=\log(\vert x\vert)$$
+- `thinplate_spline`
+$${K}(x)=x^2\log(\vert x\vert)$$
+- `one_over_square`
+$${K}(x)=\frac{1}{x^2}$$
+- `one_over_modulus`
+$${K}(x)=\frac{1}{\vert x\vert}$$
+- `one_over_x`
+$${K}(x)=\frac{1}{x}$$
+- `one_over_multiquadric3`
+$${K}(x)=\Big(\frac{1}{x^2+c^2}\Big)^\frac{3}{2}$$
+- `sinc_kernel`
+$${K}(x)=\frac{\sin(cx)}{x}$$
+- `cosc`
+$${K}(x)=\frac{\cos(cx)}{x}$$
+- `kcot`
+$${K}(x)=\cot(cx)$$
+- `one_over_cube`
+$${K}(x)=\frac{1}{x^3}$$
+- `log_sin`
+$${K}(x)=\log(\vert\sin(cx)\vert)$$
+- `laplacian_rbf`
+$${K}(x)=\exp\Big(-\frac{\vert x\vert}{c}\Big)$$
+- `der_laplacian_rbf`
+$${K}(x)=\frac{\vert x\vert}{c}\exp\Big(-\frac{\vert x\vert}{c}\Big)$$
+- `xx_gaussian`
+$${K}(x)=\frac{x^2}{c^2}\exp\Big(-\frac{x^2}{c^2}\Big)$$
+- `absx`
+$${K}(x)=\vert x\vert$$
+
+
 ## Literature
 
 ```@raw html

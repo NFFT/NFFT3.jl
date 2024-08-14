@@ -102,9 +102,15 @@ mutable struct NFFT{D}
 end
 
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
-function NFFT(N::NTuple{D,Integer}, M::Integer) where {D}
+function NFFT(
+    N::NTuple{D,Integer},
+    M::Integer;
+    m::Integer = Int32(default_window_cut_off),
+    f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+) where {D}
     if any(x -> x <= 0, N)
-        throw(DomainError(N, "argument must be a positive integer")) 
+        throw(DomainError(N, "argument must be a positive integer"))
     end
 
     # convert N to vector for passing it over to C
@@ -146,7 +152,7 @@ end
 
 # finalizer
 @doc raw"""
-    nfft_finalize_plan(P)
+    nfft_finalize_plan(P::NFFT{D})
 
 destroys a NFFT plan structure.
 
@@ -173,7 +179,7 @@ end
 
 # allocate plan memory and init with D,N,M,n,m,f1,f2
 @doc raw"""
-    nfft_init(P)
+    nfft_init(P::NFFT{D})
 
 intialises the NFFT plan in C. This function does not have to be called by the user.
 
@@ -346,7 +352,7 @@ end
 
 # nfft trafo direct [call with NFFT.trafo_direct outside module]
 @doc raw"""
-    nfft_trafo_direct(P)
+    nfft_trafo_direct(P::NFFT{D})
 
 computes the NDFT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
 
@@ -385,7 +391,7 @@ end
 
 # adjoint trafo direct [call with NFFT.adjoint_direct outside module]
 @doc raw"""
-    nfft_adjoint_direct(P)
+    nfft_adjoint_direct(P::NFFT{D})
 
 computes the adjoint NDFT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
 
@@ -421,7 +427,7 @@ end
 
 # nfft trafo [call with NFFT.trafo outside module]
 @doc raw"""
-    nfft_trafo(P)
+    nfft_trafo(P::NFFT{D})
 
 computes the NDFT via the fast NFFT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
 
@@ -452,7 +458,7 @@ end
 
 # adjoint trafo [call with NFFT.adjoint outside module]
 @doc raw"""
-    nfft_adjoint(P)
+    nfft_adjoint(P::NFFT{D})
 
 computes the adjoint NDFT via the fast adjoint NFFT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j \in \mathbb{C}, j =1,2,\dots,M,`` in `P.f`.
 
@@ -480,4 +486,162 @@ end
 
 function adjoint(P::NFFT{D}) where {D}
     return nfft_adjoint(P)
+end
+
+@doc raw"""
+    nfft_get_LinearMap(N::Vector{Int}, X::Array{Float64}; n, m::Integer, f1::UInt32, f2::UInt32)::LinearMap
+
+gives an linear map which computes the NFFT.
+
+# Input
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+* `X` - the nodes X.
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
+* `f1` - the NFFT flags.
+* `f2` - the FFTW flags.
+
+# See also
+[`NFFT{D}`](@ref)
+"""
+function nfft_get_LinearMap(
+    N::Vector{Int},
+    X::Array{Float64};
+    n = undef,
+    m::Integer = 5,
+    f1::UInt32 = (size(X, 1) > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+)::LinearMap
+    if size(X, 1) == 1
+        X = vec(X)
+        d = 1
+        M = length(X)
+    else
+        (d, M) = size(X)
+    end
+
+    if N == []
+        return LinearMap{ComplexF64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
+    end
+
+    N = Tuple(N)
+    if n == undef
+        n = Tuple(2 * collect(N))
+    end
+
+    plan = NFFT(N, M, n, m, f1, f2)
+    plan.x = X
+
+    function trafo(fhat::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.fhat = fhat
+        nfft_trafo(plan)
+        return plan.f
+    end
+
+    function adjoint(f::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.f = f
+        nfft_adjoint(plan)
+        return plan.fhat
+    end
+
+    N = prod(N)
+    return LinearMap{ComplexF64}(trafo, adjoint, M, N)
+end
+
+@doc raw"""
+    nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+
+reshapes an coefficient array to an vector for multiplication with the linear map of the NFFT.
+
+# Input
+* `fhat` - the Fourier coefficients.
+
+# See also
+[`NFFT{D}`](@ref), [`nfft_get_LinearMap`](@ref)
+"""
+function nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+    N = size(fhat)
+    return vec(permutedims(fhat, length(N):-1:1))
+end
+
+@doc raw"""
+    nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64} where {D}
+
+reshapes an coefficient vector returned from a linear map of the NFFT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `P` - a NFFT plan structure.
+
+# See also
+[`NFFT{D}`](@ref), [`nfft_get_LinearMap`](@ref)
+"""
+function nfft_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    P::NFFT{D},
+)::Array{ComplexF64} where {D}
+    return permutedims(reshape(fhat, reverse(P.N)), length(P.N):-1:1)
+end
+
+@doc raw"""
+    nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
+
+reshapes an coefficient vector returned from a linear map of the NFFT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+
+# See also
+[`NFFT{D}`](@ref), [`nfft_get_LinearMap`](@ref)
+"""
+function nfft_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    N::Vector{Int64},
+)::Array{ComplexF64}
+    N = Tuple(N)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
+end
+
+@doc raw"""
+    *(plan::NFFT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64}
+
+This function defines the multiplication of an NFFT plan with an coefficient array.
+"""
+function Base.:*(plan::NFFT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
+    if !isdefined(plan, :x)
+        error("x is not set.")
+    end
+    plan.fhat = nfft_get_coefficient_vector(fhat)
+    nfft_trafo(plan)
+    return plan.f
+end
+
+struct Adjoint_NFFT{D}
+    plan::NFFT{D}
+end
+
+Adjoint_NFFT{D}(plan::NFFT{D}) where {D} = plan
+
+@doc raw"""
+    adjoint(plan::NFFT{D})::Adjoint_NFFT{D}
+
+This function defines the adjoint operator for an NFFT.
+"""
+function Base.adjoint(plan::NFFT{D})::Adjoint_NFFT{D} where {D}
+    return Adjoint_NFFT(plan)
+end
+
+@doc raw"""
+    *(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64}
+
+This function defines the multiplication of an adjoint NFFT plan with an vector of function values.
+"""
+function Base.:*(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
+    if !isdefined(plan.plan, :x)
+        error("x is not set.")
+    end
+    plan.plan.f = f
+    nfft_adjoint(plan.plan)
+    return nfft_get_coefficient_array(plan.plan.fhat, plan.plan)
 end

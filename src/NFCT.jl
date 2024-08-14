@@ -26,13 +26,13 @@ for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{c}}^D`` with given coeffici
 * `M` - the number of nodes.
 * `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
 * `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
-* `f1` - the NFST flags.
+* `f1` - the NFCT flags.
 * `f2` - the FFTW flags.
 * `init_done` - indicates if the plan is initialized.
 * `finalized` - indicates if the plan is finalized.
 * `x` - the nodes ``x_j \in [0,0.5]^D, \, j = 1, \ldots, M``.
-* `f` - the values ``f^c(\pmb{x}_j)`` for the NFST or the coefficients ``f_j^c \in \mathbb{R}, j = 1, \ldots, M,`` for the transposed NFST.
-* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}`` for the NFST or the values ``\hat{h}_{\pmb{k}}^c, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` for the adjoint NFFT.
+* `f` - the values ``f^c(\pmb{x}_j)`` for the NFCT or the coefficients ``f_j^c \in \mathbb{R}, j = 1, \ldots, M,`` for the transposed NFCT.
+* `fhat` - the Fourier coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}`` for the NFCT or the values ``\hat{h}_{\pmb{k}}^c, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` for the adjoint NFCT.
 * `plan` - plan (C pointer).
 
 # Constructor
@@ -43,7 +43,7 @@ for the frequencies ``\pmb{k} \in I_{\pmb{N},\mathrm{c}}^D`` with given coeffici
     NFCT( N::NTuple{D,Int32}, M::Int32) where {D}
 
 # See also
-[`NFFT`](@ref)
+[`NFCT`](@ref)
 """
 mutable struct NFCT{D}
     N::NTuple{D,Int32}      # bandwidth tuple
@@ -486,4 +486,159 @@ end
 
 function adjoint(P::NFCT{D}) where {D}
     return nfct_adjoint(P)
+end
+
+@doc raw"""
+    nfct_get_LinearMap(N::Vector{Int}, X::Array{Float64}; n, m::Integer, f1::UInt32, f2::UInt32)::LinearMap
+
+gives an linear map which computes the NFCT.
+
+# Input
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+* `X` - the nodes X.
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
+* `f1` - the NFCT flags.
+* `f2` - the FFTW flags.
+
+# See also
+[`NFCT{D}`](@ref)
+"""
+function nfct_get_LinearMap(
+    N::Vector{Int},
+    X::Array{Float64};
+    n = undef,
+    m::Integer = 5,
+    f1::UInt32 = (size(X, 1) > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+)::LinearMap
+    if size(X, 1) == 1
+        X = vec(X)
+        d = 1
+        M = length(X)
+    else
+        (d, M) = size(X)
+    end
+
+    if N == []
+        return LinearMap{Float64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
+    end
+
+    N = Tuple(N)
+    if n == undef
+        n = Tuple(2 * collect(N))
+    end
+
+    plan = NFCT(N, M, n, m, f1, f2)
+    plan.x = X
+
+    function trafo(fhat::Vector{Float64})::Vector{Float64}
+        plan.fhat = fhat
+        nfct_trafo(plan)
+        return plan.f
+    end
+
+    function adjoint(f::Vector{Float64})::Vector{Float64}
+        plan.f = f
+        nfct_adjoint(plan)
+        return plan.fhat
+    end
+
+    N = prod(N)
+    return LinearMap{Float64}(trafo, adjoint, M, N)
+end
+
+@doc raw"""
+    nfct_get_coefficient_vector(fhat::Array{Float64})::Vector{Float64}
+
+reshapes an coefficient array to an vector for multiplication with the linear map of the NFCT.
+
+# Input
+* `fhat` - the Fourier coefficients.
+
+# See also
+[`NFCT{D}`](@ref), [`nfct_get_LinearMap`](@ref)
+"""
+function nfct_get_coefficient_vector(fhat::Array{Float64})::Vector{Float64}
+    N = size(fhat)
+    return vec(permutedims(fhat, length(N):-1:1))
+end
+
+@doc raw"""
+    nfct_get_coefficient_array(fhat::Vector{Float64},P::NFCT{D})::Array{Float64} where {D}
+
+reshapes an coefficient vector returned from a linear map of the NFCT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `P` - a NFCT plan structure.
+
+# See also
+[`NFCT{D}`](@ref), [`nfct_get_LinearMap`](@ref)
+"""
+function nfct_get_coefficient_array(
+    fhat::Vector{Float64},
+    P::NFCT{D},
+)::Array{Float64} where {D}
+    return permutedims(reshape(fhat, reverse(P.N)), length(P.N):-1:1)
+end
+
+@doc raw"""
+    nfct_get_coefficient_array(fhat::Vector{Float64},N::Vector{Int64})::Array{Float64}
+
+reshapes an coefficient vector returned from a linear map of the NFCT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+
+# See also
+[`NFCT{D}`](@ref), [`nfct_get_LinearMap`](@ref)
+"""
+function nfct_get_coefficient_array(fhat::Vector{Float64}, N::Vector{Int64})::Array{Float64}
+    N = Tuple(N)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
+end
+
+@doc raw"""
+    *(plan::NFCT{D}, fhat::Array{Float64})::Vector{Float64}
+
+This function defines the multiplication of an NFCT plan with an coefficient array.
+"""
+function Base.:*(plan::NFCT{D}, fhat::Array{Float64})::Vector{Float64} where {D}
+    if !isdefined(plan, :x)
+        error("x is not set.")
+    end
+    plan.fhat = nfct_get_coefficient_vector(fhat)
+    nfct_trafo(plan)
+    return plan.f
+end
+
+struct Adjoint_NFCT{D}
+    plan::NFCT{D}
+end
+
+Adjoint_NFCT{D}(plan::NFCT{D}) where {D} = plan
+
+@doc raw"""
+    adjoint(plan::NFCT{D})::Adjoint_NFCT{D}
+
+This function defines the adjoint operator for an NFCT.
+"""
+function Base.adjoint(plan::NFCT{D})::Adjoint_NFCT{D} where {D}
+    return Adjoint_NFCT(plan)
+end
+
+@doc raw"""
+    *(plan::Adjoint_NFCT{D}, f::Vector{Float64})::Array{Float64}
+
+This function defines the multiplication of an adjoint NFCT plan with an vector of function values.
+"""
+function Base.:*(plan::Adjoint_NFCT{D}, f::Vector{Float64})::Array{Float64} where {D}
+    if !isdefined(plan.plan, :x)
+        error("x is not set.")
+    end
+    plan.plan.f = f
+    nfct_adjoint(plan.plan)
+    return nfct_get_coefficient_array(plan.plan.fhat, plan.plan)
 end

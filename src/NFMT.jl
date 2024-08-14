@@ -1,5 +1,56 @@
 using NFFT3
 
+# NFMT plan struct
+@doc raw"""
+    NFMT{D}
+
+A NFMT (nonequispaced fast mixed transform) plan, where D is the dimension. 
+
+The NFCT realizes a direct and fast computation of the discrete nonequispaced mixed transform. The aim is to compute
+
+$$f^{\pmb{d}}(\pmb{x}_j) \coloneqq \sum_{\pmb{k} \in I_{\pmb{N},\pmb{d}}^d} \hat{f}_{\pmb{k}}^{\pmb{d}} \, \phi_{\pmb{k}}^{\pmb{d}}(\pmb{x}_j)$$
+
+with 
+
+$$\phi_{\pmb{k}}^{\pmb{d}}(\pmb{x})=\prod_{j=1}^d\begin{cases}1,&k_j=0\\\exp(2\pi\mathrm{i}k_jx_j),&d_j=\exp,\;k_j\neq0\\
+\sqrt{2}\cos(\pi k_jx_j),&d_j=\cos,\;k_j\neq0\\
+\sqrt{2}\cos(k_j\arccos(2x_j-1)),&d_j=\mathrm{alg},\;k_j\neq0\end{cases}$$
+
+for $\pmb{d}\in\{\exp,\cos,\mathrm{alg}\}^d$ at given arbitrary knots ``\pmb{x}_j \in [0,1]^D, j = 1, \cdots, M``, for coefficients ``\hat{f}^{c}_{\pmb{k}} \in \mathbb{R}``, 
+
+$$\pmb{k}\inI_{\pmb{N},\pmb{d}}^d \coloneqq \overset{d}{\underset{j=1}{\vphantom{\mathop{\raisebox{-.5ex}{\hbox{\huge{$\times$}}}}}⨉}}\begin{cases}\Big\{-\frac{N_j}{2},-\frac{N_j}{2}+1,\ldots,\frac{N_j}{2}\Big\},&d_j=\exp\\\Big\{0,1,\ldots,\frac{N_j}{2}\Big\},&d_j\neq\exp\end{cases},$$
+
+and a multibandlimit vector ``\pmb{N} \in (2\mathbb{N})^{D}``. The transposed problem reads as
+
+$$\hat{h}^{\pmb{d}}_{\pmb{k}} = \sum_{j=1}^M f^{\pmb{d}}_j \, \phi_{\pmb{k}}^{\pmb{d}}(\pmb{x}_j)$$
+
+for the frequencies ``\pmb{k} \in I_{\pmb{N},\pmb{d}}^D`` with given coefficients ``f^{\pmb{d}}_j \in \mathbb{R}, j = 1,2,\ldots,M``.
+
+# Fields
+* `basis_vect` - tuple with the bases (`exp`, `cos`, `alg`) for each dimension
+* `NFFT_struct` - underlying [NFFT plan](@ref NFFT_site# Plan structure).
+
+# Constructor
+    NFMT{D}( basis_vect::NTuple{D,String}, P::NFFT{D}N::NTuple{D,Int32}) where {D}
+
+
+> **WARNING**: Not for direct usage!
+
+# Additional Constructor
+    NFMT( N::NTuple{D,Int32}, M::Int32, n::NTuple{D,Int32}, m::Int32, f1::UInt32, f2::UInt32) where {D}
+    NFMT( N::NTuple{D,Int32}, M::Int32) where {D}
+
+with
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f^s``.
+* `M` - the number of nodes.
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
+* `f1` - the NFST flags.
+* `f2` - the FFTW flags.
+
+# See also
+[NFMT`](@ref)
+"""
 mutable struct NFMT{D}
     basis_vect::NTuple{D,String}             # dimensions with cos
     NFFT_struct::NFFT{D}             # structure for the NFFT
@@ -183,11 +234,11 @@ function Base.getproperty(P::NFMT{D}, v::Symbol) where {D}
         pv[D] = 1
         for i = D-1:-1:1
             pv[i] = pv[i+1] * P.NFFT_struct.N[i+1]
-            if (BASES[P.basis_vect[i+1]]>0)
-                pv[i] ÷= 2;
+            if (BASES[P.basis_vect[i+1]] > 0)
+                pv[i] ÷= 2
             end
         end
-        fhat = zeros(Complex, l)
+        fhat = zeros(ComplexF64, l)
         fhat_old = P.NFFT_struct.fhat
         for i = 1:p
             idx = 1
@@ -221,7 +272,7 @@ end
 @doc raw"""
     nfmt_trafo(P)
 
-computes the NDFCT via the fast NFMT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^c \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},\mathrm{c}}^D,`` in `P.fhat`.
+computes the NDMT via the fast NFMT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}}^{\pmb{d}} \in \mathbb{R}, \pmb{k} \in I_{\pmb{N},\pmb{d}}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFMT plan structure.
@@ -241,7 +292,7 @@ end
 @doc raw"""
     nfmt_transposed(P)
 
-computes the transposed NDFCT via the fast transposed NFMT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^c \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
+computes the transposed NDFCT via the fast transposed NFMT algorithm for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``f_j^{\pmb{d}} \in \mathbb{R}, j =1,2,\dots,M,`` in `P.f`.
 
 # Input
 * `P` - a NFMT plan structure.
@@ -261,7 +312,7 @@ end
 @doc raw"""
     nfmt_trafo_direct(P)
 
-computes the NDFCT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
+computes the NDMT via naive matrix-vector multiplication for provided nodes ``\pmb{x}_j, j =1,2,\dots,M,`` in `P.X` and coefficients ``\hat{f}_{\pmb{k}} \in \mathbb{C}, \pmb{k} \in I_{\pmb{N}}^D,`` in `P.fhat`.
 
 # Input
 * `P` - a NFMT plan structure.
@@ -295,4 +346,185 @@ end
 
 function adjoint_direct(P::NFMT{D}) where {D}
     return nfmt_adjoint_direct(P)
+end
+
+@doc raw"""
+    nfmt_get_LinearMap(N::Vector{Int}, X::Array{Float64}; n, m::Integer, f1::UInt32, f2::UInt32)::LinearMap
+
+gives an linear map which computes the NFMT.
+
+# Input
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+* `X` - the nodes X.
+* `n` - the oversampling ``(n_1, n_2, \ldots, n_D)`` per dimension.
+* `m` - the window size. A larger m results in more accuracy but also a higher computational cost. 
+* `f1` - the NFFT flags.
+* `f2` - the FFTW flags.
+
+# See also
+[`NFMT{D}`](@ref)
+"""
+function nfmt_get_LinearMap(
+    basis_vect::NTuple{D,String},
+    N::Vector{Int},
+    X::Array{Float64};
+    n = undef,
+    m::Integer = 5,
+    f1::UInt32 = (size(X, 1) > 1 ? f1_default : f1_default_1d),
+    f2::UInt32 = f2_default,
+)::LinearMap where {D}
+    if size(X, 1) == 1
+        X = vec(X)
+        d = 1
+        M = length(X)
+    else
+        (d, M) = size(X)
+    end
+
+    if N == []
+        return LinearMap{ComplexF64}(fhat -> fill(fhat[1], M), f -> [sum(f)], M, 1)
+    end
+
+    b = copy(N)
+    for (idx, s) in enumerate(basis_vect)
+        if (BASES[s] > 0)
+            b[idx] ÷= 2
+        end
+    end
+    N = Tuple(N)
+
+    if n == undef
+        n = Tuple(2 * collect(N))
+    end
+
+    plan = NFMT(basis_vect, N, M, n, m, f1, f2)
+    plan.x = X
+
+    function trafo(fhat::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.fhat = fhat
+        nfmt_trafo(plan)
+        return plan.f
+    end
+
+    function adjoint(f::Vector{ComplexF64})::Vector{ComplexF64}
+        plan.f = f
+        nfmt_adjoint(plan)
+        return plan.fhat
+    end
+
+    N = prod(b)
+    return LinearMap{ComplexF64}(trafo, adjoint, M, N)
+end
+
+@doc raw"""
+    nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+
+reshapes an coefficient array to an vector for multiplication with the linear map of the NFMT.
+
+# Input
+* `fhat` - the Fourier coefficients.
+
+# See also
+[`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
+"""
+function nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
+    N = size(fhat)
+    return vec(permutedims(fhat, length(N):-1:1))
+end
+
+@doc raw"""
+    nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{ComplexF64} where {D}
+
+reshapes an coefficient vector returned from a linear map of the NFMT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `P` - a NFMT plan structure.
+
+# See also
+[`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
+"""
+function nfmt_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    P::NFMT{D},
+)::Array{ComplexF64} where {D}
+    b = copy([P.N...])
+    for (idx, s) in enumerate(P.basis_vect)
+        if (BASES[s] > 0)
+            b[idx] ÷= 2
+        end
+    end
+    N = Tuple(b)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
+end
+
+@doc raw"""
+    nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
+
+reshapes an coefficient vector returned from a linear map of the NFMT to an array.
+
+# Input
+* `fhat` - the Fourier coefficients.
+* `N` - the multibandlimit ``(N_1, N_2, \ldots, N_D)`` of the trigonometric polynomial ``f``.
+* `basis_vect` - tuple with the bases (`exp`, `cos`, `alg`) for each dimension
+
+# See also
+[`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
+"""
+function nfmt_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    N::Vector{Int64},
+    basis_vect::NTuple{D,String},
+)::Array{ComplexF64} where {D}
+    b = copy(N)
+    for (idx, s) in enumerate(basis_vect)
+        if (BASES[s] > 0)
+            b[idx] ÷= 2
+        end
+    end
+    N = Tuple(b)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
+end
+
+@doc raw"""
+    *(plan::NFMT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64}
+
+This function defines the multiplication of an NFMT plan with an coefficient array.
+"""
+function Base.:*(plan::NFMT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
+    if !isdefined(plan.NFFT_struct, :x)
+        error("x is not set.")
+    end
+    plan.fhat = nfmt_get_coefficient_vector(fhat)
+    nfmt_trafo(plan)
+    return plan.f
+end
+
+struct Adjoint_NFMT{D}
+    plan::NFMT{D}
+end
+
+Adjoint_NFMT{D}(plan::NFMT{D}) where {D} = plan
+
+@doc raw"""
+    adjoint(plan::NFMT{D})::Adjoint_NFMT{D}
+
+This function defines the adjoint operator for an NFMT.
+"""
+function Base.adjoint(plan::NFMT{D})::Adjoint_NFMT{D} where {D}
+    return Adjoint_NFMT(plan)
+end
+
+@doc raw"""
+    *(plan::Adjoint_NFMT{D}, f::Vector{ComplexF64})::Array{ComplexF64}
+
+This function defines the multiplication of an adjoint NFMT plan with an vector of function values.
+"""
+function Base.:*(plan::Adjoint_NFMT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
+    if !isdefined(plan.plan.NFFT_struct, :x)
+        error("x is not set.")
+    end
+    plan.plan.f = f
+    nfmt_adjoint(plan.plan)
+    return nfmt_get_coefficient_array(plan.plan.fhat, plan.plan)
 end

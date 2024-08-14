@@ -20,7 +20,7 @@ nonsingular kernel function. The evaluation is done at ``M`` different points ``
 * `M` - number of target nodes.
 * `n` - expansion degree.
 * `p` - degree of smoothness.
-* `kernel` - name of kernel function ``K``.
+* `kernel` - name of kernel function ``K``, see [Supported kernel functions](# Supported kernel functions).
 * `c` - kernel parameters.
 * `eps_I` - inner boundary.
 * `eps_B` - outer boundary.
@@ -31,8 +31,8 @@ nonsingular kernel function. The evaluation is done at ``M`` different points ``
 * `init_done` - bool for plan init.
 * `finalized` - bool for finalizer.
 * `flags` - flags.
-* `x` - source nodes.
-* `y` - target nodes.
+* `x` - source nodes with $\lVert \pmb{x}_k \rVert_2 \leq \frac{1}{2} \ (\frac{1}{2} - \varepsilon_B)$.
+* `y` - target nodes with $\lVert \pmb{y}_k \rVert_2 \leq \frac{1}{2} \ (\frac{1}{2} - \varepsilon_B)$.
 * `alpha` - source coefficients.
 * `f` - target evaluations.
 * `plan` - plan (C pointer).
@@ -293,12 +293,18 @@ function Base.setproperty!(P::FASTSUM, v::Symbol, val)
             if size(val)[1] != P.N
                 error("x has to be a Float64 vector of length N.")
             end
+            if maximum(val) > 0.25 - P.eps_B / 2
+                error("the maximal distance for points x_k to 0 is 0.25-eps_B/2")
+            end
         else # => D >1
             if typeof(val) != Array{Float64,2}
                 error("x has to be a Float64 matrix.")
             end
             if size(val)[1] != P.N || size(val)[2] != P.d
                 error("x has to be a Float64 matrix of size N.")
+            end
+            if maximum(norm.(eachrow(val))) > 0.25 - P.eps_B / 2
+                error("the maximal distance for points x_k to 0 is 0.25-eps_B/2")
             end
         end
 
@@ -321,12 +327,18 @@ function Base.setproperty!(P::FASTSUM, v::Symbol, val)
             if size(val)[1] != P.M
                 error("y has to be a Float64 vector of length M.")
             end
+            if maximum(val) > 0.25 - P.eps_B / 2
+                error("the maximal distance for points y_k to 0 is 0.25-eps_B/2")
+            end
         else # => D > 1
             if typeof(val) != Array{Float64,2}
                 error("y has to be a Float64 matrix.")
             end
             if size(val)[1] != P.M || size(val)[2] != P.d
                 error("y has to be a Float64 matrix of size M.")
+            end
+            if maximum(norm.(eachrow(val))) > 0.25 - P.eps_B / 2
+                error("the maximal distance for points y_k to 0 is 0.25-eps_B/2")
             end
         end
 

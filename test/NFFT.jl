@@ -8,8 +8,13 @@ p = NFFT(N, M)
 p.x = X
 p.fhat = fhat
 
+f3 = p * nfft_get_coefficient_array(fhat, p)
 
-NFFT3.nfft_trafo(p)
+L = nfft_get_LinearMap(collect(N), X)
+
+f4 = L * fhat
+
+NFFT3.trafo(p)
 f2 = p.f
 
 I = [[j; i; k] for k = -N[3]/2:N[3]/2-1, i = -N[2]/2:N[2]/2-1, j = -N[1]/2:N[1]/2-1]
@@ -26,12 +31,44 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
-NFFT3.nfft_adjoint(p)
+error_vector = f1 - f3
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
+
+error_vector = f1 - f4
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
+
+f3 = nfft_get_coefficient_vector(p' * p.f)
+
+f4 = L' * p.f
+
+NFFT3.adjoint(p)
 f2 = p.fhat
 
 f1 = F' * p.f
 
 error_vector = f1 - f2
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
+
+error_vector = f1 - f3
+E_2 = norm(error_vector) / norm(f1)
+E_infty = norm(error_vector, Inf) / norm(fhat, 1)
+
+@test E_2 < 10^(-10)
+@test E_infty < 10^(-10)
+
+error_vector = f1 - f4
 E_2 = norm(error_vector) / norm(f1)
 E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
@@ -56,3 +93,32 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
 @test_throws DomainError NFFT((-16, 8, 4), M, (18, 10, 6), Int32(8), f1_default, f2_default)
 
+NFFT3.finalize_plan(p)
+
+N = (16,)
+M = 100
+
+p2 = NFFT(N, M)
+
+@test_throws "NFFT not initialized." NFFT3.finalize_plan(p2)
+
+X = rand(3, M) .- 0.5
+
+@test_throws "type NFFT has no field X" p2.X = X
+
+N = (16,)
+M = 100
+
+p = NFFT(N, M)
+
+X = rand(M) .- 0.5
+fhat = rand(prod(N)) + im * rand(prod(N))
+
+p = NFFT(N, M)
+NFFT3.init(p)
+p.x = X
+p.fhat = fhat
+
+NFFT3.nfft_trafo(p)
+
+#@test_logs (:warn,"You can't modify the C pointer to the NFFT plan.") p.plan = p2.plan
