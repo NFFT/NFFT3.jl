@@ -235,7 +235,7 @@ function Base.getproperty(P::NFMT{D}, v::Symbol) where {D}
         for i = D-1:-1:1
             pv[i] = pv[i+1] * P.NFFT_struct.N[i+1]
             if (BASES[P.basis_vect[i+1]]>0)
-                pv[i] ÷= 2;
+                pv[i] ÷= 2
             end
         end
         fhat = zeros(ComplexF64, l)
