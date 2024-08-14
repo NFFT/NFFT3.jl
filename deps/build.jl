@@ -12,7 +12,11 @@ elseif Sys.isapple()
     ending = ".dylib"
 else
     glibcversion = "glibc2.40/"
-    if VersionNumber(unsafe_string(@ccall string(@__DIR__, path, "glibc-version.so").glibc_version()::Cstring)) < v"2.35"
+    if VersionNumber(
+        unsafe_string(
+            @ccall string(@__DIR__, path, "glibc-version.so").glibc_version()::Cstring
+        ),
+    ) < v"2.35"
         glibcversion = "glibc2.22/"
     end
 end
@@ -30,7 +34,7 @@ lib_path_nfct = string(@__DIR__, path, flag, glibcversion, "libnfctjulia", endin
 lib_path_nfst = string(@__DIR__, path, flag, glibcversion, "libnfstjulia", ending)
 lib_path_fastsum = string(@__DIR__, path, flag, glibcversion, "libfastsumjulia", ending)
 
-println( lib_path_nfft )
+println(lib_path_nfft)
 
 chmod(lib_path_nfft, filemode(lib_path_nfft) | 0o755)
 chmod(lib_path_nfct, filemode(lib_path_nfct) | 0o755)

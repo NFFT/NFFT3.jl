@@ -429,7 +429,7 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 """
 function nfmt_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
     N = size(fhat)
-    return vec(permutedims(fhat,length(N):-1:1))
+    return vec(permutedims(fhat, length(N):-1:1))
 end
 
 @doc raw"""
@@ -444,7 +444,10 @@ reshapes an coefficient vector returned from a linear map of the NFMT to an arra
 # See also
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
-function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{ComplexF64} where {D}
+function nfmt_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    P::NFMT{D},
+)::Array{ComplexF64} where {D}
     b = copy([P.N...])
     for (idx, s) in enumerate(P.basis_vect)
         if (BASES[s] > 0)
@@ -452,7 +455,7 @@ function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},P::NFMT{D})::Array{
         end
     end
     N = Tuple(b)
-    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
 end
 
 @doc raw"""
@@ -468,7 +471,11 @@ reshapes an coefficient vector returned from a linear map of the NFMT to an arra
 # See also
 [`NFMT{D}`](@ref), [`nfmt_get_LinearMap`](@ref)
 """
-function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64},basis_vect::NTuple{D,String})::Array{ComplexF64} where {D}
+function nfmt_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    N::Vector{Int64},
+    basis_vect::NTuple{D,String},
+)::Array{ComplexF64} where {D}
     b = copy(N)
     for (idx, s) in enumerate(basis_vect)
         if (BASES[s] > 0)
@@ -476,7 +483,7 @@ function nfmt_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64},ba
         end
     end
     N = Tuple(b)
-    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
 end
 
 @doc raw"""
@@ -485,7 +492,7 @@ end
 This function defines the multiplication of an NFMT plan with an coefficient array.
 """
 function Base.:*(plan::NFMT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
-    if !isdefined(plan.NFFT_struct,:x)
+    if !isdefined(plan.NFFT_struct, :x)
         error("x is not set.")
     end
     plan.fhat = nfmt_get_coefficient_vector(fhat)
@@ -514,7 +521,7 @@ end
 This function defines the multiplication of an adjoint NFMT plan with an vector of function values.
 """
 function Base.:*(plan::Adjoint_NFMT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
-    if !isdefined(plan.plan.NFFT_struct,:x)
+    if !isdefined(plan.plan.NFFT_struct, :x)
         error("x is not set.")
     end
     plan.plan.f = f

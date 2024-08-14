@@ -103,14 +103,14 @@ end
 
 # additional constructor for easy use [NFFT((N,N),M) instead of NFFT{2}((N,N),M)]
 function NFFT(
-    N::NTuple{D,Integer}, 
+    N::NTuple{D,Integer},
     M::Integer;
     m::Integer = Int32(default_window_cut_off),
     f1::UInt32 = (D > 1 ? f1_default : f1_default_1d),
     f2::UInt32 = f2_default,
 ) where {D}
     if any(x -> x <= 0, N)
-        throw(DomainError(N, "argument must be a positive integer")) 
+        throw(DomainError(N, "argument must be a positive integer"))
     end
 
     # convert N to vector for passing it over to C
@@ -561,7 +561,7 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 """
 function nfft_get_coefficient_vector(fhat::Array{ComplexF64})::Vector{ComplexF64}
     N = size(fhat)
-    return vec(permutedims(fhat,length(N):-1:1))
+    return vec(permutedims(fhat, length(N):-1:1))
 end
 
 @doc raw"""
@@ -576,8 +576,11 @@ reshapes an coefficient vector returned from a linear map of the NFFT to an arra
 # See also
 [`NFFT{D}`](@ref), [`nfft_get_LinearMap`](@ref)
 """
-function nfft_get_coefficient_array(fhat::Vector{ComplexF64},P::NFFT{D})::Array{ComplexF64} where {D}
-    return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
+function nfft_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    P::NFFT{D},
+)::Array{ComplexF64} where {D}
+    return permutedims(reshape(fhat, reverse(P.N)), length(P.N):-1:1)
 end
 
 @doc raw"""
@@ -592,7 +595,10 @@ reshapes an coefficient vector returned from a linear map of the NFFT to an arra
 # See also
 [`NFFT{D}`](@ref), [`nfft_get_LinearMap`](@ref)
 """
-function nfft_get_coefficient_array(fhat::Vector{ComplexF64},N::Vector{Int64})::Array{ComplexF64}
+function nfft_get_coefficient_array(
+    fhat::Vector{ComplexF64},
+    N::Vector{Int64},
+)::Array{ComplexF64}
     N = Tuple(N)
     return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
 end
@@ -603,7 +609,7 @@ end
 This function defines the multiplication of an NFFT plan with an coefficient array.
 """
 function Base.:*(plan::NFFT{D}, fhat::Array{ComplexF64})::Vector{ComplexF64} where {D}
-    if !isdefined(plan,:x)
+    if !isdefined(plan, :x)
         error("x is not set.")
     end
     plan.fhat = nfft_get_coefficient_vector(fhat)
@@ -632,7 +638,7 @@ end
 This function defines the multiplication of an adjoint NFFT plan with an vector of function values.
 """
 function Base.:*(plan::Adjoint_NFFT{D}, f::Vector{ComplexF64})::Array{ComplexF64} where {D}
-    if !isdefined(plan.plan,:x)
+    if !isdefined(plan.plan, :x)
         error("x is not set.")
     end
     plan.plan.f = f

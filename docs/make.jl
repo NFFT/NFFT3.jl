@@ -7,11 +7,13 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "About" => "about.md",
-        "Transformations" =>
-            ["NFFT" => "NFFT.md", "NFST" => "NFST.md", "NFCT" => "NFCT.md", "NFMT" => "NFMT.md"],
-        "Applications" =>
-            ["fastsum" => "fastsum.md",],
-        "Flags" => "Flags.md",
+        "Transformations" => [
+            "NFFT" => "NFFT.md",
+            "NFST" => "NFST.md",
+            "NFCT" => "NFCT.md",
+            "NFMT" => "NFMT.md",
+        ],
+        "Applications" => ["fastsum" => "fastsum.md"],
     ],
 )
 

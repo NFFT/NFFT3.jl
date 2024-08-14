@@ -561,7 +561,7 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 """
 function nfct_get_coefficient_vector(fhat::Array{Float64})::Vector{Float64}
     N = size(fhat)
-    return vec(permutedims(fhat,length(N):-1:1))
+    return vec(permutedims(fhat, length(N):-1:1))
 end
 
 @doc raw"""
@@ -576,8 +576,11 @@ reshapes an coefficient vector returned from a linear map of the NFCT to an arra
 # See also
 [`NFCT{D}`](@ref), [`nfct_get_LinearMap`](@ref)
 """
-function nfct_get_coefficient_array(fhat::Vector{Float64},P::NFCT{D})::Array{Float64} where {D}
-    return permutedims(reshape(fhat,reverse(P.N)),length(P.N):-1:1)
+function nfct_get_coefficient_array(
+    fhat::Vector{Float64},
+    P::NFCT{D},
+)::Array{Float64} where {D}
+    return permutedims(reshape(fhat, reverse(P.N)), length(P.N):-1:1)
 end
 
 @doc raw"""
@@ -592,9 +595,9 @@ reshapes an coefficient vector returned from a linear map of the NFCT to an arra
 # See also
 [`NFCT{D}`](@ref), [`nfct_get_LinearMap`](@ref)
 """
-function nfct_get_coefficient_array(fhat::Vector{Float64},N::Vector{Int64})::Array{Float64}
+function nfct_get_coefficient_array(fhat::Vector{Float64}, N::Vector{Int64})::Array{Float64}
     N = Tuple(N)
-    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
 end
 
 @doc raw"""
@@ -603,7 +606,7 @@ end
 This function defines the multiplication of an NFCT plan with an coefficient array.
 """
 function Base.:*(plan::NFCT{D}, fhat::Array{Float64})::Vector{Float64} where {D}
-    if !isdefined(plan,:x)
+    if !isdefined(plan, :x)
         error("x is not set.")
     end
     plan.fhat = nfct_get_coefficient_vector(fhat)
@@ -632,7 +635,7 @@ end
 This function defines the multiplication of an adjoint NFCT plan with an vector of function values.
 """
 function Base.:*(plan::Adjoint_NFCT{D}, f::Vector{Float64})::Array{Float64} where {D}
-    if !isdefined(plan.plan,:x)
+    if !isdefined(plan.plan, :x)
         error("x is not set.")
     end
     plan.plan.f = f

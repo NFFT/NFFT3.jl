@@ -547,7 +547,7 @@ reshapes an coefficient array to an vector for multiplication with the linear ma
 """
 function nfst_get_coefficient_vector(fhat::Array{Float64})::Vector{Float64}
     N = size(fhat)
-    return vec(permutedims(fhat,length(N):-1:1))
+    return vec(permutedims(fhat, length(N):-1:1))
 end
 
 @doc raw"""
@@ -562,9 +562,12 @@ reshapes an coefficient vector returned from a linear map of the NFST to an arra
 # See also
 [`NFST{D}`](@ref), [`nfst_get_LinearMap`](@ref)
 """
-function nfst_get_coefficient_array(fhat::Vector{Float64},P::NFST{D})::Array{Float64} where {D}
+function nfst_get_coefficient_array(
+    fhat::Vector{Float64},
+    P::NFST{D},
+)::Array{Float64} where {D}
     N = P.N .- 1
-    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
 end
 
 @doc raw"""
@@ -580,8 +583,8 @@ reshapes an coefficient vector returned from a linear map of the NFST to an arra
 [`NFST{D}`](@ref), [`nfst_get_LinearMap`](@ref)
 """
 function nfst_get_coefficient_array(fhat::Vector{Float64},N::Vector{Int64})::Array{Float64}
-    N = Tuple(N.-1)
-    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+    N = Tuple(N .- 1)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
 end
 
 @doc raw"""
@@ -619,7 +622,7 @@ end
 This function defines the multiplication of an adjoint NFST plan with an vector of function values.
 """
 function Base.:*(plan::Adjoint_NFST{D}, f::Vector{Float64})::Array{Float64} where {D}
-    if !isdefined(plan.plan,:x)
+    if !isdefined(plan.plan, :x)
         error("x is not set.")
     end
     plan.plan.f = f
