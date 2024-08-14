@@ -8,9 +8,9 @@ p = NFCT(N, M)
 p.x = X
 p.fhat = fhat
 
-f3 = p * nfct_get_coefficient_array(fhat,p)
+f3 = p * nfct_get_coefficient_array(fhat, p)
 
-L = nfct_get_LinearMap(collect(N),X)
+L = nfct_get_LinearMap(collect(N), X)
 
 f4 = L * fhat
 

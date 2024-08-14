@@ -582,7 +582,7 @@ reshapes an coefficient vector returned from a linear map of the NFST to an arra
 # See also
 [`NFST{D}`](@ref), [`nfst_get_LinearMap`](@ref)
 """
-function nfst_get_coefficient_array(fhat::Vector{Float64},N::Vector{Int64})::Array{Float64}
+function nfst_get_coefficient_array(fhat::Vector{Float64}, N::Vector{Int64})::Array{Float64}
     N = Tuple(N .- 1)
     return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
 end
@@ -593,7 +593,7 @@ end
 This function defines the multiplication of an NFST plan with an coefficient array.
 """
 function Base.:*(plan::NFST{D}, fhat::Array{Float64})::Vector{Float64} where {D}
-    if !isdefined(plan,:x)
+    if !isdefined(plan, :x)
         error("x is not set.")
     end
     plan.fhat = nfst_get_coefficient_vector(fhat)

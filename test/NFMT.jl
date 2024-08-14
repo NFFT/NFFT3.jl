@@ -65,9 +65,9 @@ p = NFMT(basis_vect, N, M)
 p.x = X
 p.fhat = fhat
 
-f3 = p * nfmt_get_coefficient_array(fhat,p)
+f3 = p * nfmt_get_coefficient_array(fhat, p)
 
-L = nfmt_get_LinearMap(basis_vect,collect(N),X)
+L = nfmt_get_LinearMap(basis_vect,collect(N), X)
 
 f4 = L * fhat
 

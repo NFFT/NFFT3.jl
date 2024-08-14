@@ -600,7 +600,7 @@ function nfft_get_coefficient_array(
     N::Vector{Int64},
 )::Array{ComplexF64}
     N = Tuple(N)
-    return permutedims(reshape(fhat,reverse(N)),length(N):-1:1)
+    return permutedims(reshape(fhat, reverse(N)), length(N):-1:1)
 end
 
 @doc raw"""

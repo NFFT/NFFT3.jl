@@ -8,9 +8,9 @@ p = NFST(N, M)
 p.x = X
 p.fhat = fhat
 
-f3 = p * nfst_get_coefficient_array(fhat,p)
+f3 = p * nfst_get_coefficient_array(fhat, p)
 
-L = nfst_get_LinearMap(collect(N),X)
+L = nfst_get_LinearMap(collect(N), X)
 
 f4 = L * fhat
 

@@ -8,9 +8,9 @@ p = NFFT(N, M)
 p.x = X
 p.fhat = fhat
 
-f3 = p * nfft_get_coefficient_array(fhat,p)
+f3 = p * nfft_get_coefficient_array(fhat, p)
 
-L = nfft_get_LinearMap(collect(N),X)
+L = nfft_get_LinearMap(collect(N), X)
 
 f4 = L * fhat
 
@@ -122,4 +122,3 @@ p.fhat = fhat
 NFFT3.nfft_trafo(p)
 
 #@test_logs (:warn,"You can't modify the C pointer to the NFFT plan.") p.plan = p2.plan
-
