@@ -22,7 +22,8 @@ else
     # Julia 1.13 requires @ccall library names to be Symbols, not runtime
     # expressions such as string(...). Use ccall with a String path instead.
     glibc_probe = string(@__DIR__, path, "glibc-version.so")
-    if VersionNumber(unsafe_string(ccall((:glibc_version, glibc_probe), Cstring, ()))) < v"2.35"
+    if VersionNumber(unsafe_string(ccall((:glibc_version, glibc_probe), Cstring, ()))) <
+       v"2.35"
         glibcversion = "glibc2.22/"
     end
 end
