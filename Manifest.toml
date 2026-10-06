@@ -90,9 +90,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LinearMaps]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "ee79c3208e55786de58f8dcccca098ced79f743f"
+git-tree-sha1 = "7f6be2e4cdaaf558623d93113d6ddade7b916209"
 uuid = "7a12625a-238d-50fd-b39a-03d52299707e"
-version = "3.11.3"
+version = "3.11.4"
 
     [deps.LinearMaps.extensions]
     LinearMapsChainRulesCoreExt = "ChainRulesCore"
