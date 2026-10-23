@@ -19,16 +19,17 @@ elseif Sys.isapple()
     ending = ".dylib"
 else
     glibcversion = "glibc2.40/"
-    if VersionNumber(
-        unsafe_string(
-            @ccall string(@__DIR__, path, "glibc-version.so").glibc_version()::Cstring
-        ),
-    ) < v"2.35"
+    glibc = VersionNumber(unsafe_string(@ccall gnu_get_libc_version()::Cstring))
+    # the glibc2.40 builds need glibc 2.35 (x86_64) or glibc 2.40 (ARM64)
+    if glibc < (Sys.ARCH === :aarch64 ? v"2.40" : v"2.35")
         glibcversion = "glibc2.22/"
     end
 end
 
-if cpufeature(:AVX2)
+# ARM64 (Linux aarch64, Windows ARM64, Apple Silicon) has a single build
+if Sys.ARCH === :aarch64
+    flag = "ARM64/"
+elseif cpufeature(:AVX2)
     flag = "AVX2/"
 elseif cpufeature(:AVX)
     flag = "AVX/"
