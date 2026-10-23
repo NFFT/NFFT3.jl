@@ -293,7 +293,7 @@ function Base.setproperty!(P::FASTSUM, v::Symbol, val)
             if size(val)[1] != P.N
                 error("x has to be a Float64 vector of length N.")
             end
-            if maximum(val) > 0.25 - P.eps_B / 2
+            if maximum(abs.(val)) > 0.25 - P.eps_B / 2
                 error("the maximal distance for points x_k to 0 is 0.25-eps_B/2")
             end
         else # => D >1
@@ -327,7 +327,7 @@ function Base.setproperty!(P::FASTSUM, v::Symbol, val)
             if size(val)[1] != P.M
                 error("y has to be a Float64 vector of length M.")
             end
-            if maximum(val) > 0.25 - P.eps_B / 2
+            if maximum(abs.(val)) > 0.25 - P.eps_B / 2
                 error("the maximal distance for points y_k to 0 is 0.25-eps_B/2")
             end
         else # => D > 1
