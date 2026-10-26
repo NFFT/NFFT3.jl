@@ -11,6 +11,8 @@ makedocs(
             "NFFT" => "NFFT.md",
             "NFST" => "NFST.md",
             "NFCT" => "NFCT.md",
+            "NFSFT" => "NFSFT.md",
+            "FSFT" => "FSFT.md",
             "NFMT" => "NFMT.md",
         ],
         "Applications" => ["fastsum" => "fastsum.md"],
