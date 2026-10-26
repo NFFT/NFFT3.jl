@@ -19,11 +19,11 @@ elseif Sys.isapple()
     ending = ".dylib"
 else
     glibcversion = "glibc2.40/"
-    if VersionNumber(
-        unsafe_string(
-            @ccall string(@__DIR__, path, "glibc-version.so").glibc_version()::Cstring
-        ),
-    ) < v"2.35"
+    # Julia 1.13 requires @ccall library names to be Symbols, not runtime
+    # expressions such as string(...). Use ccall with a String path instead.
+    glibc_probe = string(@__DIR__, path, "glibc-version.so")
+    if VersionNumber(unsafe_string(ccall((:glibc_version, glibc_probe), Cstring, ()))) <
+       v"2.35"
         glibcversion = "glibc2.22/"
     end
 end
