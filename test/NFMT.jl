@@ -100,6 +100,59 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
 
+# --- real-valued backend: when every dimension is cos/alg (no exp
+# --- dimension) and fhat/f is a real Float64 array, NFMT realises the mixed
+# --- transform with a plain NFCT instead of an NFFT (half the data, real
+# --- arithmetic throughout) - see _nfmt_all_cos_alg()/_nfmt_ensure_backend!
+# --- in src/NFMT.jl. A complex fhat on the same basis_vect still uses the
+# --- general NFFT path, and a plan that already picked the NFCT backend
+# --- must reject complex data afterwards.
+N_real = (8, 4)
+basis_real = ("cos", "alg")
+M_real = 60
+
+X_real = rand(2, M_real)
+a_real = sum(getindex.([NFFT3.BASES], basis_real) .> 0)
+nf_real = prod(N_real) ÷ (2^a_real)
+fhat_real = rand(nf_real)
+
+plan_real = NFMT(basis_real, N_real, M_real)
+plan_real.x = X_real
+plan_real.fhat = fhat_real
+@test plan_real.backend isa NFCT{2}
+
+F_real = getMat(N_real, M_real, X_real, basis_real)
+f1_real = real.(F_real * complex.(fhat_real))
+
+nfmt_trafo(plan_real)
+@test eltype(plan_real.f) == Float64
+@test norm(plan_real.f - f1_real) / norm(f1_real) < 10^(-6)
+
+NFFT3.nfmt_trafo_direct(plan_real)
+@test norm(plan_real.f - f1_real) / norm(f1_real) < 10^(-9)
+
+f1_real_adj = real.(F_real' * complex.(plan_real.f))
+
+nfmt_adjoint(plan_real)
+@test eltype(plan_real.fhat) == Float64
+@test norm(plan_real.fhat - f1_real_adj) / norm(f1_real_adj) < 10^(-6)
+
+NFFT3.nfmt_adjoint_direct(plan_real)
+@test norm(plan_real.fhat - f1_real_adj) / norm(f1_real_adj) < 10^(-9)
+
+# complex fhat on an all-cos/alg basis_vect still uses the NFFT backend
+plan_mixed_dtype = NFMT(basis_real, N_real, M_real)
+plan_mixed_dtype.x = X_real
+fhat_complex = rand(nf_real) + im * rand(nf_real)
+plan_mixed_dtype.fhat = fhat_complex
+@test plan_mixed_dtype.backend isa NFFT{2}
+nfmt_trafo(plan_mixed_dtype)
+f1_complex = F_real * fhat_complex
+@test norm(plan_mixed_dtype.f - f1_complex) / norm(f1_complex) < 10^(-6)
+
+# once a plan has picked the real NFCT backend, complex data must be rejected
+@test_throws ErrorException (plan_real.fhat = fhat_complex)
+
 f3 = nfmt_get_coefficient_vector(p' * p.f)
 
 f4 = L' * p.f

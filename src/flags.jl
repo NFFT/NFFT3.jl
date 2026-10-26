@@ -194,7 +194,140 @@ f1_default = UInt32(
 f2_default = UInt32(FFTW_ESTIMATE | FFTW_DESTROY_INPUT)
 
 # default window cut off
-default_window_cut_off = 
+default_window_cut_off =
     ccall(("nfft_get_default_window_cut_off", lib_path_nfft), Int64, ())
 
 BASES = Dict("exp"=>0,"cos"=>1,"alg"=>2)
+
+# NFSFT flags
+@doc raw"""
+    NFSFT_NORMALIZED
+
+multiply Fourier coefficients with normalization weight.
+"""
+NFSFT_NORMALIZED = UInt32(1) << 0
+@doc raw"""
+    NFSFT_USE_NDFT
+
+the fast NFSFT algorithms will use internally the exact but usually slower direct NDFT algorithm in favor of the fast but approximative NFFT algorithm.
+"""
+NFSFT_USE_NDFT = UInt32(1) << 1
+@doc raw"""
+    NFSFT_USE_DPT
+
+the fast NFSFT algorithms will use internally the usually slower direct DPT algorithm in favor of the fast FPT algorithm.
+"""
+NFSFT_USE_DPT = UInt32(1) << 2
+@doc raw"""
+    NFSFT_MALLOC_X
+
+the init methods will allocate memory and nfsft_finalize will free the array x.
+"""
+NFSFT_MALLOC_X = UInt32(1) << 3
+@doc raw"""
+    NFSFT_MALLOC_F_HAT
+
+the init methods will allocate memory and nfsft_finalize will free the array fhat.
+"""
+NFSFT_MALLOC_F_HAT = UInt32(1) << 5
+@doc raw"""
+    NFSFT_MALLOC_F
+
+the init methods will allocate memory and nfsft_finalize will free the array f.
+"""
+NFSFT_MALLOC_F = UInt32(1) << 6
+@doc raw"""
+    NFSFT_PRESERVE_F_HAT
+
+guarantee that during an execution of nfsft_trafo_direct or nfsft_trafo, the content of fhat remains unchanged.
+"""
+NFSFT_PRESERVE_F_HAT = UInt32(1) << 7
+@doc raw"""
+    NFSFT_PRESERVE_X
+
+guarantee that during an execution of nfsft_trafo_direct, nfsft_trafo, nfsft_adjoint_direct or nfsft_adjoint, the content of x remains unchanged.
+"""
+NFSFT_PRESERVE_X = UInt32(1) << 8
+@doc raw"""
+    NFSFT_PRESERVE_F
+
+guarantee that during an execution of nfsft_adjoint_direct or nfsft_adjoint, the content of f remains unchanged.
+"""
+NFSFT_PRESERVE_F = UInt32(1) << 9
+@doc raw"""
+    NFSFT_DESTROY_F_HAT
+
+explicitly allow that during an execution of nfsft_trafo_direct or nfsft_trafo, the content of fhat may be changed.
+"""
+NFSFT_DESTROY_F_HAT = UInt32(1) << 10
+@doc raw"""
+    NFSFT_DESTROY_X
+
+explicitly allow that during an execution of nfsft_trafo_direct, nfsft_trafo, nfsft_adjoint_direct or nfsft_adjoint, the content of x may be changed.
+"""
+NFSFT_DESTROY_X = UInt32(1) << 11
+@doc raw"""
+    NFSFT_DESTROY_F
+
+explicitly allow that during an execution of nfsft_adjoint_direct or nfsft_adjoint, the content of f may be changed.
+"""
+NFSFT_DESTROY_F = UInt32(1) << 12
+@doc raw"""
+    NFSFT_NO_DIRECT_ALGORITHM
+
+the transforms nfsft_trafo_direct and nfsft_adjoint_direct do not work, saving some memory for precomputed data.
+"""
+NFSFT_NO_DIRECT_ALGORITHM = UInt32(1) << 13
+@doc raw"""
+    NFSFT_NO_FAST_ALGORITHM
+
+the transforms nfsft_trafo and nfsft_adjoint do not work, saving memory for precomputed data.
+"""
+NFSFT_NO_FAST_ALGORITHM = UInt32(1) << 14
+@doc raw"""
+    NFSFT_ZERO_F_HAT
+
+the transforms nfsft_adjoint and nfsft_adjoint_direct set all unused entries in fhat not corresponding to spherical Fourier coefficients to zero.
+"""
+NFSFT_ZERO_F_HAT = UInt32(1) << 16
+@doc raw"""
+    NFSFT_EQUISPACED
+
+use the equispaced FFT (FSFT) instead of the NFFT.
+"""
+NFSFT_EQUISPACED = UInt32(1) << 17
+
+@doc raw"""
+    nfsft_default
+
+Default NFSFT flags.
+
+Note: without NFSFT_PRESERVE_F_HAT (not part of this default), the
+underlying C library's fast nfsft_trafo() overwrites the plan's fhat buffer
+in place with internal FPT/FFT scratch data as a side effect (it treats
+fhat as reusable workspace unless told to copy it first) - so fhat no
+longer holds the original coefficients after a trafo() call. This is
+expected behaviour of the underlying library, not a bug; pass
+NFSFT_PRESERVE_F_HAT explicitly if you need fhat to survive a trafo() call.
+See kernel/nfsft/nfsft.c in the NFFT/nfft repository (jnfsft_trafo ->
+nfsft_trafo) for the underlying code.
+"""
+nfsft_default = UInt32(NFSFT_MALLOC_X | NFSFT_MALLOC_F | NFSFT_MALLOC_F_HAT)
+@doc raw"""
+    nfsft_nfft_default
+
+Default NFFT flags for NFSFT calculations.
+"""
+nfsft_nfft_default = UInt32(PRE_PHI_HUT | PRE_PSI | FFTW_INIT | NFFT_OMP_BLOCKWISE_ADJOINT)
+@doc raw"""
+    nfsft_default_nfft_cut_off
+
+The default NFFT cutoff parameter for NFSFT calculations.
+"""
+nfsft_default_nfft_cut_off = 6
+@doc raw"""
+    nfsft_default_threshold
+
+The default threshold for the FPT.
+"""
+nfsft_default_threshold = 1000
