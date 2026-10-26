@@ -5,6 +5,7 @@ module NFFT3
 
 using Aqua
 using CpuId
+using Libdl
 using LinearAlgebra
 using LinearMaps
 
@@ -17,13 +18,6 @@ if Sys.iswindows()
     path = "\\lib\\"
 elseif Sys.isapple()
     ending = ".dylib"
-else
-    glibcversion = "glibc2.40/"
-    glibc = VersionNumber(unsafe_string(@ccall gnu_get_libc_version()::Cstring))
-    # the glibc2.40 builds need glibc 2.35 (x86_64) or glibc 2.40 (ARM64)
-    if glibc < (Sys.ARCH === :aarch64 ? v"2.40" : v"2.35")
-        glibcversion = "glibc2.22/"
-    end
 end
 
 # ARM64 (Linux aarch64, Windows ARM64, Apple Silicon) has a single build
@@ -35,6 +29,24 @@ elseif cpufeature(:AVX)
     flag = "AVX/"
 else
     flag = "SSE2/"
+end
+
+if !Sys.iswindows() && !Sys.isapple()
+    # Try the newer (glibc2.40) build first, falling back to glibc2.22 if it
+    # fails to load on this system. This replaces an earlier approach that
+    # guessed from the host's reported glibc *version number* (comparing it
+    # against a hardcoded floor), which doesn't actually verify the chosen
+    # build loads - any mismatch between that floor and what the build was
+    # really compiled against picks the wrong one and fails at import with
+    # an unhelpful "GLIBC_x.y not found" error instead of falling back.
+    glibcversion = "glibc2.40/"
+    probe_path = string(@__DIR__, path, flag, glibcversion, "libnfftjulia", ending)
+    handle = Libdl.dlopen(probe_path; throw_error = false)
+    if handle === nothing
+        glibcversion = "glibc2.22/"
+    else
+        Libdl.dlclose(handle)
+    end
 end
 
 lib_path_nfft = string(@__DIR__, path, flag, glibcversion, "libnfftjulia", ending)
