@@ -72,6 +72,12 @@ mutable struct NFMT{D}
     f2::UInt32
     backend::Union{Nothing,NFFT{D},NFCT{D}}
     x_raw::Union{Nothing,Array{Float64}}
+    # Only meaningful for the NFCT backend (see _nfmt_cos_alg_scale): whether
+    # backend.fhat currently holds a raw adjoint() result (needs *scale to
+    # become mixed-basis coefficients) or a value written by the :fhat setter
+    # (needs /scale to recover what was assigned) - the two are related by
+    # scale^2, not equal, so the getter cannot tell them apart without this.
+    fhat_from_adjoint::Bool
     function NFMT{D}(
         basis_vect::NTuple{D,String},
         N::NTuple{D,Int32},
@@ -89,10 +95,23 @@ mutable struct NFMT{D}
                 error("Unknown basis '$s'. Allowed: $(collect(keys(BASES)))")
             end
         end
+        # N ∈ (2N)^D is a hard invariant of the mixed transform itself (see
+        # the struct docstring), not just of whichever backend ends up being
+        # picked - the old NFMT always built an eagerly-constructed NFFT{D}
+        # that enforced this (NFFT{D}'s own constructor checks N positive and
+        # even), which the lazy backend selection below bypasses. In
+        # particular the NFCT backend's own check (N/2 must be even) does not
+        # catch an odd N on its own, e.g. N=5 gives N÷2=2 which passes.
+        if any(x -> x <= 0, N)
+            throw(DomainError(N, "argument must be a positive integer"))
+        end
+        if sum(N .% 2) != 0
+            throw(DomainError(N, "argument must be an even integer"))
+        end
         if M <= 0
             throw(DomainError(M, "argument must be a positive integer"))
         end
-        new(basis_vect, N, M, n, m, f1, f2, nothing, nothing)
+        new(basis_vect, N, M, n, m, f1, f2, nothing, nothing, false)
     end
 end
 
@@ -105,21 +124,21 @@ function NFMT(
     f1::UInt32 = (D > 1 ? NFFT3.f1_default : NFFT3.f1_default_1d),
     f2::UInt32 = NFFT3.f2_default,
 ) where {D}
-    NFMT{D}(
-        basis_vect,
-        NTuple{D,Int32}(N),
-        Int32(M),
-        NTuple{D,Int32}(n),
-        Int32(m),
-        f1,
-        f2,
-    )
+    NFMT{D}(basis_vect, NTuple{D,Int32}(N), Int32(M), NTuple{D,Int32}(n), Int32(m), f1, f2)
 end
 
 # additional constructor for easy use [NFMT(basis_vect,N,M) instead of NFMT{2}(basis_vect,N,M)]
 function NFMT(basis_vect::NTuple{D,String}, N::NTuple{D,Integer}, M::Integer) where {D}
     f1 = D > 1 ? NFFT3.f1_default : NFFT3.f1_default_1d
-    NFMT{D}(basis_vect, NTuple{D,Int32}(N), Int32(M), nothing, Int32(8), f1, NFFT3.f2_default)
+    NFMT{D}(
+        basis_vect,
+        NTuple{D,Int32}(N),
+        Int32(M),
+        nothing,
+        Int32(8),
+        f1,
+        NFFT3.f2_default,
+    )
 end
 
 @doc raw"""
@@ -237,7 +256,7 @@ _nfmt_reduced_size(N::NTuple{D,Int32}, basis_vect) where {D} =
 function _nfmt_strides(N::NTuple{D,Int32}, basis_vect; reduced::Bool) where {D}
     pv = zeros(Int64, D)
     pv[D] = 1
-    for i = D-1:-1:1
+    for i = (D-1):-1:1
         pv[i] = pv[i+1] * N[i+1]
         if reduced && BASES[basis_vect[i+1]] > 0
             pv[i] ÷= 2
@@ -250,7 +269,13 @@ end
 # returning (idx_red, e, valid): the matching 1-based index into the reduced
 # array, the exponent for the sqrt(2)^e normalisation factor, and whether i
 # corresponds to a Nyquist frequency that has no reduced counterpart.
-function _nfmt_decode_full_index(i::Int, N::NTuple{D,Int32}, basis_vect, pv_exp, pv_red) where {D}
+function _nfmt_decode_full_index(
+    i::Int,
+    N::NTuple{D,Int32},
+    basis_vect,
+    pv_exp,
+    pv_red,
+) where {D}
     idx = 1
     e = 0
     for j = 1:D
@@ -270,7 +295,11 @@ function _nfmt_decode_full_index(i::Int, N::NTuple{D,Int32}, basis_vect, pv_exp,
     return idx, e, true
 end
 
-function _nfmt_expand_reduced_to_full(fhat_reduced, N::NTuple{D,Int32}, basis_vect) where {D}
+function _nfmt_expand_reduced_to_full(
+    fhat_reduced,
+    N::NTuple{D,Int32},
+    basis_vect,
+) where {D}
     p = prod(N)
     pv_exp = _nfmt_strides(N, basis_vect; reduced = false)
     pv_red = _nfmt_strides(N, basis_vect; reduced = true)
@@ -335,14 +364,12 @@ function Base.setproperty!(P::NFMT{D}, v::Symbol, val) where {D}
             error("fhat has to be a vector of size $nf.")
         end
         if P.backend isa NFFT{D}
-            P.backend.fhat = _nfmt_expand_reduced_to_full(
-                ComplexF64.(val),
-                P.N,
-                P.basis_vect,
-            )
+            P.backend.fhat =
+                _nfmt_expand_reduced_to_full(ComplexF64.(val), P.N, P.basis_vect)
         else
             scale = _nfmt_cos_alg_scale(P.N, P.basis_vect)
             P.backend.fhat = Float64.(val) .* scale
+            Core.setfield!(P, :fhat_from_adjoint, false)
         end
     elseif v == :f
         want_complex = eltype(val) <: Complex
@@ -387,7 +414,19 @@ function Base.getproperty(P::NFMT{D}, v::Symbol) where {D}
         if P.backend isa NFFT{D}
             return _nfmt_reduce_full_to_reduced(P.backend.fhat, P.N, P.basis_vect)
         else
-            return P.backend.fhat .* _nfmt_cos_alg_scale(P.N, P.basis_vect)
+            # The NFCT backend stores a single value per reduced index (no
+            # +-k folding like NFFT, see _nfmt_cos_alg_scale), so - unlike
+            # the NFFT branch above - *scale and /scale are not mutually
+            # inverse: a value just written by the :fhat setter needs /scale
+            # to recover it, while a raw nfct_adjoint() output needs *scale
+            # to become mixed-basis coefficients. fhat_from_adjoint records
+            # which of the two backend.fhat currently holds.
+            scale = _nfmt_cos_alg_scale(P.N, P.basis_vect)
+            if P.fhat_from_adjoint
+                return P.backend.fhat .* scale
+            else
+                return P.backend.fhat ./ scale
+            end
         end
     else
         return Core.getfield(P, v)
@@ -434,6 +473,7 @@ function nfmt_adjoint(P::NFMT{D}) where {D}
         nfft_adjoint(P.backend)
     else
         nfct_transposed(P.backend)
+        Core.setfield!(P, :fhat_from_adjoint, true)
     end
     return P.fhat
 end
@@ -482,6 +522,7 @@ function nfmt_adjoint_direct(P::NFMT{D}) where {D}
         nfft_adjoint_direct(P.backend)
     else
         nfct_transposed_direct(P.backend)
+        Core.setfield!(P, :fhat_from_adjoint, true)
     end
     return P.fhat
 end
