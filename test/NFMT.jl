@@ -2,7 +2,11 @@ using LinearAlgebra
 using Test
 using NFFT3
 
-function getphi(basis_vect::NTuple{D,String}, x::Vector{Float64}, k::Vector{Int64})::ComplexF64 where {D}
+function getphi(
+    basis_vect::NTuple{D,String},
+    x::Vector{Float64},
+    k::Vector{Int64},
+)::ComplexF64 where {D}
     p = 1
     for (idx, s) in enumerate(basis_vect)
         if (NFFT3.BASES[s]==1)
@@ -20,28 +24,32 @@ function getphi(basis_vect::NTuple{D,String}, x::Vector{Float64}, k::Vector{Int6
     return p
 end
 
-function getMat(N::NTuple{D,Integer},M::Integer, x
-    ::Array{Float64},basis_vect::NTuple{D,String}) where {D}
-    a = sum(getindex.([NFFT3.BASES],basis_vect).>0)
+function getMat(
+    N::NTuple{D,Integer},
+    M::Integer,
+    x::Array{Float64},
+    basis_vect::NTuple{D,String},
+) where {D}
+    a = sum(getindex.([NFFT3.BASES], basis_vect) .> 0)
     p = prod(N)
     n = p÷(2^a)
     X = copy(x)
 
-    F = [getphi(basis_vect,X[:, j], getk(basis_vect,N,l)) for j = 1:M, l = 1:n]
+    F = [getphi(basis_vect, X[:, j], getk(basis_vect, N, l)) for j = 1:M, l = 1:n]
     return F
-end 
+end
 
-function getk(basis_vect::NTuple{D,String},N::NTuple{D,Integer}, i::Int64) where {D}
+function getk(basis_vect::NTuple{D,String}, N::NTuple{D,Integer}, i::Int64) where {D}
     k = zeros(Int64, D)
     pv = zeros(Int64, D)
     pv[D] = 1
-    for i = D-1:-1:1
+    for i = (D-1):-1:1
         pv[i] = pv[i+1] * N[i+1]
         if (NFFT3.BASES[basis_vect[i+1]]>0)
-            pv[i] ÷= 2;
+            pv[i] ÷= 2
         end
     end
-    for j=1:D
+    for j = 1:D
         if (NFFT3.BASES[basis_vect[j]]>0)
             k[j] = ((i - 1) ÷ pv[j]) % (N[j] ÷ 2)
         else
@@ -51,12 +59,12 @@ function getk(basis_vect::NTuple{D,String},N::NTuple{D,Integer}, i::Int64) where
     return k
 end
 
-N    = (20,    8,    12,   4)
+N = (20, 8, 12, 4)
 basis_vect = ("exp", "alg", "cos", "alg")
 M = 100
 
 X = rand(4, M)
-a = sum(getindex.([NFFT3.BASES],basis_vect).>0)
+a = sum(getindex.([NFFT3.BASES], basis_vect) .> 0)
 p = prod(N)
 l = p÷(2^a)
 fhat = rand(prod(l)) + im * rand(prod(l))
@@ -75,7 +83,7 @@ f4 = L * fhat
 nfmt_trafo(p)
 f2 = p.f
 
-F = getMat(N, M, X,basis_vect)
+F = getMat(N, M, X, basis_vect)
 
 f1 = F * fhat
 
@@ -120,6 +128,13 @@ plan_real = NFMT(basis_real, N_real, M_real)
 plan_real.x = X_real
 plan_real.fhat = fhat_real
 @test plan_real.backend isa NFCT{2}
+
+# Regression test: reading fhat right back after setting it must return what
+# was assigned - the NFCT backend stores it internally pre-scaled by
+# _nfmt_cos_alg_scale (see _nfmt_ensure_backend!/the :fhat setter), and the
+# getter has to invert exactly that scale, not reapply it (which would have
+# returned fhat_real .* scale.^2 instead).
+@test plan_real.fhat ≈ fhat_real
 
 F_real = getMat(N_real, M_real, X_real, basis_real)
 f1_real = real.(F_real * complex.(fhat_real))
@@ -183,3 +198,12 @@ E_infty = norm(error_vector, Inf) / norm(fhat, 1)
 
 @test E_2 < 10^(-10)
 @test E_infty < 10^(-10)
+
+# Regression test: N must be positive and even regardless of which backend
+# ends up being picked - previously only enforced transitively via an eagerly
+# built NFFT{D} (whose own constructor checks this), which the lazy backend
+# selection bypasses. In particular the NFCT backend's own "N/2 even" check
+# does not catch every invalid N on its own (e.g. N=5 gives N÷2=2, which
+# passes that check).
+@test_throws DomainError NFMT(("cos",), (5,), 10)
+@test_throws DomainError NFMT(("exp",), (0,), 10)

@@ -1,6 +1,12 @@
 # dummy struct for C
 mutable struct nfsft_plan end
 
+# Mirrors the C library's own #define NFSFT_BREAK_EVEN (kernel/nfsft/nfsft.c):
+# nfsft_trafo()/nfsft_adjoint() fall back to the direct O(N^2) algorithm below
+# this bandwidth instead of using the fast FPT/FFT-based one. Shared with
+# FSFT.jl (NFSFT.jl is `include`d first, see src/NFFT3.jl).
+const NFSFT_BREAK_EVEN = 5
+
 @doc raw"""
     NFSFT
 
@@ -70,6 +76,14 @@ mutable struct NFSFT
         if (f1 & NFSFT_EQUISPACED) != 0
             error("Cannot use NFSFT_EQUISPACED flag. Use FSFT instead")
         end
+        # Base.setproperty! below unconditionally copies into the native
+        # x/f/fhat buffers, so the C library must always allocate them
+        # regardless of which flags the caller passed - mirrors NFFT{D}'s own
+        # constructor, which force-adds MALLOC_X/MALLOC_F_HAT/MALLOC_F for the
+        # same reason (NFFT.jl's `(f1 | MALLOC_X | MALLOC_F_HAT | MALLOC_F | FFTW_INIT)`).
+        # Without this, e.g. NFSFT(N, M, NFSFT_PRESERVE_F_HAT) silently drops
+        # the allocation flags and crashes on the first jnfsft_set_x call.
+        f1 |= NFSFT_MALLOC_X | NFSFT_MALLOC_F | NFSFT_MALLOC_F_HAT
         new(Int32(N), Int32(M), f1, f2, Int32(nfft_cutoff), false, false, false)
     end
 end
@@ -143,12 +157,18 @@ function Base.setproperty!(P::NFSFT, v::Symbol, val)
         if size(val)[1] != 2 || size(val)[2] != P.M
             error("x has to be a Float64 matrix of size 2xM.")
         end
+        # jnfsft_set_x (julia/nfsft/libnfsftjulia.c) divides its input by 2*pi
+        # itself (with a wraparound for the azimuth row) to arrive at the
+        # plan's native [-0.5,0.5)x[0,1) coordinates - i.e. it expects raw
+        # angles, not the already-normalized x documented above. Scale back
+        # up by 2*pi to compensate, the same way FSFT.jl's fsft_init() already
+        # does for its (internally constructed) equispaced grid.
         ptr = ccall(
             ("jnfsft_set_x", lib_path_nfsft),
             Ptr{Float64},
             (Ref{nfsft_plan}, Ref{Cdouble}),
             P.plan,
-            val,
+            val .* (2.0 * pi),
         )
         Core.setfield!(P, v, ptr)
     elseif v == :f
@@ -259,8 +279,15 @@ function nfsft_trafo(P::NFSFT)
     # Without NFSFT_PRESERVE_F_HAT the C library overwrites fhat in place
     # with internal FPT/FFT scratch data as a side effect of trafo() (see
     # nfsft_trafo() in kernel/nfsft/nfsft.c) - remember that so
-    # nfsft_trafo_direct() can refuse to trust it afterwards.
-    if (P.f1 & NFSFT_PRESERVE_F_HAT) == 0
+    # nfsft_trafo_direct() can refuse to trust it afterwards. This only
+    # actually happens for P.N >= NFSFT_BREAK_EVEN (the fast FPT/FFT path
+    # always uses f_hat_intern as in-place scratch) or when NFSFT_NORMALIZED
+    # is set (nfsft_trafo_direct()'s own normalization-weight step writes
+    # into the aliased f_hat_intern even below NFSFT_BREAK_EVEN); below that
+    # bandwidth with NFSFT_NORMALIZED unset, trafo() calls nfsft_trafo_direct()
+    # internally, which only ever *reads* f_hat_intern, leaving fhat intact.
+    if (P.f1 & NFSFT_PRESERVE_F_HAT) == 0 &&
+       (P.N >= NFSFT_BREAK_EVEN || (P.f1 & NFSFT_NORMALIZED) != 0)
         Core.setfield!(P, :fhat_corrupted_by_fast_trafo, true)
     end
 end

@@ -62,6 +62,14 @@ mutable struct FSFT
         if (f1 & NFSFT_EQUISPACED) == 0
             error("Must use NFSFT_EQUISPACED flag. Use NFSFT instead")
         end
+        # fsft_init() below unconditionally copies into the native f/fhat
+        # buffers (and sets the equispaced grid via jnfsft_set_x), so the C
+        # library must always allocate them regardless of which flags the
+        # caller passed - see the identical reasoning in NFSFT.jl's
+        # constructor. Without this, e.g.
+        # FSFT(N, 0, NFSFT_EQUISPACED | NFSFT_PRESERVE_F_HAT) silently drops
+        # the allocation flags and crashes on the first jnfsft_set_x call.
+        f1 |= NFSFT_MALLOC_X | NFSFT_MALLOC_F | NFSFT_MALLOC_F_HAT
         # The underlying C library ignores the M passed to its init function
         # for equispaced plans and always allocates/uses the fixed grid size
         # (2N+2)(N+2) instead - mirror that here so M actually matches the
@@ -235,8 +243,11 @@ function fsft_trafo(P::FSFT)
         ccall(("jnfsft_trafo", lib_path_nfsft), Ptr{ComplexF64}, (Ref{fsft_plan},), P.plan)
     Core.setfield!(P, :f, ptr)
     # Same underlying nfsft_trafo() as NFSFT: without NFSFT_PRESERVE_F_HAT it
-    # overwrites fhat in place with internal FPT/FFT scratch data.
-    if (P.f1 & NFSFT_PRESERVE_F_HAT) == 0
+    # overwrites fhat in place with internal FPT/FFT scratch data - but only
+    # for P.N >= NFSFT_BREAK_EVEN or with NFSFT_NORMALIZED set, see the
+    # identical reasoning in NFSFT.jl's nfsft_trafo().
+    if (P.f1 & NFSFT_PRESERVE_F_HAT) == 0 &&
+       (P.N >= NFSFT_BREAK_EVEN || (P.f1 & NFSFT_NORMALIZED) != 0)
         Core.setfield!(P, :fhat_corrupted_by_fast_trafo, true)
     end
 end
