@@ -21,7 +21,7 @@
 function fsft_random_fhat(plan, N)
     fhat = zeros(ComplexF64, (2 * plan.N + 2)^2)
     for k = 0:N
-        for n = -k:k
+        for n = (-k):k
             fhat[fsft_index(plan, k, n)] = (rand() - 0.5) + im * (rand() - 0.5)
         end
     end
@@ -36,7 +36,7 @@ function fsft_valid_entries(plan, N)
     # comparisons must only look at these indices.
     out = zeros(ComplexF64, length(plan.fhat))
     for k = 0:N
-        for n = -k:k
+        for n = (-k):k
             idx = fsft_index(plan, k, n)
             out[idx] = plan.fhat[idx]
         end
@@ -93,6 +93,25 @@ f3_small = fsft_valid_entries(plan_small, N_small)
 NFFT3.adjoint(plan_small)
 f4_small = fsft_valid_entries(plan_small, N_small)
 @test f3_small == f4_small
+
+# Regression test: for N < NFSFT_BREAK_EVEN with default flags (no
+# NFSFT_PRESERVE_F_HAT), nfsft_trafo()'s internal direct-algorithm fallback
+# only *reads* f_hat_intern (it does not alias-and-overwrite fhat the way the
+# fast FPT/FFT path does), so fhat is never actually touched here - a
+# subsequent trafo_direct() call must not be refused as "corrupted".
+plan_small2 = FSFT(N_small)
+plan_small2.fhat = fsft_random_fhat(plan_small2, N_small)
+NFFT3.trafo(plan_small2)
+@test !plan_small2.fhat_corrupted_by_fast_trafo
+NFFT3.trafo_direct(plan_small2)  # must not throw
+
+# Regression test: a custom f1 that omits the NFSFT_MALLOC_* bits must not
+# crash fsft_init()/the setters below - they are always force-added (mirrors
+# NFFT{D}'s own constructor forcing MALLOC_X/MALLOC_F_HAT/MALLOC_F).
+plan_custom_f1 = FSFT(N_small, 0, NFSFT_EQUISPACED | NFSFT_PRESERVE_F_HAT)
+plan_custom_f1.fhat = fsft_random_fhat(plan_custom_f1, N_small)
+NFFT3.trafo(plan_custom_f1)
+NFFT3.trafo_direct(plan_custom_f1)
 
 # Error tests
 @test_throws DomainError FSFT(-1)
