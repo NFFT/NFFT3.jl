@@ -5,6 +5,7 @@ module NFFT3
 
 using Aqua
 using CpuId
+using Libdl
 using LinearAlgebra
 using LinearMaps
 
@@ -17,18 +18,12 @@ if Sys.iswindows()
     path = "\\lib\\"
 elseif Sys.isapple()
     ending = ".dylib"
-else
-    glibcversion = "glibc2.40/"
-    # Julia 1.13 requires @ccall library names to be Symbols, not runtime
-    # expressions such as string(...). Use ccall with a String path instead.
-    glibc_probe = string(@__DIR__, path, "glibc-version.so")
-    if VersionNumber(unsafe_string(ccall((:glibc_version, glibc_probe), Cstring, ()))) <
-       v"2.35"
-        glibcversion = "glibc2.22/"
-    end
 end
 
-if cpufeature(:AVX2)
+# ARM64 (Linux aarch64, Windows ARM64, Apple Silicon) has a single build
+if Sys.ARCH === :aarch64
+    flag = "ARM64/"
+elseif cpufeature(:AVX2)
     flag = "AVX2/"
 elseif cpufeature(:AVX)
     flag = "AVX/"
@@ -36,17 +31,38 @@ else
     flag = "SSE2/"
 end
 
+if !Sys.iswindows() && !Sys.isapple()
+    # Try the newer (glibc2.40) build first, falling back to glibc2.22 if it
+    # fails to load on this system. This replaces an earlier approach that
+    # guessed from the host's reported glibc *version number* (comparing it
+    # against a hardcoded floor), which doesn't actually verify the chosen
+    # build loads - any mismatch between that floor and what the build was
+    # really compiled against picks the wrong one and fails at import with
+    # an unhelpful "GLIBC_x.y not found" error instead of falling back.
+    glibcversion = "glibc2.40/"
+    probe_path = string(@__DIR__, path, flag, glibcversion, "libnfftjulia", ending)
+    handle = Libdl.dlopen(probe_path; throw_error = false)
+    if handle === nothing
+        glibcversion = "glibc2.22/"
+    else
+        Libdl.dlclose(handle)
+    end
+end
+
 lib_path_nfft = string(@__DIR__, path, flag, glibcversion, "libnfftjulia", ending)
 lib_path_nfct = string(@__DIR__, path, flag, glibcversion, "libnfctjulia", ending)
 lib_path_nfst = string(@__DIR__, path, flag, glibcversion, "libnfstjulia", ending)
+lib_path_nfsft = string(@__DIR__, path, flag, glibcversion, "libnfsftjulia", ending)
 lib_path_fastsum = string(@__DIR__, path, flag, glibcversion, "libfastsumjulia", ending)
 
 include("NFFT.jl")
 include("NFCT.jl")
 include("NFST.jl")
+include("flags.jl")
+include("NFSFT.jl")
+include("FSFT.jl")
 include("NFMT.jl")
 include("fastsum.jl")
-include("flags.jl")
 
 kernels = Dict(
     "gaussian" => 1,
@@ -70,7 +86,7 @@ kernels = Dict(
 )
 
 # plan structures
-export NFFT, NFCT, NFST, FASTSUM, NFMT
+export NFFT, NFCT, NFST, NFSFT, FSFT, FASTSUM, NFMT
 
 # functions
 export nfft_finalize_plan,
@@ -102,6 +118,20 @@ export nfft_finalize_plan,
     nfst_get_LinearMap,
     nfst_get_coefficient_vector,
     nfst_get_coefficient_array,
+    nfsft_finalize_plan,
+    nfsft_init,
+    nfsft_index,
+    nfsft_trafo,
+    nfsft_adjoint,
+    nfsft_trafo_direct,
+    nfsft_adjoint_direct,
+    fsft_finalize_plan,
+    fsft_init,
+    fsft_index,
+    fsft_trafo,
+    fsft_adjoint,
+    fsft_trafo_direct,
+    fsft_adjoint_direct,
     nfmt_finalize_plan,
     nfmt_trafo,
     nfmt_adjoint,
@@ -151,6 +181,26 @@ export PRE_PHI_HUT,
     f1_default_1d,
     f1_default,
     f2_default,
-    default_window_cut_off
+    default_window_cut_off,
+    NFSFT_NORMALIZED,
+    NFSFT_USE_NDFT,
+    NFSFT_USE_DPT,
+    NFSFT_MALLOC_X,
+    NFSFT_MALLOC_F_HAT,
+    NFSFT_MALLOC_F,
+    NFSFT_PRESERVE_F_HAT,
+    NFSFT_PRESERVE_X,
+    NFSFT_PRESERVE_F,
+    NFSFT_DESTROY_F_HAT,
+    NFSFT_DESTROY_X,
+    NFSFT_DESTROY_F,
+    NFSFT_NO_DIRECT_ALGORITHM,
+    NFSFT_NO_FAST_ALGORITHM,
+    NFSFT_ZERO_F_HAT,
+    NFSFT_EQUISPACED,
+    nfsft_default,
+    nfsft_nfft_default,
+    nfsft_default_nfft_cut_off,
+    nfsft_default_threshold
 
 end # module

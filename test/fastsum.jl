@@ -53,3 +53,39 @@ cv[1] = Float64(c)
 @test_throws DomainError FASTSUM(d, N, M, 1, 1, kernel, cv, 256/8, 1/16, 512, 512, -1, 1, UInt32(0))
 
 @test_throws DomainError FASTSUM(d, N, M, 1, 1, kernel, cv, 256/8, 1/16, 512, 512, 1, -1, UInt32(0))
+
+# Regression test for d=1: the x/y setters used to validate the distance-to-0
+# bound via maximum(val) instead of maximum(abs.(val)), so out-of-bounds
+# *negative* nodes were never rejected (the d>1 branch already used norm.(),
+# which is non-negative by construction, so this only affected d=1).
+d1 = 1
+N1 = 200
+M1 = 200
+kernel1 = "gaussian"
+c1 = 1 / sqrt(N1)
+
+plan1 = FASTSUM(d1, N1, M1, kernel1, c1)
+
+x1 = (rand(N1) .- 0.5) .* (0.25 - eps_B / 2)
+plan1.x = x1
+
+alpha1 = rand(N1) + im * rand(N1)
+plan1.alpha = alpha1
+
+y1 = (rand(M1) .- 0.5) .* (0.25 - eps_B / 2)
+plan1.y = y1
+
+NFFT3.fastsum_trafo(plan1)
+f1_1d = copy(plan1.f)
+
+NFFT3.fastsum_trafo_exact(plan1)
+f2_1d = copy(plan1.f)
+
+error_vector_1d = f1_1d - f2_1d
+E_2_1d = norm(error_vector_1d) / norm(f1_1d)
+@test E_2_1d < 10^(-5)
+
+# A sufficiently negative node must still be rejected, same as a positive one.
+plan2 = FASTSUM(d1, N1, M1, kernel1, c1)
+x_bad = fill(-(0.25 - eps_B / 2) - 0.01, N1)
+@test_throws ErrorException (plan2.x = x_bad)
